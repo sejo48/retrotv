@@ -102,20 +102,6 @@
             color: #fff;
         }
 
-        #playlist li button {
-            background-color: #ff4d4d;
-            color: white;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 3px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        #playlist li button:hover {
-            background-color: #e60000;
-        }
-
         /* Formulario para agregar nuevos videos */
         #add-video-form {
             margin-top: 20px;
@@ -179,13 +165,6 @@
         <div id="playlist-container">
             <h2>Lista de reproducción</h2>
             <ul id="playlist"></ul>
-
-            <!-- Formulario para agregar nuevos videos -->
-            <div id="add-video-form">
-                <input type="text" id="video-title" placeholder="Título del video" required>
-                <input type="url" id="video-url" placeholder="URL del video (.m3u8)" required>
-                <button id="add-video-btn">Agregar a la lista</button>
-            </div>
         </div>
     </div>
 
@@ -204,9 +183,6 @@
 
         // Obtener elementos del DOM
         const playlistElement = document.getElementById('playlist');
-        const videoTitleInput = document.getElementById('video-title');
-        const videoUrlInput = document.getElementById('video-url');
-        const addVideoBtn = document.getElementById('add-video-btn');
 
         // Lista de reproducción predeterminada
         const defaultPlaylist = [
@@ -241,20 +217,16 @@
             { title: "Tv adicional", url: "https://d2axu5ozwr5gk0.cloudfront.net/index.m3u8" }
         ];
 
-        // Cargar la lista de reproducción desde localStorage o usar la predeterminada
-        let playlist = JSON.parse(localStorage.getItem('playlist')) || defaultPlaylist;
-
         // Variable para rastrear el canal activo
         let activeIndex = 0;
 
         // Función para renderizar la lista de reproducción
         function renderPlaylist() {
             playlistElement.innerHTML = '';
-            playlist.forEach((item, index) => {
+            defaultPlaylist.forEach((item, index) => {
                 const li = document.createElement('li');
                 li.innerHTML = `
                     <span>${item.title}</span>
-                    <button onclick="deleteVideo(${index})">Borrar</button>
                 `;
                 li.addEventListener('click', () => playVideo(item.url, index));
                 if (index === activeIndex) {
@@ -272,37 +244,12 @@
             renderPlaylist(); // Volver a renderizar la lista para resaltar el canal activo
         }
 
-        // Función para agregar un video a la lista
-        function addVideo(title, url) {
-            if (title && url) {
-                playlist.push({ title, url });
-                localStorage.setItem('playlist', JSON.stringify(playlist));
-                renderPlaylist();
-                videoTitleInput.value = '';
-                videoUrlInput.value = '';
-            } else {
-                alert('Por favor, ingresa un título y una URL válida.');
-            }
-        }
-
-        // Función para borrar un video de la lista
-        window.deleteVideo = function(index) {
-            playlist.splice(index, 1);
-            localStorage.setItem('playlist', JSON.stringify(playlist));
-            renderPlaylist();
-        };
-
-        // Evento para agregar un video
-        addVideoBtn.addEventListener('click', () => {
-            addVideo(videoTitleInput.value, videoUrlInput.value);
-        });
-
         // Renderizar la lista al cargar la página
         renderPlaylist();
 
         // Reproducir el primer video de la lista si existe
-        if (playlist.length > 0) {
-            playVideo(playlist[0].url, 0);
+        if (defaultPlaylist.length > 0) {
+            playVideo(defaultPlaylist[0].url, 0);
         }
     </script>
 </body>
