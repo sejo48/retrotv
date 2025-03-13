@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reproductor de video M3U8 Moderno</title>
+    <link href="https://vjs.zencdn.net/7.15.4/video-js.css" rel="stylesheet" />
+    <style>
+        /* Estilos generales */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #1a1a1a; /* Fondo oscuro */
+            color: #fff; /* Texto blanco */
+        }
+
+        h1 {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 2.5em;
+            color: #fff;
+        }
+
+        h2 {
+            font-size: 1.5em;
+            color: #ccc; /* Texto gris claro */
+            margin-bottom: 10px;
+        }
+
+        /* Contenedor principal */
+        .container {
+            display: flex;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #2a2a2a; /* Fondo del contenedor */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+        }
+
+        /* Reproductor de video */
+        #player-container {
+            flex: 3;
+            margin-right: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            position: relative;
+            padding-top: 56.25%; /* Relación de aspecto 16:9 */
+        }
+
+        #my-video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Lista de reproducción */
+        #playlist-container {
+            flex: 1;
+            background-color: #333; /* Fondo de la lista */
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        #playlist {
+            list-style-type: none;
+            padding: 0;
+            margin: 0;
+            max-height: 600px; /* Altura máxima para la lista */
+            overflow-y: auto; /* Scroll vertical si es necesario */
+        }
+
+        #playlist li {
+            padding: 10px;
+            border: 1px solid #444;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #444;
+            border-radius: 5px;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+            cursor: pointer;
+        }
+
+        #playlist li:hover {
+            background-color: #555;
+            transform: translateY(-2px);
+        }
+
+        #playlist li.active {
+            background-color: #4CAF50; /* Color para el canal activo */
+        }
+
+        #playlist li span {
+            font-size: 1em;
+            color: #fff;
+        }
+
+        #playlist li button {
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #playlist li button:hover {
+            background-color: #e60000;
+        }
+
+        /* Formulario para agregar nuevos videos */
+        #add-video-form {
+            margin-top: 20px;
+        }
+
+        #add-video-form input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #555;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            background-color: #444;
+            color: #fff;
+            font-size: 1em;
+        }
+
+        #add-video-form button {
+            width: 100%;
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            transition: background-color 0.3s ease;
+        }
+
+        #add-video-form button:hover {
+            background-color: #45a049;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                padding: 15px;
+            }
+
+            #player-container {
+                margin-right: 0;
+                margin-bottom: 20px;
+            }
+
+            #playlist-container {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Reproductor de video -->
+        <div id="player-container">
+            <video id="my-video" class="video-js vjs-default-skin" controls preload="auto" width="100%" height="100%">
+                <source src="" type="application/x-mpegURL">
+            </video>
+        </div>
+
+        <!-- Lista de reproducción -->
+        <div id="playlist-container">
+            <h2>Lista de reproducción</h2>
+            <ul id="playlist"></ul>
+
+            <!-- Formulario para agregar nuevos videos -->
+            <div id="add-video-form">
+                <input type="text" id="video-title" placeholder="Título del video" required>
+                <input type="url" id="video-url" placeholder="URL del video (.m3u8)" required>
+                <button id="add-video-btn">Agregar a la lista</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://vjs.zencdn.net/7.15.4/video.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-http-streaming/2.9.3/videojs-http-streaming.min.js"></script>
+    <script>
+        // Inicializar el reproductor
+        const player = videojs('my-video', {
+            fluid: true, // Hace que el reproductor sea responsivo
+            controls: true,
+            preload: 'auto',
+            responsive: true,
+            playbackRates: [0.5, 1, 1.5, 2], // Opciones de velocidad de reproducción
+        });
+
+        // Obtener elementos del DOM
+        const playlistElement = document.getElementById('playlist');
+        const videoTitleInput = document.getElementById('video-title');
+        const videoUrlInput = document.getElementById('video-url');
+        const addVideoBtn = document.getElementById('add-video-btn');
+
+        // Lista de reproducción predeterminada
+        const defaultPlaylist = [
+            { title: "GAM Tv", url: "https://v2.azulstream.com:8081/gamtv/gamtv/index.m3u8" },
+            { title: "Canal 1 CR (720p)", url: "https://59ef525c24caa.streamlock.net/canal1cr/canal1cr/playlist.m3u8" },
+            { title: "Canal 2 CR (576p)", url: "https://alba-cr-repretel-c2.stream.mediatiquestream.com/index.m3u8" },
+            { title: "Canal 4 CR (720p)", url: "https://alba-cr-repretel-c4.stream.mediatiquestream.com/index.m3u8" },
+            { title: "Canal 6 CR (720p)", url: "https://d1vr8yxz55pucr.cloudfront.net/index.m3u8" },
+            { title: "Canal 8 CR (720p)", url: "https://mdstrm.com/live-stream-playlist/5a7b1e63a8da282c34d65445.m3u8" },
+            { title: "Canal 11", url: "https://alba-cr-repretel-c11.stream.mediatiquestream.com/480p.m3u8" },
+            { title: "Canal 13 CR (1080p)", url: "https://ssh101.bozztv.com/ssh101/sinart13/chunks.m3u8" },
+            { title: "Canal 14 San Carlos CR (720p)", url: "http://tvn.obix.tv:1935/TVN/CH14.stream_720p/playlist.m3u8" },
+            { title: "Canal 36 Trivision CR (1080p)", url: "https://liveingesta118.cdnmedia.tv/trivision36live/smil:dvrlive.smil/playlist.m3u8?DVR=" },
+            { title: "Zurquí TV CR (720p)", url: "https://videoserver.tmcreativos.com:19360/gesfnvpamn/gesfnvpamn.m3u8" },
+            { title: "Limón TV CR (1080p)", url: "http://k4.usastreams.com/limontv1/limontv1/playlist.m3u8" },
+            { title: "Caribe TV CR (720p)", url: "https://ssh101.bozztv.com/ssh101/sinart/chunks.m3u8" },
+            { title: "Coto Brus TV CR (720p)", url: "https://cloudvideo.servers10.com:8081/8030/index.m3u8" },
+            { title: "Garabito TV CR (720p)", url: "https://59ef525c24caa.streamlock.net/garabitoTV/garabitotv/playlist.m3u8" },
+            { title: "Telesistema CR (486p)", url: "https://k20.usastreams.com:8081/telesistema/tracks-v1a1/mono.m3u8" },
+            { title: "Retro Tv Online", url: "https://ssh101-fl.bozztv.com/ssh101/retrotvcr/tracks-v1a1/mono.m3u8" },
+            { title: "Telered CR (720p)", url: "https://k20.usastreams.com:8081/telered/index.m3u8" },
+            { title: "MetaVersus", url: "https://vivo.solumedia.com:19360/metaversus/metaversus.m3u8" },
+            { title: "Norte Informativo TV CR (240p)", url: "https://videohd.live:19360/8076/8076.m3u8" },
+            { title: "Sarapiqui TV CR (720p)", url: "http://tiquiciatv.com:1935/stv/web/playlist.m3u8" },
+            { title: "Los Santos TV CR (720p)", url: "https://lstv.duckdns.org:449/hls/lstv.m3u8" },
+            { title: "Canal 3 KMK TV CR (720p)", url: "https://cloudvideo.servers10.com:8081/8120/index.m3u8" },
+            { title: "Tele Uno CR (720p)", url: "http://tv.teleunotv.cr:1935/TVUNO/TVUNO/playlist.m3u8" },
+            { title: "TV Santa Cruz CR (720p)", url: "https://rtmp.info/tvsantacruz/envivo/playlist.m3u8" },
+            { title: "Extrema TV CR (720p)", url: "https://627bb251f23c7.streamlock.net:444/ExtremaTV/ExtremaTV/playlist.m3u8" },
+            { title: "Tv Retro Palmares CR (1080p)", url: "https://ssh101.bozztv.com/ssh101/tvretropalmares/chunks.m3u8" },
+            { title: "TELEClasica CR (720p)", url: "https://ssh101-fl.bozztv.com/ssh101/teleclasik/tracks-v1a1/mono.m3u8" },
+            { title: "Tv adicional", url: "https://d2axu5ozwr5gk0.cloudfront.net/index.m3u8" }
+        ];
+
+        // Cargar la lista de reproducción desde localStorage o usar la predeterminada
+        let playlist = JSON.parse(localStorage.getItem('playlist')) || defaultPlaylist;
+
+        // Variable para rastrear el canal activo
+        let activeIndex = 0;
+
+        // Función para renderizar la lista de reproducción
+        function renderPlaylist() {
+            playlistElement.innerHTML = '';
+            playlist.forEach((item, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <span>${item.title}</span>
+                    <button onclick="deleteVideo(${index})">Borrar</button>
+                `;
+                li.addEventListener('click', () => playVideo(item.url, index));
+                if (index === activeIndex) {
+                    li.classList.add('active'); // Resaltar el canal activo
+                }
+                playlistElement.appendChild(li);
+            });
+        }
+
+        // Función para reproducir un video
+        function playVideo(url, index) {
+            player.src({ src: url, type: 'application/x-mpegURL' });
+            player.play();
+            activeIndex = index; // Actualizar el índice activo
+            renderPlaylist(); // Volver a renderizar la lista para resaltar el canal activo
+        }
+
+        // Función para agregar un video a la lista
+        function addVideo(title, url) {
+            if (title && url) {
+                playlist.push({ title, url });
+                localStorage.setItem('playlist', JSON.stringify(playlist));
+                renderPlaylist();
+                videoTitleInput.value = '';
+                videoUrlInput.value = '';
+            } else {
+                alert('Por favor, ingresa un título y una URL válida.');
+            }
+        }
+
+        // Función para borrar un video de la lista
+        window.deleteVideo = function(index) {
+            playlist.splice(index, 1);
+            localStorage.setItem('playlist', JSON.stringify(playlist));
+            renderPlaylist();
+        };
+
+        // Evento para agregar un video
+        addVideoBtn.addEventListener('click', () => {
+            addVideo(videoTitleInput.value, videoUrlInput.value);
+        });
+
+        // Renderizar la lista al cargar la página
+        renderPlaylist();
+
+        // Reproducir el primer video de la lista si existe
+        if (playlist.length > 0) {
+            playVideo(playlist[0].url, 0);
+        }
+    </script>
+</body>
+</html>
