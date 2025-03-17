@@ -3,52 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reproductor de video M3U8 Moderno</title>
-    <link href="https://vjs.zencdn.net/7.15.4/video-js.css" rel="stylesheet" />
+    <title>Reproductor de video M3U8</title>
+    <link href="https://vjs.zencdn.net/8.6.1/video-js.css" rel="stylesheet" />
     <style>
-        /* Estilos generales */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #1a1a1a; /* Fondo oscuro */
-            color: #fff; /* Texto blanco */
-        }
-
-        h1 {
-            text-align: center;
-            margin: 20px 0;
-            font-size: 2.5em;
+            background-color: #1a1a1a;
             color: #fff;
         }
 
-        h2 {
-            font-size: 1.5em;
-            color: #ccc; /* Texto gris claro */
-            margin-bottom: 10px;
-        }
-
-        /* Contenedor principal */
+        /* Main container */
         .container {
             display: flex;
             flex-direction: column;
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #2a2a2a; /* Fondo del contenedor */
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            border-radius: 10px;
-            height: 90vh; /* Altura del contenedor principal */
+            height: 100vh; /* Full viewport height */
+            width: 100%;
+            max-width: none;
+            margin: 0;
+            padding: 0;
+            background-color: #2a2a2a;
+            overflow: hidden; /* Prevent double scrollbars */
         }
 
-        /* Reproductor de video */
+        /* Video player container */
         #player-container {
-            width: 100%;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
             position: relative;
-            padding-top: 56.25%; /* Relación de aspecto 16:9 */
+            width: 100%;
+            padding-top: 56.25%; /* 16:9 aspect ratio - portrait */
+            overflow: hidden;
         }
 
         #my-video {
@@ -57,39 +41,49 @@
             left: 0;
             width: 100%;
             height: 100%;
+            object-fit: cover;
         }
 
-        /* Lista de reproducción */
+        /* Playlist container */
         #playlist-container {
-            margin-top: 20px;
-            background-color: #333; /* Fondo de la lista */
-            border-radius: 10px;
-            padding: 15px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            flex: 1; /* Ocupar el espacio restante */
             display: flex;
             flex-direction: column;
+            flex-grow: 1;
+            background-color: #333;
+            padding: 15px;
+            overflow-y: auto;
+        }
+
+        /* ... (Rest of the playlist styles, #search, #playlist, etc. - SAME AS BEFORE) ... */
+        #search {
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #444;
+            border-radius: 5px;
+            background-color: #444;
+            color: #fff;
+            font-size: 1em;
         }
 
         #playlist {
             list-style-type: none;
             padding: 0;
             margin: 0;
-            flex: 1; /* Ocupar el espacio restante */
-            overflow-y: auto; /* Scroll vertical si es necesario */
+            flex-grow: 1;
+            overflow-y: auto;
         }
 
         #playlist li {
-            padding: 10px;
-            border: 1px solid #444;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #444;
-            border-radius: 5px;
-            transition: background-color 0.3s ease, transform 0.2s ease;
-            cursor: pointer;
+          padding: 10px;
+          border: 1px solid #444;
+          margin-bottom: 10px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          background-color: #444;
+          border-radius: 5px;
+          transition: background-color 0.3s ease, transform 0.2s ease;
+          cursor: pointer;
         }
 
         #playlist li:hover {
@@ -98,7 +92,7 @@
         }
 
         #playlist li.active {
-            background-color: #4CAF50; /* Color para el canal activo */
+            background-color: #4CAF50;
         }
 
         #playlist li span {
@@ -106,158 +100,199 @@
             color: #fff;
         }
 
-        /* Pantalla completa */
-        .vjs-fullscreen {
-            position: fixed !important;
-            top: 0 !important;
-            left: 0 !important;
-            width: 100% !important;
-            height: 100% !important;
-            z-index: 9999 !important;
-        }
+          .vjs-error .vjs-error-display .vjs-modal-dialog-content{
+            color: white;
+            font-size: 1.5em;
+          }
+          /*Remove Fullscreen*/
+          .vjs-fullscreen-control{
+            display: none;
+          }
 
-        /* Responsive Design */
-        @media (max-width: 768px) {
+
+        /* Landscape mode (MOBILE ONLY) */
+        @media (orientation: landscape) and (max-width: 768px) {
             .container {
-                padding: 10px;
-                height: auto; /* Altura automática en móviles */
+                overflow: hidden; /* Ensure no scrollbars */
             }
 
             #player-container {
-                padding-top: 56.25%; /* Mantener relación de aspecto 16:9 */
+                padding-top: 0;   /* Remove aspect ratio padding */
+                height: 100vh;  /* Full viewport height */
+                width: 100vw;   /* Full viewport width */
             }
 
             #playlist-container {
-                width: 100%;
+                display: none;  /* Hide the playlist */
             }
         }
 
-        @media (orientation: landscape) {
-            .container {
-                flex-direction: row;
+         /* Styles for all screens larger than mobile */
+        @media (min-width: 769px) {
+           .container{
+              max-width: 1400px;
+              margin: 0 auto;
+              padding: 20px;
+              border-radius: 10px;
             }
-
+          #player-container, #playlist-container{
+            border-radius: 10px; /* Add border-radius for larger screens */
+          }
             #player-container {
-                flex: 3;
+                flex: 3;          /* Video takes up 3/4 of the space */
                 margin-right: 20px;
+                margin-bottom: 0;
+                height: auto;
+                padding-top:0;
             }
 
             #playlist-container {
-                flex: 1;
-                margin-top: 0;
+                flex: 1;         /* Playlist takes 1/4 of the space */
+            }
+
+            .container {
+              flex-direction: row; /* Horizontal layout on larger screens */
+               height: 90vh;
             }
         }
+
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Reproductor de video -->
         <div id="player-container">
-            <video id="my-video" class="video-js vjs-default-skin" controls preload="auto" width="100%" height="100%">
+            <video id="my-video" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto"  aria-label="Reproductor de video">
                 <source src="" type="application/x-mpegURL">
             </video>
         </div>
-
-        <!-- Lista de reproducción -->
         <div id="playlist-container">
             <h2>Lista de reproducción</h2>
+            <input type="text" id="search" placeholder="Buscar canal..." oninput="filterPlaylist()">
             <ul id="playlist"></ul>
         </div>
     </div>
 
-    <!-- Scripts -->
-    <script src="https://vjs.zencdn.net/7.15.4/video.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-http-streaming/2.9.3/videojs-http-streaming.min.js"></script>
+    <script src="https://vjs.zencdn.net/8.6.1/video.min.js"></script>
+    <script src="https://unpkg.com/@videojs/http-streaming@latest/dist/videojs-http-streaming.min.js"></script>
     <script>
-        // Inicializar el reproductor
+
         const player = videojs('my-video', {
-            fluid: true, // Hace que el reproductor sea responsivo
+            fluid: false,
             controls: true,
             preload: 'auto',
-            responsive: true,
-            playbackRates: [0.5, 1, 1.5, 2], // Opciones de velocidad de reproducción
+            responsive: false,
+            playbackRates: [0.5, 1, 1.5, 2],
+            html5:{
+              vhs:{
+                overrideNative: true
+              }
+            }
         });
 
-        // Obtener elementos del DOM
         const playlistElement = document.getElementById('playlist');
 
-        // Lista de reproducción predeterminada
         const defaultPlaylist = [
-            
-{ title: "Tele red", url: "https://k20.usastreams.com:8081/telered/index.m3u8" },
-{ title: "Canal 13", url: "https://ssh101.bozztv.com/ssh101/sinart13/chunks.m3u8" },
-{ title: "canal 36", url: "https://liveingesta118.cdnmedia.tv/trivision36live/smil:dvrlive.smil/playlist.m3u8" },
-{ title: "Retro Tv", url: "https://ssh101-fl.bozztv.com/ssh101/retrotvcr/tracks-v1a1/mono.m3u8" },
-{ title: "TELE Clasica", url: "https://ssh101-fl.bozztv.com/ssh101/teleclasik/tracks-v1a1/mono.m3u8" },
-{ title: "Tv Retro", url: "https://ssh101.bozztv.com/ssh101/tvretropalmares/chunks.m3u8" },
-{ title: "Canal 8", url: "https://mdstrm.com/live-stream-playlist/5a7b1e63a8da282c34d65445.m3u8" },
-{ title: "Canal 6", url: "https://d1vr8yxz55pucr.cloudfront.net/index.m3u8" },
-{ title: "Telesistema", url: "https://k20.usastreams.com:8081/telesistema/tracks-v1a1/mono.m3u8" },
-{ title: "Canal 4", url: "https://alba-cr-repretel-c4.stream.mediatiquestream.com/index.m3u8" },
-{ title: "Canal 1", url: "https://59ef525c24caa.streamlock.net/canal1cr/canal1cr/playlist.m3u8" },
-{ title: "Canal 11", url: "https://alba-cr-repretel-c11.stream.mediatiquestream.com/480p.m3u8" },
-{ title: "Extrema TV", url: "https://627bb251f23c7.streamlock.net:444/ExtremaTV/ExtremaTV/playlist.m3u8" },
-{ title: "Nicoya tv", url: "https://59ef525c24caa.streamlock.net/nicoyatv/nicoyatv/chunklist_w1674958038.m3u8" },
-{ title: "Sony Canal Novelas", url: "https://a89829b8dca2471ab52ea9a57bc28a35.mediatailor.us-east-1.amazonaws.com/v1/manifest/0fb304b2320b25f067414d481a779b77db81760d/CanelaTV_SonyCanalNovelas/546d9696-a523-4794-9d79-b340f54b6d76/5.m3u8" },
-{ title: "RCN Más", url: "https://rcntv-rcnmas-1-us.plex.wurl.tv/4300.m3u8" },
-{ title: "Azteca Internacional", url: "https://azt-mun.otteravision.com/azt/mun/mun_1080p.m3u8" },
-{ title: "TV+ 2", url: "https://marine2.miplay.cl/tateti/tracks-v1a1/mono.m3u8" },
-{ title: "24 Horas", url: "https://rtvelivestream.rtve.es/rtvesec/24h/24h_main_dvr_720.m3u8" },
-{ title: "Canal IQ", url: "https://rtmp.info/iqtv/envivo/chunklist_w1932587350.m3u8" },
-{ title: "SOY Plancha TV", url: "https://59ef525c24caa.streamlock.net/vmtv/soyplancha/chunklist_w13201094.m3u8" },
-{ title: "MetaVersus CR", url: "https://59ef525c24caa.streamlock.net/vmtv/soyplancha/chunklist_w13201094.m3u8" },
-{ title: "TVS Retro Live", url: "https://cdn.streamhispanatv.net:3531/live/tvsretrogtlive.m3u8" },
-{ title: "Las Estrellas en vivo", url: "https://channel01-onlymex.akamaized.net/hls/live/2022749/event01/index_1.m3u8" },
-{ title: "Cine Canela en vivo", url: "https://amg00658-amg00658c15-canelatv-international-5009.playouts.now.amagi.tv/playlist/amg00658-canelamediafast-canelacinemalatam-canelatvinternational/cb57381b6570668784cc3a78d1f04782847b3dcb0e6c886470af4a9765d97800dbe8ae84ae5b910c4c9e1fc061017d360439cd1dd56c49c1da63b820743c4b21fdcde00080dd0d0cb1df11292ca36265299a7369cc350f7bd2ec5a2f803ebe764c53cb017c593f88f258ae724cc59e0a957f39e8fc8b307b24455a9c5a43e6a64cb7ade05a4cd865a7b50148957c11fa83439fd401ea81dd098312807ff1419e9aa1ddd418d6e4395293728aa8f1e54307fba34bd1a37eb9c98e6879ae782b476c2d8cc1bddf3ef102da212695d1c4ad71f753ef8420936934ba7ae8273dd7370ad86094e040e087b4cce1887be4acf6869ac197c2b9d14f468d74f4b4e0d3707598b6107d07fa6cd662013783f88173eea644c6e772d5e6217559b11e1dbebaa03aac90f43b3bff122a92ad9d083c4209079454a19b22f826ce6ca9f121285f4c7e60fb3fcbabd644396e4387cf0b9a435bf1ec828ddb012cd920356ea831891555378c036572b379a2da243add6f4aa4252df75d028540d7b138baf288b24868e39e8f69d75bc2994692fa0ba2687c7e07b0f92316056f75c2e16b087f289011aa8384b1395940dff6cbffd25a77526a401c5fdd90921af1b9c9271919d6406631246270b83096388f4e197a6da378f4a3067389035b5dc5af2d525769d685f1b68ed8ce4ba26c91a8d93c3c304d6cad3967743ecbd76d3848e2fba01c31ec087d6e52b2fb50cb28776c6081c7/20/1280x720_3071200/index.m3u8" },
-{ title: "Azteca Deportes en vivo", url: "https://azt-mun.otteravision.com/azt/mun/mun_1080p.m3u8" },
-{ title: "Box Cinema Live", url: "https://e46fa4a445464f8a9150fa7d510eb85c.mediatailor.us-west-2.amazonaws.com/v1/manifest/2d2d0d97b0e548f025b2598a69b55bf30337aa0e/npp/c3d60978-8ce1-4ad7-be9c-859affe0d7c3/5.m3u8" },
-{ title: "Telemundo en vivo", url: "https://nbcu-telemundoflorida-firetv.amagi.tv/playlist1080.m3u8" },
-{ title: "Somos Novelas Live", url: "https://amg00375-amg00375c10-fuse-us-3222.playouts.now.amagi.tv/playlist/amg00375-fusemediafast-somosnovelas-fuseus/cb57381b6570668784cc3a78d1f04782847b3dcb0e6c886470af4a9765d97800dbe8ae84ae5b910c4c9e1fc061017d360439cd1dd56c49c1da63b820743c4b21fdcde00080dd0d0cb1df11292ca36265299a7369cc350f7bd2ec5a2f803ebe764c53cb017c593f88f258ae724cc59e0a957f39e8fc8b307b24455a9c5a43e6a64cb7feb459118e6ea5b20148957c13fa83439fd401e9d4dd0a83128424f347cfc4a582d417d6e4395293728aa8f1e54307fba34bd1a37eb9c98e6879ae782b476c2d8cc1bddf3ef102da212695d1c4ad71f753ef8420936934ba7ae8273dd7370ad86094e040e087b4cce1887be4acf6869ac197c2b9d14f468d74f4b4e0d3707598b6107d07fa6cd662013783f88173eea644c6e772d5e6217559b11e1dbebaa03aac90f43b3bff122a92ad9d083c4209079454a19b22f826ce6ca9f121285f4c7e60fb3fcbabd644396e4387cf0b9a435bf1ec828ddb012cd920356ea831891555378c036572b379a2da243add6f4aa4252df75d028540d7b138baf288b24868e39e8f69d75bc2994692fa0ba2687c7e07b0f92316056f75c2e16b087f289011aa8384b1395940dff6cbffd25a77526a401c5fdd90921af1b9c9271919d6406631246270b83096388f4e197a6da378f4a3067389035b5dc5af2d525769d685f1b68ed8ce4ba26c91a8d93c3c304d6cad39677038cbd76d3824e7fba01cbceca39f98764b045fc7de0d2728816b/66/1920x1080_4715744/index.m3u8" },
+          { title: "Tele red", url: "https://k20.usastreams.com:8081/telered/index.m3u8" },
+          { title: "Canal 13", url: "https://ssh101.bozztv.com/ssh101/sinart13/chunks.m3u8" },
+          { title: "canal 36", url: "https://liveingesta118.cdnmedia.tv/trivision36live/smil:dvrlive.smil/playlist.m3u8" },
+          { title: "Retro Tv", url: "https://ssh101-fl.bozztv.com/ssh101/retrotvcr/tracks-v1a1/mono.m3u8" },
+          { title: "TELE Clasica", url: "https://ssh101-fl.bozztv.com/ssh101/teleclasik/tracks-v1a1/mono.m3u8" },
+          { title: "Tv Retro", url: "https://ssh101.bozztv.com/ssh101/tvretropalmares/chunks.m3u8" },
+          { title: "Canal 8", url: "https://mdstrm.com/live-stream-playlist/5a7b1e63a8da282c34d65445.m3u8" },
+          { title: "Canal 6", url: "https://d1vr8yxz55pucr.cloudfront.net/index.m3u8" },
+          { title: "Telesistema", url: "https://k20.usastreams.com:8081/telesistema/tracks-v1a1/mono.m3u8" },
+          { title: "Canal 4", url: "https://alba-cr-repretel-c4.stream.mediatiquestream.com/index.m3u8" },
+          { title: "Canal 1", url: "https://59ef525c24caa.streamlock.net/canal1cr/canal1cr/playlist.m3u8" },
+          { title: "Canal 11", url: "https://alba-cr-repretel-c11.stream.mediatiquestream.com/480p.m3u8" },
+          { title: "Extrema TV", url: "https://627bb251f23c7.streamlock.net:444/ExtremaTV/ExtremaTV/playlist.m3u8" },
+          { title: "Nicoya tv", url: "https://59ef525c24caa.streamlock.net/nicoyatv/nicoyatv/chunklist_w1674958038.m3u8" },
+          { title: "Sony Canal Novelas", url: "https://a89829b8dca2471ab52ea9a57bc28a35.mediatailor.us-east-1.amazonaws.com/v1/manifest/0fb304b2320b25f067414d481a779b77db81760d/CanelaTV_SonyCanalNovelas/546d9696-a523-4794-9d79-b340f54b6d76/5.m3u8" },
+          { title: "RCN Más", url: "https://rcntv-rcnmas-1-us.plex.wurl.tv/4300.m3u8" },
+          { title: "Azteca Internacional", url: "https://azt-mun.otteravision.com/azt/mun/mun_1080p.m3u8" },
         ];
 
-        // Variable para rastrear el canal activo
-        let activeIndex = 0;
+        let activeIndex = parseInt(localStorage.getItem('lastPlayedIndex')) || 0;
 
-        // Función para renderizar la lista de reproducción
-        function renderPlaylist() {
+        function renderPlaylist(list = defaultPlaylist) {
             playlistElement.innerHTML = '';
-            defaultPlaylist.forEach((item, index) => {
+            list.forEach((item, index) => {
                 const li = document.createElement('li');
-                li.innerHTML = `
-                    <span>${item.title}</span>
-                `;
+                li.innerHTML = `<span>${item.title}</span>`;
                 li.addEventListener('click', () => playVideo(item.url, index));
                 if (index === activeIndex) {
-                    li.classList.add('active'); // Resaltar el canal activo
+                    li.classList.add('active');
                 }
                 playlistElement.appendChild(li);
             });
+            const activeItem = playlistElement.querySelector('.active');
+            if (activeItem) {
+                activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
         }
 
-        // Función para reproducir un video
         function playVideo(url, index) {
             player.src({ src: url, type: 'application/x-mpegURL' });
-            player.play();
-            activeIndex = index; // Actualizar el índice activo
-            renderPlaylist(); // Volver a renderizar la lista para resaltar el canal activo
+              player.one('error', () => {
+                console.error('Error loading video:', player.error());
+                let errorMsg = 'Could not load video. Try another channel.';
+                if (!navigator.onLine) {
+                    errorMsg = "No internet connection. Please check your connection.";
+                }
+                player.error({ message: errorMsg, code: player.error().code });
+                if (index < defaultPlaylist.length - 1) {
+                    setTimeout(() => playVideo(defaultPlaylist[index + 1].url, index + 1), 2000);
+                }
+            });
+
+            player.play()
+                .then(() => {
+                    activeIndex = index;
+                    localStorage.setItem('lastPlayedIndex', index);
+                    renderPlaylist();
+                    handleOrientationChange(); // Check orientation *after* loading
+                })
+                .catch((error) => {
+                    console.error('Error during playback:', error);
+                    if (index < defaultPlaylist.length - 1) {
+                      setTimeout(() => playVideo(defaultPlaylist[index+1].url, index+1), 2000)
+                    }
+                });
         }
 
-        // Renderizar la lista al cargar la página
+        function filterPlaylist() {
+            const searchTerm = document.getElementById('search').value.toLowerCase();
+            const filteredList = defaultPlaylist.filter(item => item.title.toLowerCase().includes(searchTerm));
+            renderPlaylist(filteredList);
+        }
+
+        // --- Fullscreen and Orientation Handling ---
+        function handleOrientationChange() {
+             if (window.matchMedia("(orientation: landscape) and (max-width: 768px)").matches) {
+              // Landscape and mobile: Force fullscreen
+              if (!player.isFullscreen()) { // Important check!
+                  player.requestFullscreen();
+              }
+          } else {
+              // Portrait or larger screens: Exit fullscreen
+                if (player.isFullscreen()) {
+                    player.exitFullscreen();
+                }
+          }
+        }
+        // Initial setup
+        if (defaultPlaylist.length > 0) {
+            playVideo(defaultPlaylist[activeIndex].url, activeIndex);
+        }
+
         renderPlaylist();
 
-        // Reproducir el primer video de la lista si existe
-        if (defaultPlaylist.length > 0) {
-            playVideo(defaultPlaylist[0].url, 0);
-        }
+        // Event listeners
+        window.addEventListener('orientationchange', handleOrientationChange);
+        handleOrientationChange(); // Call on initial load
 
-        // Habilitar pantalla completa al girar el teléfono
-        window.addEventListener("orientationchange", () => {
-            if (window.orientation === 90 || window.orientation === -90) {
-                player.requestFullscreen(); // Entrar en pantalla completa
-            } else {
-                if (document.fullscreenElement) {
-                    document.exitFullscreen(); // Salir de pantalla completa
-                }
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden && !player.paused()) {
+                player.play();
             }
         });
     </script>
