@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reproductor de video M3U8</title>
+    <title>JORGEDEZ - Reproductor de Video</title>
     <link href="https://vjs.zencdn.net/8.6.1/video-js.css" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
@@ -12,176 +12,129 @@
             font-family: 'Poppins', sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #1a1a1a;
+            background-color: #141414;
             color: #fff;
         }
 
         /* Contenedor principal */
         .container {
             display: flex;
-            flex-direction: column;
+            flex-direction: row; /* Diseño horizontal para PC */
             max-width: 1400px;
             margin: 0 auto;
             padding: 20px;
-            background-color: #2a2a2a;
+            background-color: #141414;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
             border-radius: 15px;
-            height: 100vh;
+            height: 90vh; /* Altura ajustada */
             overflow: hidden;
         }
 
-        /* Contenedor del reproductor de video */
+        /* Reproductor de video */
         #player-container {
+            flex: 3; /* Ocupa 3 partes del espacio disponible */
             position: relative;
-            width: 100%;
-            padding-top: 56.25%; /* 16:9 aspect ratio */
-            overflow: hidden;
+            margin-right: 20px; /* Espacio entre el reproductor y la lista */
             border-radius: 15px;
+            overflow: hidden;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-            margin-bottom: 20px;
         }
 
         #my-video {
-            position: absolute;
-            top: 0;
-            left: 0;
             width: 100%;
             height: 100%;
             object-fit: cover;
             border-radius: 15px;
         }
 
-        /* Contenedor de la lista de reproducción */
+        /* Lista de reproducción */
         #playlist-container {
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-            background-color: #333;
+            flex: 1; /* Ocupa 1 parte del espacio disponible */
+            background-color: #141414;
             border-radius: 15px;
             padding: 20px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            overflow-y: auto;
+            overflow-y: auto; /* Scroll vertical si es necesario */
+            width: 300px; /* Ancho fijo */
         }
 
-        /* Campo de búsqueda */
-        #search {
-            padding: 12px;
-            margin-bottom: 15px;
-            border: none;
-            border-radius: 8px;
-            background-color: #444;
-            color: #fff;
-            font-size: 1em;
-            outline: none;
-            transition: background-color 0.3s ease;
-        }
-
-        #search:focus {
-            background-color: #555;
-        }
-
-        /* Lista de reproducción */
         #playlist {
             list-style-type: none;
             padding: 0;
             margin: 0;
-            flex-grow: 1;
-            overflow-y: auto;
         }
 
         #playlist li {
             padding: 15px;
             margin-bottom: 10px;
-            background: linear-gradient(145deg, #444, #333);
+            background: linear-gradient(145deg, #333, #222);
             border-radius: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
         }
 
         #playlist li:hover {
-            background: linear-gradient(145deg, #555, #444);
+            background: linear-gradient(145deg, #444, #333);
             transform: translateY(-3px);
             box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
         }
 
         #playlist li.active {
-            background: linear-gradient(145deg, #4CAF50, #45a049);
+            background: linear-gradient(145deg, #E50914, #e50914);
         }
 
         #playlist li span {
-            font-size: 1em;
+            font-size: 1.1em;
+            font-weight: 500;
             color: #fff;
         }
 
-        /* Estilos para el reproductor de Video.js */
-        .video-js .vjs-control-bar {
-            background: rgba(0, 0, 0, 0.7);
-            border-radius: 10px;
-            padding: 10px;
-        }
-
-        .video-js .vjs-play-progress {
-            background: #4CAF50;
-        }
-
-        .video-js .vjs-fullscreen-control .vjs-icon-placeholder::before {
-            content: "⤢";
-            font-size: 1.5em;
-        }
-
-        .video-js .vjs-control:hover {
-            color: #4CAF50;
-            transform: scale(1.1);
-            transition: all 0.3s ease;
-        }
-
-        /* Modo landscape para pantallas grandes */
-        @media (min-width: 769px) and (orientation: landscape) {
+        /* Responsividad para móviles */
+        @media (max-width: 768px) {
             .container {
-                flex-direction: row;
-                height: 90vh;
-                padding: 20px;
+                flex-direction: column; /* Diseño vertical en móviles */
+                height: 100vh; /* Ocupa toda la altura de la pantalla */
+                padding: 0;
+                border-radius: 0;
             }
 
             #player-container {
-                flex: 3;
-                margin-right: 20px;
+                flex: none; /* No crece ni se encoge */
+                height: 40vh; /* Altura fija para el reproductor */
+                margin-right: 0;
                 margin-bottom: 0;
-                padding-top: 0;
-                height: auto;
+                border-radius: 0;
+                position: sticky; /* Fija el reproductor en la parte superior */
+                top: 0;
+                z-index: 10; /* Asegura que esté por encima de la lista */
             }
 
             #playlist-container {
-                border-radius: 15px;
-            }
-        }
-
-        /* Modo portrait para móviles */
-        @media (max-width: 768px) and (orientation: portrait) {
-            .container {
+                flex: 1; /* Ocupa el espacio restante */
+                width: 100%;
                 border-radius: 0;
-                height: 100vh;
-                padding: 0;
+                padding: 10px;
+                overflow-y: auto; /* Scroll vertical para la lista */
             }
 
-            #player-container {
-                margin-bottom: 0;
-                border-radius: 0;
+            #playlist li {
+                padding: 10px;
+                margin-bottom: 8px;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Reproductor de video -->
         <div id="player-container">
             <video id="my-video" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto" aria-label="Reproductor de video">
                 <source src="" type="application/x-mpegURL">
             </video>
         </div>
+
+        <!-- Lista de reproducción -->
         <div id="playlist-container">
             <h2>Lista de reproducción</h2>
             <input type="text" id="search" placeholder="Buscar canal..." oninput="filterPlaylist()">
@@ -240,98 +193,50 @@
             { title: "Latino Classic TV", url: "https://streams2.sofast.tv/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/4d419a88-a62c-496f-b8a1-984e746f8259/manifest.m3u8" },
         ];
 
-        let activeIndex = parseInt(localStorage.getItem('lastPlayedIndex')) || 0;
-
-        function renderPlaylist(list = defaultPlaylist) {
+        const renderPlaylist = () => {
             playlistElement.innerHTML = '';
-            list.forEach((item, index) => {
+            defaultPlaylist.forEach((channel, index) => {
                 const li = document.createElement('li');
-                li.innerHTML = `<span>${item.title}</span>`;
-                li.addEventListener('click', () => playVideo(item.url, index));
-                if (index === activeIndex) {
-                    li.classList.add('active');
-                }
+                li.innerHTML = `<span>${channel.title}</span>`;
+                li.addEventListener('click', () => playVideo(channel.url, index));
                 playlistElement.appendChild(li);
             });
-            const activeItem = playlistElement.querySelector('.active');
-            if (activeItem) {
-                activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            }
-        }
+        };
 
-        function playVideo(url, index) {
-            player.src({ src: url, type: 'application/x-mpegURL' });
+        const playVideo = (url, index) => {
+            const items = playlistElement.querySelectorAll('li');
+            items.forEach((item) => item.classList.remove('active'));
+            items[index].classList.add('active');
+            player.src({ type: 'application/x-mpegURL', src: url });
+            player.play();
+            localStorage.setItem('lastPlayed', index);
+        };
 
-            player.one('error', (event) => {
-                console.error('Error loading video:', player.error());
-                let errorMsg = 'Could not load video. Try another channel.';
-                if (!navigator.onLine) {
-                    errorMsg = "No internet connection. Please check your connection.";
-                }
-                player.error({ message: errorMsg, code: player.error().code });
-                if (index < defaultPlaylist.length - 1) {
-                    setTimeout(() => playVideo(defaultPlaylist[index + 1].url, index + 1), 2000);
-                }
+        const filterPlaylist = () => {
+            const search = document.getElementById('search').value.toLowerCase();
+            const filteredPlaylist = defaultPlaylist.filter(channel => 
+                channel.title.toLowerCase().includes(search)
+            );
+            playlistElement.innerHTML = '';
+            filteredPlaylist.forEach((channel, index) => {
+                const li = document.createElement('li');
+                li.innerHTML = `<span>${channel.title}</span>`;
+                li.addEventListener('click', () => playVideo(channel.url, index));
+                playlistElement.appendChild(li);
             });
+        };
 
-            player.play()
-                .then(() => {
-                    activeIndex = index;
-                    localStorage.setItem('lastPlayedIndex', index);
-                    renderPlaylist();
-                })
-                .catch((error) => {
-                    console.error('Error during playback:', error);
-                    if (index < defaultPlaylist.length - 1) {
-                        setTimeout(() => playVideo(defaultPlaylist[index + 1].url, index + 1), 2000);
-                    }
-                });
-        }
-
-        function filterPlaylist() {
-            const searchTerm = document.getElementById('search').value.toLowerCase();
-            const filteredList = defaultPlaylist.filter(item => item.title.toLowerCase().includes(searchTerm));
-            renderPlaylist(filteredList);
-        }
-
-        function handleOrientationChange() {
-            if (window.matchMedia("(orientation: landscape) and (min-width: 769px)").matches) {
-                if (!player.isFullscreen()) {
-                    player.requestFullscreen();
-                }
-            } else if (window.matchMedia("(orientation: landscape)").matches) {
-                if (!player.isFullscreen()) {
-                    player.requestFullscreen();
-                }
+        const loadLastPlayed = () => {
+            const lastPlayed = localStorage.getItem('lastPlayed');
+            if (lastPlayed !== null) {
+                playVideo(defaultPlaylist[lastPlayed].url, lastPlayed);
             } else {
-                if (player.isFullscreen()) {
-                    player.exitFullscreen();
-                }
+                playVideo(defaultPlaylist[0].url, 0);
             }
-        }
-
-        if (defaultPlaylist.length > 0) {
-            playVideo(defaultPlaylist[activeIndex].url, activeIndex);
-        }
+        };
 
         renderPlaylist();
-
-        window.addEventListener('orientationchange', handleOrientationChange);
-        handleOrientationChange();
-
-        document.addEventListener('visibilitychange', function() {
-            if (document.hidden && !player.paused()) {
-                player.play();
-            }
-        });
-
-        player.on('dblclick', () => {
-            if (player.isFullscreen()) {
-                player.exitFullscreen();
-            } else {
-                player.requestFullscreen();
-            }
-        });
+        loadLastPlayed();
     </script>
 </body>
 </html>
