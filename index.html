@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JORGEDEZ - Reproductor de Video</title>
     <link href="https://vjs.zencdn.net/8.6.1/video-js.css" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         /* Estilos generales */
         body {
@@ -16,25 +16,48 @@
             color: #fff;
         }
 
+        /* Encabezado estilo Netflix */
+        .header {
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0));
+            padding: 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            font-weight: 700;
+            color: #E50914; /* Rojo Netflix */
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
         /* Contenedor principal */
         .container {
             display: flex;
-            flex-direction: row; /* Diseño horizontal para PC */
+            flex-direction: row;
             max-width: 1400px;
-            margin: 0 auto;
+            margin: 80px auto 20px; /* Ajuste para el encabezado fijo */
             padding: 20px;
             background-color: #141414;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
             border-radius: 15px;
-            height: 90vh; /* Altura ajustada */
+            height: 80vh;
             overflow: hidden;
         }
 
         /* Reproductor de video */
         #player-container {
-            flex: 3; /* Ocupa 3 partes del espacio disponible */
+            flex: 3;
             position: relative;
-            margin-right: 20px; /* Espacio entre el reproductor y la lista */
+            margin-right: 20px;
             border-radius: 15px;
             overflow: hidden;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
@@ -49,13 +72,13 @@
 
         /* Lista de reproducción */
         #playlist-container {
-            flex: 1; /* Ocupa 1 parte del espacio disponible */
+            flex: 1;
             background-color: #141414;
             border-radius: 15px;
             padding: 20px;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-            overflow-y: auto; /* Scroll vertical si es necesario */
-            width: 300px; /* Ancho fijo */
+            overflow-y: auto;
+            width: 300px;
         }
 
         #playlist {
@@ -92,30 +115,38 @@
 
         /* Responsividad para móviles */
         @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
             .container {
-                flex-direction: column; /* Diseño vertical en móviles */
-                height: 100vh; /* Ocupa toda la altura de la pantalla */
+                flex-direction: column;
+                height: 100vh;
                 padding: 0;
                 border-radius: 0;
+                margin-top: 60px; /* Ajuste para el encabezado fijo */
             }
 
             #player-container {
-                flex: none; /* No crece ni se encoge */
-                height: 40vh; /* Altura fija para el reproductor */
+                flex: none;
+                height: 40vh;
                 margin-right: 0;
                 margin-bottom: 0;
                 border-radius: 0;
-                position: sticky; /* Fija el reproductor en la parte superior */
-                top: 0;
-                z-index: 10; /* Asegura que esté por encima de la lista */
+                position: fixed; /* Cambiado a fixed */
+                top: 60px; /* Colocado debajo del encabezado */
+                left: 0;
+                right: 0;
+                z-index: 1000;
             }
 
             #playlist-container {
-                flex: 1; /* Ocupa el espacio restante */
+                flex: 1;
                 width: 100%;
                 border-radius: 0;
                 padding: 10px;
-                overflow-y: auto; /* Scroll vertical para la lista */
+                overflow-y: auto;
+                margin-top: 40vh; /* Empujado debajo del reproductor fijo */
             }
 
             #playlist li {
@@ -123,22 +154,55 @@
                 margin-bottom: 8px;
             }
         }
+
+        /* Estilos de Video.js (opcional, para personalizar aún más) */
+        .video-js {
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .vjs-big-play-button {
+            background-color: rgba(229, 9, 20, 0.7); /* Rojo Netflix con opacidad */
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .vjs-big-play-button:hover {
+            background-color: rgba(229, 9, 20, 0.9); /* Ligeramente más opaco al pasar el mouse */
+            transform: scale(1.1);
+        }
+
+        .vjs-control-bar {
+            background-color: rgba(0, 0, 0, 0.5); /* Barra de controles semi-transparente */
+            border-bottom-left-radius: 15px;
+            border-bottom-right-radius: 15px;
+        }
+
+        .vjs-play-progress {
+            background-color: #E50914 !important; /* Rojo Netflix para la barra de progreso */
+        }
+
+        .vjs-slider-handle {
+            background-color: #E50914 !important; /* Rojo Netflix para el control deslizante */
+        }
     </style>
 </head>
 <body>
+    <div class="header">
+        <h1>JORGEDEZ</h1>
+    </div>
     <div class="container">
-        <!-- Reproductor de video -->
         <div id="player-container">
             <video id="my-video" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto" aria-label="Reproductor de video">
                 <source src="" type="application/x-mpegURL">
             </video>
         </div>
 
-        <!-- Lista de reproducción -->
         <div id="playlist-container">
             <h2>Lista de reproducción</h2>
             <input type="text" id="search" placeholder="Buscar canal..." oninput="filterPlaylist()">
-            <ul id="playlist"></ul>
+            <ul id="playlist">
+            </ul>
         </div>
     </div>
 
@@ -161,7 +225,7 @@
         const playlistElement = document.getElementById('playlist');
 
         const defaultPlaylist = [
-            { title: "Tele red", url: "https://k20.usastreams.com:8081/telered/index.m3u8" },
+             { title: "Tele red", url: "https://k20.usastreams.com:8081/telered/index.m3u8" },
 { title: "Canal 13", url: "https://ssh101.bozztv.com/ssh101/sinart13/chunks.m3u8" },
 { title: "canal 36", url: "https://liveingesta118.cdnmedia.tv/trivision36live/smil:dvrlive.smil/playlist.m3u8" },
 { title: "Retro Tv", url: "https://ssh101-fl.bozztv.com/ssh101/retrotvcr/tracks-v1a1/mono.m3u8" },
@@ -214,7 +278,7 @@
 
         const filterPlaylist = () => {
             const search = document.getElementById('search').value.toLowerCase();
-            const filteredPlaylist = defaultPlaylist.filter(channel => 
+            const filteredPlaylist = defaultPlaylist.filter(channel =>
                 channel.title.toLowerCase().includes(search)
             );
             playlistElement.innerHTML = '';
@@ -231,12 +295,12 @@
             if (lastPlayed !== null) {
                 playVideo(defaultPlaylist[lastPlayed].url, lastPlayed);
             } else {
-                playVideo(defaultPlaylist[0].url, 0);
+               // playVideo(defaultPlaylist[0].url, 0);  // Eliminado para evitar reproducción automática
             }
         };
 
         renderPlaylist();
-        loadLastPlayed();
+       // loadLastPlayed(); // Llamado a la función para cargar el último canal reproducido
     </script>
 </body>
 </html>
