@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JORGEDEZ - Reproductor de Video</title>
+    <title>Reproductor de Video con Chromecast/AirPlay</title>
     <link href="https://vjs.zencdn.net/8.6.1/video-js.css" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -16,7 +16,6 @@
             color: #fff;
         }
 
-        /* Encabezado estilo Netflix */
         .header {
             background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0));
             padding: 10px 20px;
@@ -26,7 +25,7 @@
             right: 0;
             z-index: 1000;
             display: flex;
-            justify-content: flex-start; /* Alinea la imagen a la izquierda */
+            justify-content: flex-start;
             align-items: center;
         }
 
@@ -35,11 +34,10 @@
         }
 
         .header img {
-            height: 60px; /* Aumenta la altura de la imagen */
-            margin-right: 20px; /* Agrega margen a la derecha de la imagen */
+            height: 60px;
+            margin-right: 20px;
         }
 
-        /* Contenedor principal */
         .container {
             display: flex;
             flex-direction: row;
@@ -53,7 +51,6 @@
             overflow: hidden;
         }
 
-        /* Reproductor de video */
         #player-container {
             flex: 3;
             position: relative;
@@ -70,7 +67,6 @@
             border-radius: 15px;
         }
 
-        /* Lista de reproducción */
         #playlist-container {
             flex: 1;
             background-color: #141414;
@@ -114,7 +110,6 @@
             color: #fff;
         }
 
-        /* Responsividad para móviles */
         @media (max-width: 768px) {
             .header h1 {
                 font-size: 1.8em;
@@ -156,7 +151,6 @@
             }
         }
 
-        /* Estilos de Video.js */
         .video-js {
             border-radius: 15px;
             overflow: hidden;
@@ -220,13 +214,13 @@
             color: #eee;
         }
 
-         .vjs-fullscreen-control button {
+        .vjs-fullscreen-control button {
             width: 24px;
             height: 24px;
         }
 
         .vjs-fullscreen-control i{
-             font-size: 24px;
+            font-size: 24px;
         }
 
     </style>
@@ -252,6 +246,7 @@
 
     <script src="https://vjs.zencdn.net/8.6.1/video.min.js"></script>
     <script src="https://unpkg.com/@videojs/http-streaming@latest/dist/videojs-http-streaming.min.js"></script>
+    <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastMode=STANDARD"></script>
     <script>
         const player = videojs('my-video', {
             fluid: false,
@@ -269,45 +264,45 @@
         const playlistElement = document.getElementById('playlist');
 
         const defaultPlaylist = [
-{ title: "Tele red", url: "https://k20.usastreams.com:8081/telered/index.m3u8" },
-{ title: "Canal 13", url: "https://ssh101.bozztv.com/ssh101/sinart13/chunks.m3u8" },
-{ title: "canal 36", url: "https://liveingesta118.cdnmedia.tv/trivision36live/smil:dvrlive.smil/playlist.m3u8" },
-{ title: "Retro Tv", url: "https://ssh101-fl.bozztv.com/ssh101/retrotvcr/tracks-v1a1/mono.m3u8" },
-{ title: "TELE Clasica", url: "https://ssh101-fl.bozztv.com/ssh101/teleclasik/tracks-v1a1/mono.m3u8" },
-{ title: "Tv Retro", url: "https://ssh101.bozztv.com/ssh101/tvretropalmares/chunks.m3u8" },
-{ title: "Canal 6", url: "https://d1vr8yxz55pucr.cloudfront.net/index.m3u8" },
-{ title: "Telesistema", url: "https://k20.usastreams.com:8081/telesistema/tracks-v1a1/mono.m3u8" },
-{ title: "Canal 4", url: "https://alba-cr-repretel-c4.stream.mediatiquestream.com/index.m3u8" },
-{ title: "Canal 1", url: "https://59ef525c24caa.streamlock.net/canal1cr/canal1cr/playlist.m3u8" },
-{ title: "Canal 11", url: "https://alba-cr-repretel-c11.stream.mediatiquestream.com/480p.m3u8" },
-{ title: "Extrema TV", url: "https://627bb251f23c7.streamlock.net:444/ExtremaTV/ExtremaTV/playlist.m3u8" },
-{ title: "Nicoya tv", url: "https://59ef525c24caa.streamlock.net/nicoyatv/nicoyatv/chunklist_w1674958038.m3u8" },
-{ title: "Sony Canal Novelas", url: "https://a89829b8dca2471ab52ea9a57bc28a35.mediatailor.us-east-1.amazonaws.com/v1/manifest/0fb304b2320b25f067414d481a779b77db81760d/CanelaTV_SonyCanalNovelas/546d9696-a523-4794-9d79-b340f54b6d76/5.m3u8" },
-{ title: "RCN Más", url: "https://rcntv-rcnmas-1-us.plex.wurl.tv/4300.m3u8" },
-{ title: "Azteca Internacional", url: "https://azt-mun.otteravision.com/azt/mun/mun_1080p.m3u8" },
-{ title: "TV+ 2", url: "https://marine2.miplay.cl/tateti/tracks-v1a1/mono.m3u8" },
-{ title: "24 Horas", url: "https://rtvelivestream.rtve.es/rtvesec/24h/24h_main_dvr_720.m3u8" },
-{ title: "Canal IQ", url: "https://rtmp.info/iqtv/envivo/chunklist_w1932587350.m3u8" },
-{ title: "SOY Plancha TV", url: "https://59ef525c24caa.streamlock.net/vmtv/soyplancha/chunklist_w13201094.m3u8" },
-{ title: "MetaVersus CR", url: "https://59ef525c24caa.streamlock.net/vmtv/soyplancha/chunklist_w13201094.m3u8" },
-{ title: "TVS Retro Live", url: "https://cdn.streamhispanatv.net:3531/live/tvsretrogtlive.m3u8" },
-{ title: "Las Estrellas en vivo", url: "https://channel01-onlymex.akamaized.net/hls/live/2022749/event01/index_1.m3u8" },
-{ title: "Azteca Deportes en vivo", url: "https://azt-mun.otteravision.com/azt/mun/mun_1080p.m3u8" },
-{ title: "Box Cinema Live", url: "https://e46fa4a445464f8a9150fa7d510eb85c.mediatailor.us-west-2.amazonaws.com/v1/manifest/2d2d0d97b0e548f025b2598a69b55bf30337aa0e/npp/c3d60978-8ce1-4ad7-be9c-859affe0d7c3/5.m3u8" },
-{ title: "Telemundo en vivo", url: "https://nbcu-telemundoflorida-firetv.amagi.tv/playlist1080.m3u8" },
-{ title: "Somos Novelas Live", url: "https://acceso.radiosportstv.online:3259/hybrid/play.m3u8" },
-{ title: "Retro x", url: "https://acceso.radiosportstv.online:3259/hybrid/play.m3u8" },
-{ title: "Latino Classic TV", url: "https://streams2.sofast.tv/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/4d419a88-a62c-496f-b8a1-984e746f8259/manifest.m3u8" },
-{ title: "MIAMI TV", url: "https://59ec5453559f0.streamlock.net/JennyLive/_definst_/smil:41235/chunklist_w1924994432_b1896000.m3u8" },
-{ title: "Sereno TV", url: "https://streaming-cl.sh1ny.space/memfs/e8a8e789-170b-4de4-a33b-90a9a475ce65_output_0.m3u8" },
-{ title: "Canal Turrialba ", url: "https://cloudvideo.servers10.com:8081/8230/tracks-v1a1/mono.m3u8" },
-{ title: "Canal Demo ", url: "https://tvservices.fullhd-streaming.com:3941/stream/play.m3u8" },
-{ title: "Canal Tele Brunca ", url: "https://59ef525c24caa.streamlock.net/telebrunca/telebrunca/chunklist_w942921838.m3u8" },
-{ title: "Canal Garabito TV ", url: "https://59ef525c24caa.streamlock.net/garabitoTV/garabitotv/chunklist_w878297441.m3u8" },
-{ title: "Canal Dreiko TV ", url: "https://cloudvideo.servers10.com:8081/8096/tracks-v1a1/mono.m3u8" },
-{ title: "Canal WOW TV ", url: "https://cdn.elsalvadordigital.com:1936/wowtv/smil:wowtv.smil/chunklist_w619053377_b700000_slen.m3u8" },
-{ title: "Canal Visión Dorada ", url: "https://movil.ejeserver.com/live/visiondorada.m3u8" },
-{ title: "CANAL 10 CR ", url: "https://acceso.radiosportstv.online:3285/hybrid/play.m3u8" },
+            { title: "Tele red", url: "https://k20.usastreams.com:8081/telered/index.m3u8" },
+            { title: "Canal 13", url: "https://ssh101.bozztv.com/ssh101/sinart13/chunks.m3u8" },
+            { title: "canal 36", url: "https://liveingesta118.cdnmedia.tv/trivision36live/smil:dvrlive.smil/playlist.m3u8" },
+            { title: "Retro Tv", url: "https://ssh101-fl.bozztv.com/ssh101/retrotvcr/tracks-v1a1/mono.m3u8" },
+            { title: "TELE Clasica", url: "https://ssh101-fl.bozztv.com/ssh101/teleclasik/tracks-v1a1/mono.m3u8" },
+            { title: "Tv Retro", url: "https://ssh101.bozztv.com/ssh101/tvretropalmares/chunks.m3u8" },
+            { title: "Canal 6", url: "https://d1vr8yxz55pucr.cloudfront.net/index.m3u8" },
+            { title: "Telesistema", url: "https://k20.usastreams.com:8081/telesistema/tracks-v1a1/mono.m3u8" },
+            { title: "Canal 4", url: "https://alba-cr-repretel-c4.stream.mediatiquestream.com/index.m3u8" },
+            { title: "Canal 1", url: "https://59ef525c24caa.streamlock.net/canal1cr/canal1cr/playlist.m3u8" },
+            { title: "Canal 11", url: "https://alba-cr-repretel-c11.stream.mediatiquestream.com/480p.m3u8" },
+            { title: "Extrema TV", url: "https://627bb251f23c7.streamlock.net:444/ExtremaTV/ExtremaTV/playlist.m3u8" },
+            { title: "Nicoya tv", url: "https://59ef525c24caa.streamlock.net/nicoyatv/nicoyatv/chunklist_w1674958038.m3u8" },
+            { title: "Sony Canal Novelas", url: "https://a89829b8dca2471ab52ea9a57bc28a35.mediatailor.us-east-1.amazonaws.com/v1/manifest/0fb304b2320b25f067414d481a779b77db81760d/CanelaTV_SonyCanalNovelas/546d9696-a523-4794-9d79-b340f54b6d76/5.m3u8" },
+            { title: "RCN Más", url: "https://rcntv-rcnmas-1-us.plex.wurl.tv/4300.m3u8" },
+            { title: "Azteca Internacional", url: "https://azt-mun.otteravision.com/azt/mun/mun_1080p.m3u8" },
+            { title: "TV+ 2", url: "https://marine2.miplay.cl/tateti/tracks-v1a1/mono.m3u8" },
+            { title: "24 Horas", url: "https://rtvelivestream.rtve.es/rtvesec/24h/24h_main_dvr_720.m3u8" },
+            { title: "Canal IQ", url: "https://rtmp.info/iqtv/envivo/chunklist_w1932587350.m3u8" },
+            { title: "SOY Plancha TV", url: "https://59ef525c24caa.streamlock.net/vmtv/soyplancha/chunklist_w13201094.m3u8" },
+            { title: "MetaVersus CR", url: "https://59ef525c24caa.streamlock.net/vmtv/soyplancha/chunklist_w13201094.m3u8" },
+            { title: "TVS Retro Live", url: "https://cdn.streamhispanatv.net:3531/live/tvsretrogtlive.m3u8" },
+            { title: "Las Estrellas en vivo", url: "https://channel01-onlymex.akamaized.net/hls/live/2022749/event01/index_1.m3u8" },
+            { title: "Azteca Deportes en vivo", url: "https://azt-mun.otteravision.com/azt/mun/mun_1080p.m3u8" },
+             { title: "Box Cinema Live", url: "https://e46fa4a445464f8a9150fa7d510eb85c.mediatailor.us-west-2.amazonaws.com/v1/manifest/2d2d0d97b0e548f025b2598a69b55bf30337aa0e/npp/c3d60978-8ce1-4ad7-be9c-859affe0d7c3/5.m3u8" },
+            { title: "Telemundo en vivo", url: "https://nbcu-telemundoflorida-firetv.amagi.tv/playlist1080.m3u8" },
+            { title: "Somos Novelas Live", url: "https://acceso.radiosportstv.online:3259/hybrid/play.m3u8" },
+            { title: "Retro x", url: "https://acceso.radiosportstv.online:3259/hybrid/play.m3u8" },
+            { title: "Latino Classic TV", url: "https://streams2.sofast.tv/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/4d419a88-a62c-496f-b8a1-984e746f8259/manifest.m3u8" },
+            { title: "MIAMI TV", url: "https://59ec5453559f0.streamlock.net/JennyLive/_definst_/smil:41235/chunklist_w1924994432_b1896000.m3u8" },
+            { title: "Sereno TV", url: "https://streaming-cl.sh1ny.space/memfs/e8a8e789-170b-4de4-a33b-90a9a475ce65_output_0.m3u8" },
+            { title: "Canal Turrialba ", url: "https://cloudvideo.servers10.com:8081/8230/tracks-v1a1/mono.m3u8" },
+            { title: "Canal Demo ", url: "https://tvservices.fullhd-streaming.com:3941/stream/play.m3u8" },
+            { title: "Canal Tele Brunca ", url: "https://59ef525c24caa.streamlock.net/telebrunca/telebrunca/chunklist_w942921838.m3u8" },
+            { title: "Canal Garabito TV ", url: "https://59ef525c24caa.streamlock.net/garabitoTV/garabitotv/chunklist_w878297441.m3u8" },
+            { title: "Canal Dreiko TV ", url: "https://cloudvideo.servers10.com:8081/8096/tracks-v1a1/mono.m3u8" },
+            { title: "Canal WOW TV ", url: "https://cdn.elsalvadordigital.com:1936/wowtv/smil:wowtv.smil/chunklist_w619053377_b700000_slen.m3u8" },
+            { title: "Canal Visión Dorada ", url: "https://movil.ejeserver.com/live/visiondorada.m3u8" },
+            { title: "CANAL 10 CR ", url: "https://acceso.radiosportstv.online:3285/hybrid/play.m3u8" },
         ];
 
         const renderPlaylist = () => {
@@ -352,8 +347,175 @@
             }
         };
 
+        // Chromecast functionality
+        let isChromecastInitialized = false;
+        let castSession = null;
+        let currentMediaSession = null;
+        const initializeCastApi = () => {
+            if (isChromecastInitialized) return;
+
+            window.addEventListener('load', () => {
+                const script = document.createElement('script');
+                script.src = 'https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastMode=STANDARD';
+                script.async = true;
+                document.body.appendChild(script);
+
+                window.addEventListener('load', () => {
+                    cast.framework.CastContext.getInstance().setOptions({
+                        receiverApplicationId: chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APPLICATION_ID,
+                        autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
+                    });
+
+                    cast.framework.CastContext.getInstance().addEventListener(
+                        cast.framework.CastContextEventType.SESSION_STATE_CHANGED,
+                        handleSessionStateChanged
+                    );
+
+                    isChromecastInitialized = true;
+                    createCastButton(); // Create button after API is ready
+                });
+            });
+        };
+
+        function handleSessionStateChanged(event) {
+            switch (event.sessionState) {
+                case cast.framework.SessionState.NO_SESSION:
+                    castSession = null;
+                    currentMediaSession = null;
+                    break;
+                case cast.framework.SessionState.SESSION_STARTED:
+                    castSession = cast.framework.CastContext.getInstance().getCurrentSession();
+                    break;
+                case cast.framework.SessionState.SESSION_ENDED:
+                    castSession = null;
+                    currentMediaSession = null;
+                    break;
+                case cast.framework.SessionState.SESSION_START_FAILED:
+                    castSession = null;
+                    currentMediaSession = null;
+                    break;
+            }
+        }
+
+        function createCastButton() {
+            const castButton = document.createElement('button');
+            castButton.id = 'cast-button';
+            castButton.className = 'vjs-control vjs-button';
+            castButton.innerHTML = '<i class="material-icons">cast</i>';
+            castButton.setAttribute('title', 'Transmitir');
+            castButton.style.cssText = `
+                position: absolute;
+                top: 10px;
+                right: 80px;
+                z-index: 1001;
+                background-color: transparent;
+                border: none;
+                cursor: pointer;
+                color: #fff;
+            `;
+
+            const icon = document.createElement('i');
+            icon.className = 'material-icons';
+            icon.textContent = 'cast';
+            castButton.appendChild(icon);
+
+            player.el().appendChild(castButton);
+            castButton.onclick = () => {
+                if (castSession) {
+                    cast.framework.CastContext.getInstance().endCurrentSession(true);
+                } else {
+                    cast.framework.CastContext.getInstance().requestSession();
+                }
+            };
+        }
+
+        function castVideo(url, title) {
+            if (!castSession) {
+                castSession = cast.framework.CastContext.getInstance().getCurrentSession();
+            }
+
+            if (!castSession) {
+                console.error('No hay sesión de Chromecast disponible');
+                return;
+            }
+
+            const mediaInfo = {
+                contentId: url,
+                streamType: 'LIVE',
+                contentType: 'application/x-mpegURL',
+                metadata: {
+                    type: 0,
+                    title: title,
+                },
+                autoplay: true,
+            };
+
+            const request = {
+                autoplay: true,
+                media: mediaInfo,
+            };
+
+            castSession.loadMedia(request).then(
+                (success) => {
+                    console.log('Sesión de medios iniciada', success);
+                    currentMediaSession = success.getMediaSession();
+                },
+                (error) => {
+                    console.error('Error al iniciar la sesión de medios', error);
+                }
+            );
+        }
+
+        // AirPlay functionality
+        if (window.WebKitPlaybackTargetAvailabilityEvent !== undefined) {
+            player.el().addEventListener('webkitplaybacktargetavailabilitychanged', (event) => {
+                if (event.availability ==='available') {
+                    const airplayButton = document.createElement('button');
+                    airplayButton.id = 'airplay-button';
+                    airplayButton.className = 'vjs-control vjs-button';
+                    airplayButton.innerHTML = '<i class="material-icons">airplay</i>';
+                    airplayButton.setAttribute('title', 'Transmitir a AirPlay');
+                    airplayButton.style.cssText = `
+                        position: absolute;
+                        top: 10px;
+                        right: 130px;
+                        z-index: 1001;
+                        background-color: transparent;
+                        border: none;
+                        cursor: pointer;
+                        color: #fff;
+                    `;
+
+                    const icon = document.createElement('i');
+                    icon.className = 'material-icons';
+                    icon.textContent = 'airplay';
+                    airplayButton.appendChild(icon);
+                    player.el().appendChild(airplayButton);
+
+                    airplayButton.onclick = () => {
+                        player.el().webkitShowPlaybackTargetPicker();
+                    };
+                }
+            });
+        }
+
+        function initializeApp() {
+            // Verificar si la notificación ya se mostró
+            if (!localStorage.getItem('notificationShown')) {
+                // Mostrar la notificación
+                alert('¡Bienvenido a la aplicación de video!'); // Puedes personalizar el mensaje
+                // Guardar un flag para indicar que la notificación se mostró
+                localStorage.setItem('notificationShown', 'true');
+            }
+
+            initializeCastApi();
+            renderPlaylist();
+            loadLastPlayed();
+        }
+
         renderPlaylist();
         loadLastPlayed();
+        initializeApp();
     </script>
 </body>
 </html>
