@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reproductor de Video con Chromecast/AirPlay</title>
+    <title>Reproductor de Video con QR</title>
+    <!-- Estilos de Video.js -->
     <link href="https://vjs.zencdn.net/8.6.1/video-js.css" rel="stylesheet" />
+    <!-- Fuente Poppins -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         /* Estilos generales */
@@ -27,10 +29,6 @@
             display: flex;
             justify-content: flex-start;
             align-items: center;
-        }
-
-        .header h1 {
-            display: none;
         }
 
         .header img {
@@ -219,10 +217,39 @@
             height: 24px;
         }
 
-        .vjs-fullscreen-control i{
+        .vjs-fullscreen-control i {
             font-size: 24px;
         }
 
+        /* Estilos para el contenedor del QR */
+        .qr-container {
+            text-align: center;
+            margin: 20px 0;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.8);
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .qr-container h3 {
+            font-size: 1.2em;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .qr-container img {
+            width: 150px;
+            height: 150px;
+            border: 5px solid #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .qr-container p {
+            font-size: 0.9em;
+            color: #ccc;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -244,9 +271,15 @@
         </div>
     </div>
 
+    <!-- Sección del código QR -->
+    <div class="qr-container">
+        <h3>¡Escanea el código QR!</h3>
+        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhJMKZYBgrggrXAZC6g9PFNXAyVDQqFl37nEqRhA3mwAxogX6n_WrzwLSmiVNyuS2rAi3Akt-Uu_dkUE1Rn7BKEhtVlZah4sX7k3lVb1JLAkWZxfGhD3wr_bK2ib2ajOqn34jhU_2Lcm24kE6K_3Cd5BEWOgO3fibL0q8yAuCifeM7WANXK4kzRb9op588/s320/JORGE_DEZ-1024.jpeg" alt="Código QR">
+        <p>Usa tu cámara para escanear y Compartir la aplicacion.</p>
+    </div>
+
     <script src="https://vjs.zencdn.net/8.6.1/video.min.js"></script>
     <script src="https://unpkg.com/@videojs/http-streaming@latest/dist/videojs-http-streaming.min.js"></script>
-    <script src="https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastMode=STANDARD"></script>
     <script>
         const player = videojs('my-video', {
             fluid: false,
@@ -288,7 +321,7 @@
             { title: "TVS Retro Live", url: "https://cdn.streamhispanatv.net:3531/live/tvsretrogtlive.m3u8" },
             { title: "Las Estrellas en vivo", url: "https://channel01-onlymex.akamaized.net/hls/live/2022749/event01/index_1.m3u8" },
             { title: "Azteca Deportes en vivo", url: "https://azt-mun.otteravision.com/azt/mun/mun_1080p.m3u8" },
-             { title: "Box Cinema Live", url: "https://e46fa4a445464f8a9150fa7d510eb85c.mediatailor.us-west-2.amazonaws.com/v1/manifest/2d2d0d97b0e548f025b2598a69b55bf30337aa0e/npp/c3d60978-8ce1-4ad7-be9c-859affe0d7c3/5.m3u8" },
+            { title: "Box Cinema Live", url: "https://e46fa4a445464f8a9150fa7d510eb85c.mediatailor.us-west-2.amazonaws.com/v1/manifest/2d2d0d97b0e548f025b2598a69b55bf30337aa0e/npp/c3d60978-8ce1-4ad7-be9c-859affe0d7c3/5.m3u8" },
             { title: "Telemundo en vivo", url: "https://nbcu-telemundoflorida-firetv.amagi.tv/playlist1080.m3u8" },
             { title: "Somos Novelas Live", url: "https://acceso.radiosportstv.online:3259/hybrid/play.m3u8" },
             { title: "Retro x", url: "https://acceso.radiosportstv.online:3259/hybrid/play.m3u8" },
@@ -347,175 +380,9 @@
             }
         };
 
-        // Chromecast functionality
-        let isChromecastInitialized = false;
-        let castSession = null;
-        let currentMediaSession = null;
-        const initializeCastApi = () => {
-            if (isChromecastInitialized) return;
-
-            window.addEventListener('load', () => {
-                const script = document.createElement('script');
-                script.src = 'https://www.gstatic.com/cv/js/sender/v1/cast_sender.js?loadCastMode=STANDARD';
-                script.async = true;
-                document.body.appendChild(script);
-
-                window.addEventListener('load', () => {
-                    cast.framework.CastContext.getInstance().setOptions({
-                        receiverApplicationId: chrome.cast.media.DEFAULT_MEDIA_RECEIVER_APPLICATION_ID,
-                        autoJoinPolicy: chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED
-                    });
-
-                    cast.framework.CastContext.getInstance().addEventListener(
-                        cast.framework.CastContextEventType.SESSION_STATE_CHANGED,
-                        handleSessionStateChanged
-                    );
-
-                    isChromecastInitialized = true;
-                    createCastButton(); // Create button after API is ready
-                });
-            });
-        };
-
-        function handleSessionStateChanged(event) {
-            switch (event.sessionState) {
-                case cast.framework.SessionState.NO_SESSION:
-                    castSession = null;
-                    currentMediaSession = null;
-                    break;
-                case cast.framework.SessionState.SESSION_STARTED:
-                    castSession = cast.framework.CastContext.getInstance().getCurrentSession();
-                    break;
-                case cast.framework.SessionState.SESSION_ENDED:
-                    castSession = null;
-                    currentMediaSession = null;
-                    break;
-                case cast.framework.SessionState.SESSION_START_FAILED:
-                    castSession = null;
-                    currentMediaSession = null;
-                    break;
-            }
-        }
-
-        function createCastButton() {
-            const castButton = document.createElement('button');
-            castButton.id = 'cast-button';
-            castButton.className = 'vjs-control vjs-button';
-            castButton.innerHTML = '<i class="material-icons">cast</i>';
-            castButton.setAttribute('title', 'Transmitir');
-            castButton.style.cssText = `
-                position: absolute;
-                top: 10px;
-                right: 80px;
-                z-index: 1001;
-                background-color: transparent;
-                border: none;
-                cursor: pointer;
-                color: #fff;
-            `;
-
-            const icon = document.createElement('i');
-            icon.className = 'material-icons';
-            icon.textContent = 'cast';
-            castButton.appendChild(icon);
-
-            player.el().appendChild(castButton);
-            castButton.onclick = () => {
-                if (castSession) {
-                    cast.framework.CastContext.getInstance().endCurrentSession(true);
-                } else {
-                    cast.framework.CastContext.getInstance().requestSession();
-                }
-            };
-        }
-
-        function castVideo(url, title) {
-            if (!castSession) {
-                castSession = cast.framework.CastContext.getInstance().getCurrentSession();
-            }
-
-            if (!castSession) {
-                console.error('No hay sesión de Chromecast disponible');
-                return;
-            }
-
-            const mediaInfo = {
-                contentId: url,
-                streamType: 'LIVE',
-                contentType: 'application/x-mpegURL',
-                metadata: {
-                    type: 0,
-                    title: title,
-                },
-                autoplay: true,
-            };
-
-            const request = {
-                autoplay: true,
-                media: mediaInfo,
-            };
-
-            castSession.loadMedia(request).then(
-                (success) => {
-                    console.log('Sesión de medios iniciada', success);
-                    currentMediaSession = success.getMediaSession();
-                },
-                (error) => {
-                    console.error('Error al iniciar la sesión de medios', error);
-                }
-            );
-        }
-
-        // AirPlay functionality
-        if (window.WebKitPlaybackTargetAvailabilityEvent !== undefined) {
-            player.el().addEventListener('webkitplaybacktargetavailabilitychanged', (event) => {
-                if (event.availability ==='available') {
-                    const airplayButton = document.createElement('button');
-                    airplayButton.id = 'airplay-button';
-                    airplayButton.className = 'vjs-control vjs-button';
-                    airplayButton.innerHTML = '<i class="material-icons">airplay</i>';
-                    airplayButton.setAttribute('title', 'Transmitir a AirPlay');
-                    airplayButton.style.cssText = `
-                        position: absolute;
-                        top: 10px;
-                        right: 130px;
-                        z-index: 1001;
-                        background-color: transparent;
-                        border: none;
-                        cursor: pointer;
-                        color: #fff;
-                    `;
-
-                    const icon = document.createElement('i');
-                    icon.className = 'material-icons';
-                    icon.textContent = 'airplay';
-                    airplayButton.appendChild(icon);
-                    player.el().appendChild(airplayButton);
-
-                    airplayButton.onclick = () => {
-                        player.el().webkitShowPlaybackTargetPicker();
-                    };
-                }
-            });
-        }
-
-        function initializeApp() {
-            // Verificar si la notificación ya se mostró
-            if (!localStorage.getItem('notificationShown')) {
-                // Mostrar la notificación
-                alert('¡Bienvenido a la aplicación de video!'); // Puedes personalizar el mensaje
-                // Guardar un flag para indicar que la notificación se mostró
-                localStorage.setItem('notificationShown', 'true');
-            }
-
-            initializeCastApi();
-            renderPlaylist();
-            loadLastPlayed();
-        }
-
+        // Inicialización
         renderPlaylist();
         loadLastPlayed();
-        initializeApp();
     </script>
 </body>
 </html>
