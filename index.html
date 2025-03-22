@@ -8,6 +8,8 @@
     <link href="https://vjs.zencdn.net/8.6.1/video-js.css" rel="stylesheet" />
     <!-- Fuente Poppins -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- FontAwesome para íconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         /* Estilos generales */
         body {
@@ -89,6 +91,9 @@
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         #playlist li:hover {
@@ -106,6 +111,16 @@
             font-size: 1.1em;
             font-weight: 500;
             color: #fff;
+        }
+
+        .star {
+            cursor: pointer;
+            color: #ccc;
+            transition: color 0.3s ease;
+        }
+
+        .star.favorite {
+            color: #ffd700; /* Amarillo para favoritos */
         }
 
         @media (max-width: 768px) {
@@ -338,14 +353,40 @@
             { title: "CANAL 10 CR ", url: "https://acceso.radiosportstv.online:3285/hybrid/play.m3u8" },
         ];
 
+        // Cargar favoritos desde localStorage
+        let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+
         const renderPlaylist = () => {
             playlistElement.innerHTML = '';
             defaultPlaylist.forEach((channel, index) => {
                 const li = document.createElement('li');
-                li.innerHTML = `<span>${channel.title}</span>`;
+                li.innerHTML = `
+                    <span>${channel.title}</span>
+                    <i class="star fas fa-star ${favorites.includes(index.toString()) ? 'favorite' : ''}" data-index="${index}"></i>
+                `;
                 li.addEventListener('click', () => playVideo(channel.url, index));
                 playlistElement.appendChild(li);
             });
+
+            // Agregar evento a las estrellas
+            const stars = document.querySelectorAll('.star');
+            stars.forEach(star => {
+                star.addEventListener('click', (e) => {
+                    e.stopPropagation(); // Evitar que el clic en la estrella active el canal
+                    const index = star.getAttribute('data-index');
+                    toggleFavorite(index);
+                    star.classList.toggle('favorite');
+                });
+            });
+        };
+
+        const toggleFavorite = (index) => {
+            if (favorites.includes(index)) {
+                favorites = favorites.filter(fav => fav !== index); // Eliminar de favoritos
+            } else {
+                favorites.push(index); // Agregar a favoritos
+            }
+            localStorage.setItem('favorites', JSON.stringify(favorites)); // Guardar en localStorage
         };
 
         const playVideo = (url, index) => {
@@ -365,9 +406,23 @@
             playlistElement.innerHTML = '';
             filteredPlaylist.forEach((channel, index) => {
                 const li = document.createElement('li');
-                li.innerHTML = `<span>${channel.title}</span>`;
+                li.innerHTML = `
+                    <span>${channel.title}</span>
+                    <i class="star fas fa-star ${favorites.includes(index.toString()) ? 'favorite' : ''}" data-index="${index}"></i>
+                `;
                 li.addEventListener('click', () => playVideo(channel.url, index));
                 playlistElement.appendChild(li);
+            });
+
+            // Agregar evento a las estrellas en la lista filtrada
+            const stars = document.querySelectorAll('.star');
+            stars.forEach(star => {
+                star.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const index = star.getAttribute('data-index');
+                    toggleFavorite(index);
+                    star.classList.toggle('favorite');
+                });
             });
         };
 
