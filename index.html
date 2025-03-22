@@ -265,6 +265,20 @@
             color: #ccc;
             margin-top: 10px;
         }
+
+        /* Estilos para el indicador de volumen */
+        .volume-indicator {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: rgba(0, 0, 0, 0.8);
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 1.2em;
+            color: #fff;
+            display: none; /* Oculto por defecto */
+            z-index: 1000;
+        }
     </style>
 </head>
 <body>
@@ -291,6 +305,17 @@
         <h3>¡Escanea el código QR!</h3>
         <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhJMKZYBgrggrXAZC6g9PFNXAyVDQqFl37nEqRhA3mwAxogX6n_WrzwLSmiVNyuS2rAi3Akt-Uu_dkUE1Rn7BKEhtVlZah4sX7k3lVb1JLAkWZxfGhD3wr_bK2ib2ajOqn34jhU_2Lcm24kE6K_3Cd5BEWOgO3fibL0q8yAuCifeM7WANXK4kzRb9op588/s320/JORGE_DEZ-1024.jpeg" alt="Código QR">
         <p>Usa tu cámara para escanear y Compartir la aplicacion.</p>
+    </div>
+
+    <!-- Contador de visitas externo -->
+    <div class="visit-counter">
+        <h3>Visitas</h3>
+        <script type="text/javascript" src="https://contador.websiteout.com/js/7/0/0/0"></script>
+    </div>
+
+    <!-- Indicador de volumen -->
+    <div id="volume-indicator" class="volume-indicator">
+        Volumen: <span id="volume-level">50</span>%
     </div>
 
     <script src="https://vjs.zencdn.net/8.6.1/video.min.js"></script>
@@ -434,6 +459,38 @@
                 playVideo(defaultPlaylist[0].url, 0);
             }
         };
+
+        // Control del volumen con la rueda del mouse
+        const playerContainer = document.getElementById('player-container');
+        const volumeIndicator = document.getElementById('volume-indicator');
+        const volumeLevel = document.getElementById('volume-level');
+
+        playerContainer.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const delta = e.deltaY;
+            let volume = player.volume();
+
+            if (delta < 0) {
+                // Scroll hacia arriba: aumentar volumen
+                volume = Math.min(1, volume + 0.1);
+            } else {
+                // Scroll hacia abajo: disminuir volumen
+                volume = Math.max(0, volume - 0.1);
+            }
+
+            player.volume(volume);
+
+            // Actualizar el indicador de volumen
+            const volumePercent = Math.round(volume * 100);
+            volumeLevel.textContent = volumePercent;
+            volumeIndicator.style.display = 'block';
+
+            // Ocultar el indicador después de 2 segundos
+            clearTimeout(window.volumeTimeout);
+            window.volumeTimeout = setTimeout(() => {
+                volumeIndicator.style.display = 'none';
+            }, 2000);
+        });
 
         // Inicialización
         renderPlaylist();
