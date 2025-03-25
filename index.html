@@ -279,6 +279,17 @@
             display: none; /* Oculto por defecto */
             z-index: 1000;
         }
+
+        #search {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+            border: none;
+            background-color: #333;
+            color: white;
+            font-family: 'Poppins', sans-serif;
+        }
     </style>
 </head>
 <body>
@@ -383,24 +394,36 @@
 
         const renderPlaylist = () => {
             playlistElement.innerHTML = '';
-            defaultPlaylist.forEach((channel, index) => {
+            
+            // Ordenar la lista poniendo los favoritos primero
+            const sortedPlaylist = [...defaultPlaylist].map((channel, index) => ({...channel, originalIndex: index}))
+                .sort((a, b) => {
+                    const aIsFavorite = favorites.includes(a.originalIndex.toString());
+                    const bIsFavorite = favorites.includes(b.originalIndex.toString());
+                    
+                    if (aIsFavorite && !bIsFavorite) return -1;
+                    if (!aIsFavorite && bIsFavorite) return 1;
+                    return 0;
+                });
+
+            sortedPlaylist.forEach((channel) => {
                 const li = document.createElement('li');
                 li.innerHTML = `
                     <span>${channel.title}</span>
-                    <i class="star fas fa-star ${favorites.includes(index.toString()) ? 'favorite' : ''}" data-index="${index}"></i>
+                    <i class="star fas fa-star ${favorites.includes(channel.originalIndex.toString()) ? 'favorite' : ''}" 
+                       data-index="${channel.originalIndex}"></i>
                 `;
-                li.addEventListener('click', () => playVideo(channel.url, index));
+                li.addEventListener('click', () => playVideo(channel.url, channel.originalIndex));
                 playlistElement.appendChild(li);
             });
 
             // Agregar evento a las estrellas
-            const stars = document.querySelectorAll('.star');
-            stars.forEach(star => {
+            document.querySelectorAll('.star').forEach(star => {
                 star.addEventListener('click', (e) => {
-                    e.stopPropagation(); // Evitar que el clic en la estrella active el canal
+                    e.stopPropagation();
                     const index = star.getAttribute('data-index');
                     toggleFavorite(index);
-                    star.classList.toggle('favorite');
+                    renderPlaylist(); // Volver a renderizar la lista para reordenar
                 });
             });
         };
@@ -417,7 +440,15 @@
         const playVideo = (url, index) => {
             const items = playlistElement.querySelectorAll('li');
             items.forEach((item) => item.classList.remove('active'));
-            items[index].classList.add('active');
+            
+            // Encontrar el elemento correcto basado en el índice original
+            const stars = document.querySelectorAll('.star');
+            stars.forEach((star, i) => {
+                if (star.getAttribute('data-index') === index.toString()) {
+                    star.parentElement.classList.add('active');
+                }
+            });
+            
             player.src({ type: 'application/x-mpegURL', src: url });
             player.play();
             localStorage.setItem('lastPlayed', index);
@@ -425,28 +456,39 @@
 
         const filterPlaylist = () => {
             const search = document.getElementById('search').value.toLowerCase();
-            const filteredPlaylist = defaultPlaylist.filter(channel =>
-                channel.title.toLowerCase().includes(search)
-            );
+            
+            // Filtrar y ordenar manteniendo favoritos primero
+            const filteredPlaylist = [...defaultPlaylist]
+                .map((channel, index) => ({...channel, originalIndex: index}))
+                .filter(channel => channel.title.toLowerCase().includes(search))
+                .sort((a, b) => {
+                    const aIsFavorite = favorites.includes(a.originalIndex.toString());
+                    const bIsFavorite = favorites.includes(b.originalIndex.toString());
+                    
+                    if (aIsFavorite && !bIsFavorite) return -1;
+                    if (!aIsFavorite && bIsFavorite) return 1;
+                    return 0;
+                });
+
             playlistElement.innerHTML = '';
-            filteredPlaylist.forEach((channel, index) => {
+            filteredPlaylist.forEach((channel) => {
                 const li = document.createElement('li');
                 li.innerHTML = `
                     <span>${channel.title}</span>
-                    <i class="star fas fa-star ${favorites.includes(index.toString()) ? 'favorite' : ''}" data-index="${index}"></i>
+                    <i class="star fas fa-star ${favorites.includes(channel.originalIndex.toString()) ? 'favorite' : ''}" 
+                       data-index="${channel.originalIndex}"></i>
                 `;
-                li.addEventListener('click', () => playVideo(channel.url, index));
+                li.addEventListener('click', () => playVideo(channel.url, channel.originalIndex));
                 playlistElement.appendChild(li);
             });
 
             // Agregar evento a las estrellas en la lista filtrada
-            const stars = document.querySelectorAll('.star');
-            stars.forEach(star => {
+            document.querySelectorAll('.star').forEach(star => {
                 star.addEventListener('click', (e) => {
                     e.stopPropagation();
                     const index = star.getAttribute('data-index');
                     toggleFavorite(index);
-                    star.classList.toggle('favorite');
+                    filterPlaylist(); // Volver a filtrar para reordenar
                 });
             });
         };
