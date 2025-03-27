@@ -4,11 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reproductor de Video con QR</title>
-    <!-- Estilos de Video.js -->
     <link href="https://vjs.zencdn.net/8.6.1/video-js.css" rel="stylesheet" />
-    <!-- Fuente Poppins -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- FontAwesome para íconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         /* Estilos generales */
@@ -120,7 +117,7 @@
         }
 
         .star.favorite {
-            color: #ffd700; /* Amarillo para favoritos */
+            color: #ffd700;
         }
 
         @media (max-width: 768px) {
@@ -276,7 +273,7 @@
             border-radius: 10px;
             font-size: 1.2em;
             color: #fff;
-            display: none; /* Oculto por defecto */
+            display: none;
             z-index: 1000;
         }
 
@@ -290,6 +287,21 @@
             color: white;
             font-family: 'Poppins', sans-serif;
         }
+
+        #channel-name-overlay {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.7);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 1.2em;
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
     </style>
 </head>
 <body>
@@ -301,6 +313,7 @@
             <video id="my-video" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto" aria-label="Reproductor de video">
                 <source src="" type="application/x-mpegURL">
             </video>
+            <div id="channel-name-overlay"></div>
         </div>
 
         <div id="playlist-container">
@@ -311,20 +324,17 @@
         </div>
     </div>
 
-    <!-- Sección del código QR -->
     <div class="qr-container">
         <h3>¡Escanea el código QR!</h3>
         <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhJMKZYBgrggrXAZC6g9PFNXAyVDQqFl37nEqRhA3mwAxogX6n_WrzwLSmiVNyuS2rAi3Akt-Uu_dkUE1Rn7BKEhtVlZah4sX7k3lVb1JLAkWZxfGhD3wr_bK2ib2ajOqn34jhU_2Lcm24kE6K_3Cd5BEWOgO3fibL0q8yAuCifeM7WANXK4kzRb9op588/s320/JORGE_DEZ-1024.jpeg" alt="Código QR">
         <p>Usa tu cámara para escanear y Compartir la aplicacion.</p>
     </div>
 
-    <!-- Contador de visitas externo -->
     <div class="visit-counter">
         <h3>Visitas</h3>
         <script type="text/javascript" src="https://contador.websiteout.com/js/7/0/0/0"></script>
     </div>
 
-    <!-- Indicador de volumen -->
     <div id="volume-indicator" class="volume-indicator">
         Volumen: <span id="volume-level">50</span>%
     </div>
@@ -346,48 +356,250 @@
         });
 
         const playlistElement = document.getElementById('playlist');
+        const channelNameOverlay = document.getElementById('channel-name-overlay');
 
         const defaultPlaylist = [
-            { title: "Tele red", url: "https://k20.usastreams.com:8081/telered/index.m3u8" },
-            { title: "Canal 13", url: "https://ssh101.bozztv.com/ssh101/sinart13/chunks.m3u8" },
-            { title: "Canal 2", url: "https://d30230c1j3h08x.cloudfront.net/360p.m3u8" },
-            { title: "canal 36", url: "https://liveingesta118.cdnmedia.tv/trivision36live/smil:dvrlive.smil/playlist.m3u8" },
-            { title: "Retro Tv", url: "https://retromusictv.streamtech.com.co:5443/retromusic/streams/zNDymkVySau6UBcU381637625188.m3u8" },
-            { title: "TELE Clasica", url: "https://ssh101stream.ssh101.com/akamaissh101/ssh101/teleclasik/chunks.m3u8" },
-            { title: "Tv Retro", url: "https://ssh101.bozztv.com/ssh101/tvretropalmares/chunks.m3u8" },
-            { title: "Canal 6", url: "https://d1vr8yxz55pucr.cloudfront.net/index.m3u8" },
-            { title: "Telesistema", url: "https://k20.usastreams.com:8081/telesistema/tracks-v1a1/mono.m3u8" },
-            { title: "Canal 4", url: "https://alba-cr-repretel-c4.stream.mediatiquestream.com/index.m3u8" },
-            { title: "Canal 1", url: "https://59ef525c24caa.streamlock.net/canal1cr/canal1cr/playlist.m3u8" },
-            { title: "Canal 11", url: "https://alba-cr-repretel-c11.stream.mediatiquestream.com/480p.m3u8" },
-            { title: "Extrema TV", url: "https://627bb251f23c7.streamlock.net:444/ExtremaTV/ExtremaTV/playlist.m3u8" },
-            { title: "Nicoya tv", url: "https://59ef525c24caa.streamlock.net/nicoyatv/nicoyatv/chunklist_w1674958038.m3u8" },
-            { title: "Sony Canal Novelas", url: "https://a89829b8dca2471ab52ea9a57bc28a35.mediatailor.us-east-1.amazonaws.com/v1/manifest/0fb304b2320b25f067414d481a779b77db81760d/CanelaTV_SonyCanalNovelas/546d9696-a523-4794-9d79-b340f54b6d76/5.m3u8" },
-            { title: "RCN Más", url: "https://rcntv-rcnmas-1-us.plex.wurl.tv/4300.m3u8" },
-            { title: "Azteca Internacional", url: "https://azt-mun.otteravision.com/azt/mun/mun_1080p.m3u8" },
-            { title: "TV+ 2", url: "https://marine2.miplay.cl/tateti/tracks-v1a1/mono.m3u8" },
-            { title: "24 Horas", url: "https://rtvelivestream.rtve.es/rtvesec/24h/24h_main_dvr_720.m3u8" },
-            { title: "Canal IQ", url: "https://rtmp.info/iqtv/envivo/chunklist_w1932587350.m3u8" },
-            { title: "SOY Plancha TV", url: "https://59ef525c24caa.streamlock.net/vmtv/soyplancha/chunklist_w13201094.m3u8" },
-            { title: "MetaVersus CR", url: "https://59ef525c24caa.streamlock.net/vmtv/soyplancha/chunklist_w13201094.m3u8" },
-            { title: "TVS Retro Live", url: "https://cdn.streamhispanatv.net:3531/live/tvsretrogtlive.m3u8" },
-            { title: "Las Estrellas en vivo", url: "https://channel01-onlymex.akamaized.net/hls/live/2022749/event01/index_1.m3u8" },
-            { title: "Azteca Deportes en vivo", url: "https://azt-mun.otteravision.com/azt/mun/mun_1080p.m3u8" },
-            { title: "Box Cinema Live", url: "https://e46fa4a445464f8a9150fa7d510eb85c.mediatailor.us-west-2.amazonaws.com/v1/manifest/2d2d0d97b0e548f025b2598a69b55bf30337aa0e/npp/c3d60978-8ce1-4ad7-be9c-859affe0d7c3/5.m3u8" },
-            { title: "Telemundo en vivo", url: "https://nbcu-telemundoflorida-firetv.amagi.tv/playlist1080.m3u8" },
-            { title: "extrema tv", url: "https://627bb251f23c7.streamlock.net:444/ExtremaTV/ExtremaTV/chunklist_w1900063100.m3u8" },
-            { title: "Retro x", url: "https://acceso.radiosportstv.online:3259/hybrid/play.m3u8" },
-            { title: "Latino Classic TV", url: "https://streams2.sofast.tv/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/4d419a88-a62c-496f-b8a1-984e746f8259/manifest.m3u8" },
-            { title: "MIAMI TV", url: "https://59ec5453559f0.streamlock.net/JennyLive/_definst_/smil:41235/chunklist_w1924994432_b1896000.m3u8" },
-            { title: "Sereno TV", url: "https://streaming-cl.sh1ny.space/memfs/e8a8e789-170b-4de4-a33b-90a9a475ce65_output_0.m3u8" },
-            { title: "Canal Turrialba ", url: "https://cloudvideo.servers10.com:8081/8230/tracks-v1a1/mono.m3u8" },
-            { title: "Canal Demo ", url: "https://tvservices.fullhd-streaming.com:3941/stream/play.m3u8" },
-            { title: "Canal Tele Brunca ", url: "https://59ef525c24caa.streamlock.net/telebrunca/telebrunca/chunklist_w942921838.m3u8" },
-            { title: "Canal Garabito TV ", url: "https://59ef525c24caa.streamlock.net/garabitoTV/garabitotv/chunklist_w878297441.m3u8" },
-            { title: "Canal Dreiko TV ", url: "https://cloudvideo.servers10.com:8081/8096/tracks-v1a1/mono.m3u8" },
-            { title: "Canal WOW TV ", url: "https://cdn.elsalvadordigital.com:1936/wowtv/smil:wowtv.smil/chunklist_w619053377_b700000_slen.m3u8" },
-            { title: "Canal Visión Dorada ", url: "https://movil.ejeserver.com/live/visiondorada.m3u8" },
-            { title: "CANAL 10 CR ", url: "https://acceso.radiosportstv.online:3285/hybrid/play.m3u8" },
+            { 
+                title: "Tele red", 
+                url: "https://k20.usastreams.com:8081/telered/index.m3u8",
+                logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRc0CfBLPTdVRLyxhsV8Hq3wfIeJAPwiC2TQOhBNoFV893ShXIpe0MWXG9nhjQnTPtsMTk&usqp=CAU", 
+                descripcion: "Canal de noticias local."
+            },
+            { 
+                title: "Canal 13", 
+                url: "https://ssh101.bozztv.com/ssh101/sinart13/chunks.m3u8",
+                logo: "https://sicultura-live.s3.amazonaws.com/public/styles/large_retina/public/media/sinart_canal_13_1.png?itok=WgWfcqWw",
+                descripcion: "Canal de entretenimiento."
+            },
+            { 
+                title: "Canal 2", 
+                url: "https://d30230c1j3h08x.cloudfront.net/360p.m3u8",
+                logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSf67Sxp-_WX2yWMZiWmW6teYlYvuPvJpud-w&s",
+                descripcion: "Canal de deportes."
+            },
+            { 
+                title: "canal 36", 
+                url: "https://liveingesta118.cdnmedia.tv/trivision36live/smil:dvrlive.smil/playlist.m3u8",
+                logo: "https://sicultura-live.s3.amazonaws.com/public/2022-11/313401143_527193602751613_1789836145711014030_n.png",
+                descripcion: "Canal de noticias regional."
+            },
+            { 
+                title: "Retro Tv", 
+                url: "https://retromusictv.streamtech.com.co:5443/retromusic/streams/zNDymkVySau6UBcU381637625188.m3u8",
+                logo: "https://play-lh.googleusercontent.com/zLkTnFfdGGq5-cuY0DBvsCoiRUToWFA8rcm_Z3ieUr7rwgmzyojRXIfqMXt9dm4ocjs",
+                descripcion: "Canal de música retro."
+            },
+            { 
+                title: "TELE Clasica", 
+                url: "https://ssh101stream.ssh101.com/akamaissh101/ssh101/teleclasik/chunks.m3u8",
+                logo: "https://lh5.googleusercontent.com/proxy/MzEB3oW1n1bQ0bSbXabvAYW0zaIfBBYQx9hn8e6Esp25BUZEyS3fZtj5cLpn0f9fovV6KnIXIYUvRWsTZr67VUEvfN0VaY42kBjN-kZt",
+                descripcion: "Canal de películas clásicas."
+            },
+            { 
+                title: "Tv Retro", 
+                url: "https://ssh101.bozztv.com/ssh101/tvretropalmares/chunks.m3u8",
+                logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSBsKLLZbFpvVQrOzRAnA9BCRraLxP3-GLwvBv30iNI6TpPz1o51sa1de7pGKS40Quzajw&usqp=CAU",
+                descripcion: "Canal de series retro."
+            },
+            { 
+                title: "Canal 6", 
+                url: "https://d1vr8yxz55pucr.cloudfront.net/index.m3u8",
+                logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/54/RepretelCanal62024.svg/1200px-RepretelCanal62024.svg.png",
+                descripcion: "Canal de noticias local."
+            },
+            { 
+                title: "Telesistema", 
+                url: "https://k20.usastreams.com:8081/telesistema/tracks-v1a1/mono.m3u8" ,
+                logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR9YKvejKBdJWBUfm0Oc32tKTO1QKQXXu2s4A&s",
+                descripcion: "Canal de entretenimiento."
+            },
+            { 
+                title: "Canal 4", 
+                url: "https://alba-cr-repretel-c4.stream.mediatiquestream.com/index.m3u8",
+                logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSgoRuZwypFBxNvCCqvC2hjEFnPdhI50u8ZgXnRQIOX3D0j03kEOFCofSIN-pdFF5T9VN0&usqp=CAU",
+                descripcion: "Canal de deportes."
+            },
+             { 
+                title: "Canal 1", 
+                url: "https://59ef525c24caa.streamlock.net/canal1cr/canal1cr/playlist.m3u8",
+                logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRCPgX3BAyVJrhddZBS934xmT6Kev9EUhXHeQ&s",
+                descripcion: "Canal de noticias."
+            },
+            { 
+                title: "Canal 11", 
+                url: "https://alba-cr-repretel-c11.stream.mediatiquestream.com/480p.m3u8",
+                logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/RepretelCanal112024.svg/1200px-RepretelCanal112024.svg.png",
+                descripcion: "Canal de entretenimiento."
+            },
+            { 
+                title: "Extrema TV", 
+                url: "https://627bb251f23c7.streamlock.net:444/ExtremaTV/ExtremaTV/playlist.m3u8",
+                logo: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhqYT3mLOwSe2tCT9djITc1a4rC-hKxanvkywuAU8UeIkHaVkqwt1LDhrtUQqZO8m4cP-XHE4h-QnXlCBupaZ8oTASthEM7Rz5lAwu0l2_HRs9stLeJBvm8SUL4ONJ-kXWZM921yfOnAIdtz81kYBPy7JhQJLY8Lq1Ye4uuBeEawZvgAPT3-FfA0EaLfNkX/s600/extrema-tv.png",
+                descripcion: "Canal de deportes extremos."
+            },
+            { 
+                title: "Nicoya tv", 
+                url: "https://59ef525c24caa.streamlock.net/nicoyatv/nicoyatv/chunklist_w1674958038.m3u8",
+                logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNtuYqz3KCkvM3aBb-Lg3YRtfoaVaDe9srK_6QZaajqCb7jS0RBcJ1lBUJaEIqJo21ahY&usqp=CAU",
+                descripcion: "Canal local de Nicoya."
+            },
+            { 
+                title: "Sony Canal Novelas", 
+                url: "https://a89829b8dca2471ab52ea9a57bc28a35.mediatailor.us-east-1.amazonaws.com/v1/manifest/0fb304b2320b25f067414d481a779b77db81760d/CanelaTV_SonyCanalNovelas/546d9696-a523-4794-9d79-b340f54b6d76/5.m3u8",
+                logo: "https://static.wikia.nocookie.net/dreamlogos/images/a/a7/Sony_canal_logo.png/revision/latest?cb=20210224232334",
+                descripcion: "Canal de telenovelas."
+            },
+            { 
+                title: "RCN Más", 
+                url: "https://rcntv-rcnmas-1-us.plex.wurl.tv/4300.m3u8",
+                logo: "https://pbs.twimg.com/profile_images/1399263932456607750/XYvenBB4_400x400.jpg",
+                descripcion: "Canal de noticias y entretenimiento."
+            },
+            { 
+                title: "Azteca Internacional", 
+                url: "https://azt-mun.otteravision.com/azt/mun/mun_1080p.m3u8",
+                logo: "https://pbs.twimg.com/profile_images/1761972439863402496/HYFYy2Zg_400x400.jpg",
+                descripcion: "Canal de noticias y deportes."
+            },
+            { 
+                title: "TV+ 2", 
+                url: "https://marine2.miplay.cl/tateti/tracks-v1a1/mono.m3u8",
+                logo: "https://pbs.twimg.com/profile_images/1399263932456607750/XYvenBB4_400x400.jpg",
+                descripcion: "Canal de entretenimiento."
+            },
+            { 
+                title: "24 Horas", 
+                url: "https://rtvelivestream.rtve.es/rtvesec/24h/24h_main_dvr_720.m3u8",
+                logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNo8nRAN4wCgrjHF17KzyCdU34-SRV5oOcrQ&s",
+                descripcion: "Canal de noticias."
+            },
+            { 
+                title: "Canal IQ", 
+                url: "https://rtmp.info/iqtv/envivo/chunklist_w1932587350.m3u8",
+                logo: "https://www.kolbi.cr/wps/wcm/connect/www.kolbi.cr/f9cd3117-e95c-4406-8f7f-e178cdef05b0/IQ-Channel.png?MOD=AJPERES&CACHEID=ROOTWORKSPACE.Z18_GG1AHCC0P8VB70QI79ARQL0000-f9cd3117-e95c-4406-8f7f-e178cdef05b0-oBgaIj2",
+                descripcion: "Canal de entretenimiento."
+            },
+            { 
+                title: "SOY Plancha TV", 
+                url: "https://59ef525c24caa.streamlock.net/vmtv/soyplancha/chunklist_w13201094.m3u8",
+                logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTXOwrMnouaPiJ6KvJpA4NlJPkrMLATHUiQrw&s",
+                descripcion: "Canal de música."
+            },
+            { 
+                title: "MetaVersus CR", 
+                url: "https://vivo.solumedia.com:19360/metaversus/metaversus.m3u8",
+                logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQx0q4tLgJ1x4RdmIz885mRbQ6fHNbBt3_cKg&s",
+                descripcion: "Canal de noticias y entretenimiento."
+            },
+            { 
+                title: "TVS Retro Live", 
+                url: "https://cdn.streamhispanatv.net:3531/live/tvsretrogtlive.m3u8",
+                logo: "https://www.cxtv.com.br/img/Tvs/Logo/webp-m/a39ae0962d6b0b34320db480996652b7.webp",
+                descripcion: "Canal de música retro."
+            },
+            { 
+                title: "Las Estrellas en vivo", 
+                url: "https://channel01-onlymex.akamaized.net/hls/live/2022749/event01/index_1.m3u8",
+                logo: "https://yt3.googleusercontent.com/JOR8-8xL3x91J-1s4Rhu8N7odmnnrEFe5DDXxv9xRia88bCkkiWwiJQkUg3VFCScfRUxILaDNg=s900-c-k-c0x00ffffff-no-rj",
+                descripcion: "Canal de entretenimiento y noticias."
+            },
+            { 
+                title: "Milagros TV en VIVO", 
+                url: "https://mediacp.us:8081/milagrostv/tracks-v1a1/mono.m3u8",
+                logo: "https://cigars.roku.com/v1/contain/800x454/https%3A%2F%2Fimage.roku.com%2Fdeveloper_channels%2Fprod%2Fee509956731c6ace85f4a1836a1d0caf8d0b4d2f03c10fd2eb964bff8d3e5bd5.jpg",
+                descripcion: "Canal de deportes."
+            },
+            { 
+                title: "Box Cinema Live", 
+                url: "https://e46fa4a445464f8a9150fa7d510eb85c.mediatailor.us-west-2.amazonaws.com/v1/manifest/2d2d0d97b0e548f025b2598a69b55bf30337aa0e/npp/c3d60978-8ce1-4ad7-be9c-859affe0d7c3/5.m3u8",
+                logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQDkxKAAplJUdJXzxPDxGm9TuDARQLQ47PMG8ZBswhwhuyDegHkLUZUKy4XWB_qja-sFKw&usqp=CAU",
+                descripcion: "Canal de películas."
+            },
+            { 
+                title: "Telemundo en vivo", 
+                url: "https://nbcu-telemundoflorida-firetv.amagi.tv/playlist1080.m3u8",
+                logo: "https://yt3.googleusercontent.com/WZacbtWNLdznCtQ5Au7EjtrVNmktZfQNiXOnIzTwllgNd1iRMhPITW-CQrGQjUVnS8IxN75UBA=s900-c-k-c0x00ffffff-no-rj",
+                descripcion: "Canal de noticias y entretenimiento."
+            },
+            { 
+                title: "Vision tv", 
+                url: "https://cdn.streamhispanatv.net:3076/live/visiontvlive.m3u8",
+                logo: "https://www.cxtv.com.br/img/Tvs/Logo/webp-m/1fa9bd6990d735dab040d18ab1d044a9.webp",
+                descripcion: "Canal de deportes extremos."
+            },
+            { 
+                title: "Retro RG", 
+                url: "https://acceso.radiosportstv.online:3259/hybrid/play.m3u8",
+                logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSBxvhIPxIJvY8jcD7VFd6XnmqtnwC0YmUcG6Ttgtc3RSOnQrAcpq8bK8DljzNaqKchQbg&usqp=CAU",
+                descripcion: "Canal de música retro."
+            },
+            { 
+                title: "Latino Classic TV", 
+                url: "https://streams2.sofast.tv/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/4d419a88-a62c-496f-b8a1-984e746f8259/manifest.m3u8",
+                logo: "https://cdn.rudo.video/assets/canal-13/live/logoApi_151f8e8d0c9e2a144f59f11ec492c3e91710874647.png",
+                descripcion: "Canal de películas clásicas latinas."
+            },
+            { 
+                title: "MIAMI TV", 
+                url: "https://59ec5453559f0.streamlock.net/JennyLive/_definst_/smil:41235/chunklist_w1924994432_b1896000.m3u8",
+                logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTEzEB2GWG6aayElROaQBM_8F1Ii1F9eGGhRA&s",
+                descripcion: "Canal de noticias y entretenimiento de Miami."
+            },
+            { 
+                title: "Sereno TV", 
+                url: "https://ssh101.bozztv.com/ssh101/tvretropalmares/chunks.m3u8",
+                logo: "https://serenotv.com/cargas/2022/01/stv.jpg",
+                descripcion: "Canal de música relajante."
+            },
+            { 
+                title: "Canal Turrialba", 
+                url: "https://cloudvideo.servers10.com:8081/8230/tracks-v1a1/mono.m3u8",
+                logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRIo1iQW2AJvIdVjUFVAwAxLgPALnvBMwGYFw&s",
+                descripcion: "Canal local de Turrialba."
+            },
+            { 
+                title: "Canal Demo", 
+                url: "https://tvservices.fullhd-streaming.com:3941/stream/play.m3u8",
+                logo: "https://milemisoras.com/img/channel/abd12be06e14bf48011ce97f584bfefb.png",
+                descripcion: "Canal de demostración."
+            },
+            { 
+                title: "Canal Tele Brunca", 
+                url: "https://59ef525c24caa.streamlock.net/telebrunca/telebrunca/chunklist_w942921838.m3u8",
+                logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRU4uLGOuQaNRSDK8lSiCjICHX0Ld_weJoskA&s",
+                descripcion: "Canal local de la región Brunca."
+            },
+            { 
+                title: "Canal Garabito TV", 
+                url: "https://59ef525c24caa.streamlock.net/garabitoTV/garabitotv/chunklist_w878297441.m3u8",
+                logo: "https://i.ytimg.com/vi/hPwFk9PkcTs/maxresdefault.jpg",
+                descripcion: "Canal local de Garabito."
+            },
+            { 
+                title: "Canal Dreiko TV", 
+                url: "https://cloudvideo.servers10.com:8081/8096/tracks-v1a1/mono.m3u8",
+                logo: "https://play-lh.googleusercontent.com/MKxancjPSbqrJIaCcndA9s6VkmYrNZC1X4SR7hDaMvJKUMd33qTN6pob2mVkS8Azd2o",
+                descripcion: "Canal de entretenimiento."
+            },
+            { 
+                title: "Canal WOW TV", 
+                url: "https://cdn.elsalvadordigital.com:1936/wowtv/smil:wowtv.smil/chunklist_w619053377_b700000_slen.m3u8",
+                logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRKXtZ-XPSnx1sNV7Ilp7D-x8231NVgr_kk-Q&s",
+                descripcion: "Canal de noticias y entretenimiento."
+            },
+            { 
+                title: "Canal Visión Dorada", 
+                url: "https://movil.ejeserver.com/live/visiondorada.m3u8",
+                logo: "https://serenotv.com/cargas/2022/01/Canal-vision-dorada-en-vivo.jpg",
+                descripcion: "Canal de entretenimiento."
+            },
+            { 
+                title: "CANAL 10 CR", 
+                url: "https://acceso.radiosportstv.online:3285/hybrid/play.m3u8",
+                logo: "https://www.vivalivetv.com/public/files/shows/0/1/3668-294x165-FFFFFF.jpg",
+                descripcion: "Canal de deportes y noticias."
+            },
+            {  title: "Extrema TV Kids",  url: "https://627bb251f23c7.streamlock.net:444/ExtremaKids/ExtremaKids/chunklist_w877184190.m3u8",  logo: "https://image.roku.com/developer_channels/prod/685354bd84f85fe39c7ecae45018ccb60011681ba7838fd841e3f2392f4f6249.png",  descripcion: "Canal de deportes y noticias."  },
         ];
 
         // Cargar favoritos desde localStorage
@@ -410,11 +622,18 @@
             sortedPlaylist.forEach((channel) => {
                 const li = document.createElement('li');
                 li.innerHTML = `
-                    <span>${channel.title}</span>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <img src="${channel.logo}" alt="${channel.title} Logo" style="width: 40px; height: 40px; border-radius: 50%;">
+                        <div>
+                            <span style="font-size: 1.1em; font-weight: 500; color: #fff;">${channel.title}</span>
+                            <p style="font-size: 0.8em; color: #ccc; margin-bottom: 0;">${channel.descripcion}</p>
+                        </div>
+                    </div>
                     <i class="star fas fa-star ${favorites.includes(channel.originalIndex.toString()) ? 'favorite' : ''}" 
-                       data-index="${channel.originalIndex}"></i>
+                        data-index="${channel.originalIndex}"
+                        aria-label="${favorites.includes(channel.originalIndex.toString()) ? 'Remover de favoritos' : 'Agregar a favoritos'}"></i>
                 `;
-                li.addEventListener('click', () => playVideo(channel.url, channel.originalIndex));
+                li.addEventListener('click', () => playVideo(channel.url, channel.originalIndex, channel.title));
                 playlistElement.appendChild(li);
             });
 
@@ -424,25 +643,24 @@
                     e.stopPropagation();
                     const index = star.getAttribute('data-index');
                     toggleFavorite(index);
-                    renderPlaylist(); // Volver a renderizar la lista para reordenar
+                    renderPlaylist();
                 });
             });
         };
 
         const toggleFavorite = (index) => {
             if (favorites.includes(index)) {
-                favorites = favorites.filter(fav => fav !== index); // Eliminar de favoritos
+                favorites = favorites.filter(fav => fav !== index);
             } else {
-                favorites.push(index); // Agregar a favoritos
+                favorites.push(index);
             }
-            localStorage.setItem('favorites', JSON.stringify(favorites)); // Guardar en localStorage
+            localStorage.setItem('favorites', JSON.stringify(favorites));
         };
 
-        const playVideo = (url, index) => {
+        const playVideo = (url, index, title) => {
             const items = playlistElement.querySelectorAll('li');
             items.forEach((item) => item.classList.remove('active'));
             
-            // Encontrar el elemento correcto basado en el índice original
             const stars = document.querySelectorAll('.star');
             stars.forEach((star, i) => {
                 if (star.getAttribute('data-index') === index.toString()) {
@@ -450,15 +668,28 @@
                 }
             });
             
-            player.src({ type: 'application/x-mpegURL', src: url });
-            player.play();
-            localStorage.setItem('lastPlayed', index);
+            if (isValidUrl(url)) {player.src({ type: 'application/x-mpegURL', src: url });
+                player.play();
+                localStorage.setItem('lastPlayed', index);
+                showChannelName(title);
+            } else {
+                console.error('URL de video no válida:', url);
+                alert('No se puede reproducir el video. La URL no es válida.');
+            }
         };
+
+        function isValidUrl(url) {
+            try {
+                new URL(url);
+                return true;
+            } catch (_) {
+                return false;
+            }
+        }
 
         const filterPlaylist = () => {
             const search = document.getElementById('search').value.toLowerCase();
             
-            // Filtrar y ordenar manteniendo favoritos primero
             const filteredPlaylist = [...defaultPlaylist]
                 .map((channel, index) => ({...channel, originalIndex: index}))
                 .filter(channel => channel.title.toLowerCase().includes(search))
@@ -475,21 +706,27 @@
             filteredPlaylist.forEach((channel) => {
                 const li = document.createElement('li');
                 li.innerHTML = `
-                    <span>${channel.title}</span>
+                    <div style="display:flex; align-items: center; gap: 10px;">
+                        <img src="${channel.logo}" alt="${channel.title} Logo" style="width: 40px; height: 40px; border-radius: 50%;">
+                        <div>
+                            <span style="font-size: 1.1em; font-weight: 500; color: #fff;">${channel.title}</span>
+                            <p style="font-size: 0.8em; color: #ccc; margin-bottom: 0;">${channel.descripcion}</p>
+                        </div>
+                    </div>
                     <i class="star fas fa-star ${favorites.includes(channel.originalIndex.toString()) ? 'favorite' : ''}" 
-                       data-index="${channel.originalIndex}"></i>
+                        data-index="${channel.originalIndex}"
+                        aria-label="${favorites.includes(channel.originalIndex.toString()) ? 'Remover de favoritos' : 'Agregar a favoritos'}"></i>
                 `;
-                li.addEventListener('click', () => playVideo(channel.url, channel.originalIndex));
+                li.addEventListener('click', () => playVideo(channel.url, channel.originalIndex, channel.title));
                 playlistElement.appendChild(li);
             });
 
-            // Agregar evento a las estrellas en la lista filtrada
             document.querySelectorAll('.star').forEach(star => {
                 star.addEventListener('click', (e) => {
                     e.stopPropagation();
                     const index = star.getAttribute('data-index');
                     toggleFavorite(index);
-                    filterPlaylist(); // Volver a filtrar para reordenar
+                    filterPlaylist();
                 });
             });
         };
@@ -497,13 +734,18 @@
         const loadLastPlayed = () => {
             const lastPlayed = localStorage.getItem('lastPlayed');
             if (lastPlayed !== null) {
-                playVideo(defaultPlaylist[lastPlayed].url, lastPlayed);
+                const lastPlayedIndex = parseInt(lastPlayed);
+                if (defaultPlaylist[lastPlayedIndex]) {
+                    playVideo(defaultPlaylist[lastPlayedIndex].url, lastPlayedIndex, defaultPlaylist[lastPlayedIndex].title);
+                } else {
+                    console.error('El índice de la última reproducción no es válido:', lastPlayed);
+                    playVideo(defaultPlaylist[0].url, 0, defaultPlaylist[0].title);
+                }
             } else {
-                playVideo(defaultPlaylist[0].url, 0);
+                playVideo(defaultPlaylist[0].url, 0, defaultPlaylist[0].title);
             }
         };
 
-        // Control del volumen con la rueda del mouse
         const playerContainer = document.getElementById('player-container');
         const volumeIndicator = document.getElementById('volume-indicator');
         const volumeLevel = document.getElementById('volume-level');
@@ -513,29 +755,45 @@
             const delta = e.deltaY;
             let volume = player.volume();
 
-            if (delta < 0) {
-                // Scroll hacia arriba: aumentar volumen
-                volume = Math.min(1, volume + 0.1);
-            } else {
-                // Scroll hacia abajo: disminuir volumen
+            if (delta > 0) {
                 volume = Math.max(0, volume - 0.1);
+            } else {
+                volume = Math.min(1, volume + 0.1);
             }
 
             player.volume(volume);
-
-            // Actualizar el indicador de volumen
-            const volumePercent = Math.round(volume * 100);
-            volumeLevel.textContent = volumePercent;
+            const volumePercentage = Math.round(volume * 100);
+            volumeLevel.textContent = `${volumePercentage}`;
             volumeIndicator.style.display = 'block';
 
-            // Ocultar el indicador después de 2 segundos
-            clearTimeout(window.volumeTimeout);
-            window.volumeTimeout = setTimeout(() => {
+            clearTimeout(volumeIndicatorTimeout);
+            volumeIndicatorTimeout = setTimeout(() => {
                 volumeIndicator.style.display = 'none';
-            }, 2000);
+            }, 1000);
         });
 
-        // Inicialización
+        let volumeIndicatorTimeout;
+
+        player.on('volumechange', () => {
+            const volumePercentage = Math.round(player.volume() * 100);
+            volumeLevel.textContent = `${volumePercentage}`;
+            volumeIndicator.style.display = 'block';
+
+            clearTimeout(volumeIndicatorTimeout);
+            volumeIndicatorTimeout = setTimeout(() => {
+                volumeIndicator.style.display = 'none';
+            }, 1000);
+        });
+
+        function showChannelName(title) {
+            channelNameOverlay.textContent = title;
+            channelNameOverlay.style.opacity = '1';
+
+            setTimeout(() => {
+                channelNameOverlay.style.opacity = '0';
+            }, 3000);
+        }
+
         renderPlaylist();
         loadLastPlayed();
     </script>
