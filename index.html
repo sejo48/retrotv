@@ -241,7 +241,7 @@
             background-color: rgba(0, 0, 0, 0.8);
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            position: relative; /* Añadido para posicionar el botón relativamente */
+            position: relative;
         }
 
         .qr-container h3 {
@@ -295,7 +295,7 @@
             color: white;
             padding: 20px;
             border-radius: 10px;
-            margin-top: 20px; /* Espacio con el botón de instalación */
+            margin-top: 20px;
             text-align: left;
             font-size: 0.9em;
             line-height: 1.5;
@@ -437,7 +437,6 @@
 
         const playlistElement = document.getElementById('playlist');
         const instructionsPopup = document.getElementById('instructions-text');
-
 
         const defaultPlaylist = [
             {
@@ -608,70 +607,71 @@
                  logo: "https://www.cxtv.com.br/img/Tvs/Logo/webp-m/1fa9bd6990d735dab040d18ab1d044a9.webp",
                  descripcion: "Canal de deportes extremos."
              },
-             {title: "Retro RG",
-                url: "https://acceso.radiosportstv.online:3259/hybrid/play.m3u8",
-                logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSBxvhIPxIJvY8jcD7VFd6XnmqtnwC0YmUcG6Ttgtc3RSOnQrAcpq8bK8DljzNaqKchQbg&usqp=CAU",
-                descripcion: "Canal de música retro."
-            },
-            {
-                title: "Latino Classic TV",
-                url: "https://streams2.sofast.tv/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/4d419a88-a62c-496f-b8a1-984e746f8259/manifest.m3u8",
-                logo: "https://cdn.rudo.video/assets/canal-13/live/logoApi_151f8e8d0c9e2a144f59f11ec492c3e91710874647.png",
-                descripcion: "Canal de películas clásicas latinas."
-            },
-            {
-                title: "MIAMI TV",
-                url: "https://59ec5453559f0.streamlock.net/JennyLive/_definst_/smil:41235/chunklist_w1924994432_b1896000.m3u8",
-                logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTEzEB2GWG6aayElROaQBM_8F1Ii1F9eGGhRA&s",
-                descripcion: "Canal de noticias y entretenimiento de Miami."
-            },
-            {
-                title: "Sereno TV",
-                url: "https://ssh101.bozztv.com/ssh101/tvretropalmares/chunks.m3u8",
-                logo: "https://serenotv.com/cargas/2022/01/stv.jpg",
-                descripcion: "Canal de música relajante."
-            },
-            {
-                title: "Canal Turrialba",
-                url: "https://cloudvideo.servers10.com:8081/8230/tracks-v1a1/mono.m3u8",
-                logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRIo1iQW2AJvIdVjUFVAwAxLgPALnvBMwGYFw&s",
-                descripcion: "Canal local de Turrialba."
-            },
-            {
-                title: "Canal Demo",
-                url: "https://tvservices.fullhd-streaming.com:3941/stream/play.m3u8",
-                logo: "https://milemisoras.com/img/channel/abd12be06e14bf48011ce97f584bfefb.png",
-                descripcion: "Canal de demostración."
-            },
-            {
-                title: "Canal Tele Brunca",
-                url: "https://59ef525c24caa.streamlock.net/telebrunca/telebrunca/chunklist_w942921838.m3u8",
-                logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRU4uLGOuQaNRSDK8lSiCjICHX0Ld_weJoskA&s",
-                descripcion: "Canal local de la región Brunca."
-            },
-            {
-                title: "Canal Garabito TV",
-                url: "https://59ef525c24caa.streamlock.net/garabitoTV/garabitotv/chunklist_w878297441.m3u8",
-                logo: "https://i.ytimg.com/vi/hPwFk9PkcTs/maxresdefault.jpg",
-                descripcion: "Canal local de Garabito."
-            },
-            {
-                title: "Canal Dreiko TV",
-                url: "https://rtv.fullhd-streaming.com:19360/dreikotv/dreikotv.m3u8",
-                logo: "https://play-lh.googleusercontent.com/MKxancjPSbqrJIaCcndA9s6VkmYrNZC1X4SR7hDaMvJKUMd33qTN6pob2mVkS8Azd2o",
-                descripcion: "Canal de entretenimiento."
-            },
-            {
-                title: "Canal WOW TV",
-                url: "https://cdn.elsalvadordigital.com:1936/wowtv/smil:wowtv.smil/chunklist_w619053377_b700000_slen.m3u8",
-                logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRKXtZ-XPSnx1sNV7Ilp7D-x8231NVgr_kk-Q&s",
-                descripcion: "Canal de noticias y entretenimiento."
-            },
-            {
-                title: "Canal Visión Dorada",
-                url: "https://movil.ejeserver.com/live/visiondorada.m3u8",
-                logo: "https://serenotv.com/cargas/2022/01/Canal-vision-dorada-en-vivo.jpg",
-                descripcion: "Canal de entretenimiento."
+             {
+                 title: "Retro RG",
+                 url: "https://acceso.radiosportstv.online:3259/hybrid/play.m3u8",
+                 logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSBxvhIPxIJvY8jcD7VFd6XnmqtnwC0YmUcG6Ttgtc3RSOnQrAcpq8bK8DljzNaqKchQbg&usqp=CAU",
+                 descripcion: "Canal de música retro."
+             },
+             {
+                 title: "Latino Classic TV",
+                 url: "https://streams2.sofast.tv/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/4d419a88-a62c-496f-b8a1-984e746f8259/manifest.m3u8",
+                 logo: "https://cdn.rudo.video/assets/canal-13/live/logoApi_151f8e8d0c9e2a144f59f11ec492c3e91710874647.png",
+                 descripcion: "Canal de películas clásicas latinas."
+             },
+             {
+                 title: "MIAMI TV",
+                 url: "https://59ec5453559f0.streamlock.net/JennyLive/_definst_/smil:41235/chunklist_w1924994432_b1896000.m3u8",
+                 logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTEzEB2GWG6aayElROaQBM_8F1Ii1F9eGGhRA&s",
+                 descripcion: "Canal de noticias y entretenimiento de Miami."
+             },
+             {
+                 title: "Sereno TV",
+                 url: "https://ssh101.bozztv.com/ssh101/tvretropalmares/chunks.m3u8",
+                 logo: "https://serenotv.com/cargas/2022/01/stv.jpg",
+                 descripcion: "Canal de música relajante."
+             },
+             {
+                 title: "Canal Turrialba",
+                 url: "https://cloudvideo.servers10.com:8081/8230/tracks-v1a1/mono.m3u8",
+                 logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRIo1iQW2AJvIdVjUFVAwAxLgPALnvBMwGYFw&s",
+                 descripcion: "Canal local de Turrialba."
+             },
+             {
+                 title: "Canal Demo",
+                 url: "https://tvservices.fullhd-streaming.com:3941/stream/play.m3u8",
+                 logo: "https://milemisoras.com/img/channel/abd12be06e14bf48011ce97f584bfefb.png",
+                 descripcion: "Canal de demostración."
+             },
+             {
+                 title: "Canal Tele Brunca",
+                 url: "https://59ef525c24caa.streamlock.net/telebrunca/telebrunca/chunklist_w942921838.m3u8",
+                 logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRU4uLGOuQaNRSDK8lSiCjICHX0Ld_weJoskA&s",
+                 descripcion: "Canal local de la región Brunca."
+             },
+             {
+                 title: "Canal Garabito TV",
+                 url: "https://59ef525c24caa.streamlock.net/garabitoTV/garabitotv/chunklist_w878297441.m3u8",
+                 logo: "https://i.ytimg.com/vi/hPwFk9PkcTs/maxresdefault.jpg",
+                 descripcion: "Canal local de Garabito."
+             },
+             {
+                 title: "Canal Dreiko TV",
+                 url: "https://rtv.fullhd-streaming.com:19360/dreikotv/dreikotv.m3u8",
+                 logo: "https://play-lh.googleusercontent.com/MKxancjPSbqrJIaCcndA9s6VkmYrNZC1X4SR7hDaMvJKUMd33qTN6pob2mVkS8Azd2o",
+                 descripcion: "Canal de entretenimiento."
+             },
+             {
+                 title: "Canal WOW TV",
+                 url: "https://cdn.elsalvadordigital.com:1936/wowtv/smil:wowtv.smil/chunklist_w619053377_b700000_slen.m3u8",
+                 logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRKXtZ-XPSnx1sNV7Ilp7D-x8231NVgr_kk-Q&s",
+                 descripcion: "Canal de noticias y entretenimiento."
+             },
+             {
+                 title: "Canal Visión Dorada",
+                 url: "https://movil.ejeserver.com/live/visiondorada.m3u8",
+                 logo: "https://serenotv.com/cargas/2022/01/Canal-vision-dorada-en-vivo.jpg",
+                 descripcion: "Canal de entretenimiento."
              },
              {
                  title: "CANAL 10 CR",
@@ -679,16 +679,59 @@
                  logo: "https://www.vivalivetv.com/public/files/shows/0/1/3668-294x165-FFFFFF.jpg",
                  descripcion: "Canal de deportes y noticias."
              },
-             {  title: "Extrema TV Kids",
+             {  
+                 title: "Extrema TV Kids",
                  url: "https://627bb251f23c7.streamlock.net:444/ExtremaKids/ExtremaKids/chunklist_w877184190.m3u8",
                  logo: "https://image.roku.com/developer_channels/prod/685354bd84f85fe39c7ecae45018ccb60011681ba7838fd841e3f2392f4f6249.png",
                  descripcion: "Canal de deportes y noticias."
              },
-             {  title: "Extra tv",
+             {  
+                 title: "Extra tv",
                  url: "https://d2axu5ozwr5gk0.cloudfront.net/live_0.m3u8",
                  logo: "https://yt3.googleusercontent.com/C9h7zS31o2EHQndX7mvbFn9GKeLf9ls4w0sJKF1w2-81tbfQUVfurl3et_avxv4NL_o0_kZaEA=s900-c-k-c0x00ffffff-no-rj",
                  descripcion: "Canal de deportes y noticias."
              },
+             {
+                 title: "IQ TV",
+                 url: "http://tv.ticosmedia.com:1935/IQ/IQ/chunklist_w1774290041.m3u8",
+                 logo: "https://static-media.streema.com/media/cache/cc/d1/ccd144db07aadbd048f3d2c74076ba4e.jpg",
+                 descripcion: "Música que se vive."
+             },
+             /* ESPACIO PARA CANAL FUTURO 1 */
+             {
+                 title: "Canal 8",
+                 url: "https://mdstrm.com/live-stream-playlist/5a7b1e63a8da282c34d65445/master.m3u8",
+                 logo: "https://yt3.googleusercontent.com/ytc/AIdro_nGACtrTonEXYYD5AnmUJsUNj1XkvDaDMhlVqb-cS4DDCc=s900-c-k-c0x00ffffff-no-rj",
+                 descripcion: "Multimedios Costa Rica"
+             },
+             /* ESPACIO PARA CANAL FUTURO 2 */
+             {
+                 title: "",
+                 url: "https://video0.rogohosting.com:19360/8006/8006.m3u8",
+                 logo: "https://radiocostarica.net/sites/default/files/styles/player_image/public/2024-05/Costa%20Rica%20Channel-Costa%20Rica.png.webp?itok=jdj8aeqR",
+                 descripcion: "Costa Rica Channel"
+             },
+             /* ESPACIO PARA CANAL FUTURO 3 */
+             {
+                 title: "Gam tv",
+                 url: "https://v2.azulstream.com:8081/gamtv/gamtv/tracks-v1a1/mono.m3u8",
+                 logo: "https://radiocostarica.net/sites/default/files/styles/player_image/public/2024-06/GAM%20TV%20CR-Costa%20Rica_0.png.webp?itok=ExXxZFSr",
+                 descripcion: "Entretenimiento"
+             },
+             /* ESPACIO PARA CANAL FUTURO 4 */
+             {
+                 title: "ok",
+                 url: "",
+                 logo: "",
+                 descripcion: ""
+             },
+             /* ESPACIO PARA CANAL FUTURO 5 */
+             {
+                 title: "",
+                 url: "",
+                 logo: "",
+                 descripcion: ""
+             }
         ];
 
         // Cargar favoritos desde localStorage
@@ -847,7 +890,6 @@
         }
 
         renderPlaylist();
-
     </script>
 </body>
 </html>
