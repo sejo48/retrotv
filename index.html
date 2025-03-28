@@ -3,22 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reproductor de Video con QR</title>
+    <title>Reproductor de Video Integrado</title>
+
+    <!-- Favicon -->
+    <link rel="icon" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEggUOmHTNlRz2-y8SMwEGPxofdbPDkPBpwUMv9CWVZRU_x9zwY6Nw3Txdsfln4ysysGTEYK3tGAZHrElX1J1R9nLrCBVMELt8pEOKl8JkmRD1jqfNy0cpckDzAxjiUNuPwAqatX8QPSvTtgoG5yA1OvsD9gFQ_Pq46akpFxwCrEFM2GUM7KR55JCmo28eM/s320/Miniatura%20de%20YouTube%201280x720%20px.jpeg" type="image/jpeg" sizes="64x64">
+    <link rel="apple-touch-icon" href="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEggUOmHTNlRz2-y8SMwEGPxofdbPDkPBpwUMv9CWVZRU_x9zwY6Nw3Txdsfln4ysysGTEYK3tGAZHrElX1J1R9nLrCBVMELt8pEOKl8JkmRD1jqfNy0cpckDzAxjiUNuPwAqatX8QPSvTtgoG5yA1OvsD9gFQ_Pq46akpFxwCrEFM2GUM7KR55JCmo28eM/s320/Miniatura%20de%20YouTube%201280x720%20px.jpeg">
+
+    <!-- Librerías externas -->
     <link href="https://vjs.zencdn.net/8.6.1/video-js.css" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <!-- Estilos CSS Integrados -->
     <style>
+        :root {
+            --primary-color: #E50914;
+            --primary-color-hover: #b80710;
+            --background-color: #141414;
+            --text-color: #fff;
+            --text-color-secondary: #ccc;
+            --card-bg-start: #333;
+            --card-bg-end: #222;
+            --card-hover-bg-start: #444;
+            --card-hover-bg-end: #333;
+            --header-bg-gradient: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0));
+            --container-shadow: rgba(0, 0, 0, 0.4);
+            --player-shadow: rgba(0, 0, 0, 0.5);
+            --playlist-shadow: rgba(0, 0, 0, 0.3);
+            --card-shadow: rgba(0, 0, 0, 0.2);
+            --card-hover-shadow: rgba(0, 0, 0, 0.3);
+            --favorite-color: #ffd700;
+            --border-radius-large: 15px;
+            --border-radius-medium: 10px;
+            --border-radius-small: 5px;
+            --font-family: 'Poppins', sans-serif;
+        }
+
         /* Estilos generales */
         body {
-            font-family: 'Poppins', sans-serif;
+            font-family: var(--font-family);
             margin: 0;
             padding: 0;
-            background-color: #141414;
-            color: #fff;
+            background-color: var(--background-color);
+            color: var(--text-color);
         }
 
         .header {
-            background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0));
+            background: var(--header-bg-gradient);
             padding: 10px 20px;
             position: fixed;
             top: 0;
@@ -31,7 +62,7 @@
         }
 
         .header img {
-            height: 60px;
+            height: 60px; /* Ajusta según el logo */
             margin-right: 20px;
         }
 
@@ -41,9 +72,9 @@
             max-width: 1400px;
             margin: 80px auto 20px;
             padding: 20px;
-            background-color: #141414;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-            border-radius: 15px;
+            background-color: var(--background-color); /* O un color ligeramente diferente si se prefiere */
+            box-shadow: 0 8px 32px var(--container-shadow);
+            border-radius: var(--border-radius-large);
             height: 80vh;
             overflow: hidden;
         }
@@ -52,117 +83,176 @@
             flex: 3;
             position: relative;
             margin-right: 20px;
-            border-radius: 15px;
+            border-radius: var(--border-radius-large);
             overflow: hidden;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            box-shadow: 0 4px 12px var(--player-shadow);
+            background-color: #000; /* Fondo negro para el reproductor */
         }
 
         #my-video {
             width: 100%;
             height: 100%;
-            object-fit: cover;
-            border-radius: 15px;
+            object-fit: contain; /* Cambiado a 'contain' para evitar cortes */
+            border-radius: var(--border-radius-large); /* Hereda o define aquí */
         }
 
         #playlist-container {
             flex: 1;
-            background-color: #141414;
-            border-radius: 15px;
+            background-color: var(--background-color); /* O un color ligeramente diferente */
+            border-radius: var(--border-radius-large);
             padding: 20px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 12px var(--playlist-shadow);
             overflow-y: auto;
-            width: 300px;
+            display: flex;
+            flex-direction: column; /* Para que la búsqueda esté arriba */
+            min-width: 250px; /* Ancho mínimo para la playlist */
+        }
+
+        #playlist-container h2 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        #search {
+            width: calc(100% - 22px); /* Ajusta padding y borde */
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: var(--border-radius-small);
+            border: 1px solid var(--card-bg-start); /* Borde sutil */
+            background-color: var(--card-bg-end); /* Fondo más oscuro */
+            color: var(--text-color);
+            font-family: var(--font-family);
+        }
+        #search::placeholder {
+            color: var(--text-color-secondary);
+        }
+        #search:focus {
+             outline: none;
+             border-color: var(--primary-color);
+             box-shadow: 0 0 5px rgba(229, 9, 20, 0.5);
         }
 
         #playlist {
             list-style-type: none;
             padding: 0;
             margin: 0;
+            flex-grow: 1; /* Ocupa el espacio restante */
+            overflow-y: auto; /* Scroll interno si es necesario */
+        }
+        /* Estilo para la barra de scroll (Webkit) */
+        #playlist::-webkit-scrollbar {
+            width: 8px;
+        }
+        #playlist::-webkit-scrollbar-track {
+            background: var(--background-color);
+            border-radius: var(--border-radius-small);
+        }
+        #playlist::-webkit-scrollbar-thumb {
+            background-color: var(--card-bg-start);
+            border-radius: var(--border-radius-small);
+            border: 2px solid var(--background-color);
+        }
+        #playlist::-webkit-scrollbar-thumb:hover {
+            background-color: var(--card-hover-bg-start);
         }
 
+
         #playlist li {
-            padding: 15px;
-            margin-bottom: 10px;
-            background: linear-gradient(145deg, #333, #222);
-            border-radius: 10px;
+            padding: 10px 15px; /* Reducido padding vertical */
+            margin-bottom: 8px; /* Reducido margen */
+            background: linear-gradient(145deg, var(--card-bg-start), var(--card-bg-end));
+            border-radius: var(--border-radius-medium);
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            transition: all 0.2s ease-in-out; /* Transición más rápida */
+            box-shadow: 0 2px 4px var(--card-shadow);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            overflow: hidden; /* Evita desbordamiento del contenido */
         }
 
         #playlist li:hover {
-            background: linear-gradient(145deg, #444, #333);
-            transform: translateY(-3px);
-            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.3);
+            background: linear-gradient(145deg, var(--card-hover-bg-start), var(--card-hover-bg-end));
+            transform: translateY(-2px); /* Movimiento más sutil */
+            box-shadow: 0 4px 6px var(--card-hover-shadow);
         }
 
         #playlist li.active {
-            background: linear-gradient(145deg, #E50914, #e50914);
-            color: #fff;
+            background: linear-gradient(145deg, var(--primary-color), var(--primary-color-hover));
+            color: var(--text-color);
+            box-shadow: 0 2px 5px rgba(229, 9, 20, 0.6);
+            transform: translateY(0); /* Sin transformación cuando está activo */
         }
 
-        #playlist li span {
-            font-size: 1.1em;
+        /* Estilos dentro del <li> */
+        #playlist li .channel-info {
+            display: flex;
+            align-items: center;
+            gap: 12px; /* Aumentado espacio */
+            overflow: hidden;
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+
+        #playlist li .channel-info img {
+            width: 35px; /* Reducido tamaño logo */
+            height: 35px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            object-fit: cover;
+             border: 1px solid rgba(255, 255, 255, 0.1); /* Borde sutil al logo */
+        }
+
+        #playlist li .channel-details {
+            overflow: hidden;
+        }
+
+        #playlist li .channel-title {
+            font-size: 1em; /* Reducido tamaño título */
             font-weight: 500;
-            color: #fff;
+            color: var(--text-color);
+            display: block;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.3; /* Ajuste interlineado */
         }
 
-        .star {
+        #playlist li .channel-desc {
+            font-size: 0.75em; /* Reducido tamaño descripción */
+            color: var(--text-color-secondary);
+            margin: 2px 0 0 0; /* Ajustado margen */
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+
+        #playlist li .star {
             cursor: pointer;
-            color: #ccc;
-            transition: color 0.3s ease;
+            color: var(--text-color-secondary);
+            transition: color 0.2s ease, transform 0.2s ease;
+            font-size: 1.1em; /* Reducido tamaño estrella */
+            flex-shrink: 0;
+            padding: 6px; /* Aumentado área de clic */
+            margin-left: 5px; /* Espacio extra */
+        }
+        #playlist li .star:hover {
+             transform: scale(1.2); /* Efecto hover en estrella */
         }
 
-        .star.favorite {
-            color: #ffd700;
+        #playlist li .star.favorite {
+            color: var(--favorite-color);
+        }
+        #playlist li .star.favorite:hover {
+             color: #e6c300; /* Tono más oscuro al pasar sobre favorito */
         }
 
-        @media (max-width: 768px) {
-            .header h1 {
-                font-size: 1.8em;
-            }
 
-            .container {
-                flex-direction: column;
-                height: 100vh;
-                padding: 0;
-                border-radius: 0;
-                margin-top: 60px;
-            }
-
-            #player-container {
-                flex: none;
-                height: 40vh;
-                margin-right: 0;
-                margin-bottom: 0;
-                border-radius: 0;
-                position: fixed;
-                top: 60px;
-                left: 0;
-                right: 0;
-                z-index: 1000;
-            }
-
-            #playlist-container {
-                flex: 1;
-                width: 100%;
-                border-radius: 0;
-                padding: 10px;
-                overflow-y: auto;
-                margin-top: 40vh;
-            }
-
-            #playlist li {
-                padding: 10px;
-                margin-bottom: 8px;
-            }
-        }
-
+        /* Estilos Video.js */
         .video-js {
-            border-radius: 15px;
+            border-radius: var(--border-radius-large);
             overflow: hidden;
         }
 
@@ -170,209 +260,355 @@
             background-color: rgba(229, 9, 20, 0.7);
             border-radius: 50%;
             transition: all 0.3s ease;
-            padding: 20px;
+            /* Eliminado padding fijo, tamaño se controla con font-size y em */
+            border: none;
+            /* Tamaño relativo al font-size del reproductor */
+            font-size: 3em;
+            height: 1.5em;
+            width: 1.5em;
+            line-height: 1.5em;
+            margin-top: -0.75em;
+            margin-left: -0.75em;
         }
 
         .vjs-big-play-button:hover {
             background-color: rgba(229, 9, 20, 0.9);
-            transform: scale(1.2);
+            transform: scale(1.1);
         }
 
         .vjs-control-bar {
-            background-color: rgba(0, 0, 0, 0.6);
-            border-bottom-left-radius: 15px;
-            border-bottom-right-radius: 15px;
-            padding: 5px 10px;
+            background-color: rgba(28, 28, 28, 0.8); /* Fondo de la barra */
+            border-bottom-left-radius: var(--border-radius-large);
+            border-bottom-right-radius: var(--border-radius-large);
+            padding: 5px 15px; /* Más padding horizontal */
+            height: 3.5em; /* Altura barra de controles */
+        }
+
+        .vjs-button > .vjs-icon-placeholder:before {
+            font-size: 1.6em; /* Iconos más grandes */
+            line-height: 1.9; /* Centrar iconos verticalmente */
+        }
+
+        .vjs-volume-panel .vjs-volume-control.vjs-volume-horizontal {
+            width: 5em; /* Barra de volumen más ancha */
         }
 
         .vjs-play-progress {
-            background-color: #E50914 !important;
+            background-color: var(--primary-color) !important;
+        }
+        .vjs-load-progress {
+            background: rgba(255, 255, 255, 0.3) !important; /* Progreso de carga */
         }
 
         .vjs-slider-handle {
-            background-color: #E50914 !important;
+            background-color: var(--primary-color) !important;
             border-radius: 50%;
-            width: 16px;
-            height: 16px;
-            top: -3px;
+            width: 1.1em; /* Handle más grande */
+            height: 1.1em;
+             /* Centrado vertical mejorado */
+             top: 50%;
+             transform: translateY(-50%);
+             margin-left: -0.55em; /* Mitad del ancho */
         }
-
-        .vjs-slider-handle:before {
-            content: '';
-        }
+        .vjs-slider-handle:before { content: ''; }
 
         .vjs-time-tooltip {
-            background-color: #E50914;
-            color: #fff;
-            padding: 8px;
-            border-radius: 5px;
-            font-size: 0.9em;
+            background-color: var(--primary-color);
+            color: var(--text-color);
+            padding: 5px 8px;
+            border-radius: var(--border-radius-small);
+            font-size: 0.85em;
             white-space: nowrap;
-        }
-
-        .vjs-seek-preview {
-            display: none !important;
+            bottom: 100%; /* Posicionar encima de la barra */
+            margin-bottom: 5px;
         }
 
         .vjs-progress-holder {
-            margin: 0 20px;
+            margin: 0 10px; /* Reducido margen */
+            height: 0.5em; /* Barra de progreso más gruesa */
         }
 
+        .vjs-time-control {
+             font-size: 0.9em; /* Tamaño de fuente para tiempo */
+             line-height: 3; /* Alinear verticalmente */
+             padding: 0 0.5em;
+        }
         .vjs-remaining-time {
-            font-size: 1em;
-            font-weight: 500;
+            /* font-size: 1em; */ /* Hereda de .vjs-time-control */
+            font-weight: 400; /* Peso normal */
             color: #eee;
         }
 
-        .vjs-fullscreen-control button {
-            width: 24px;
-            height: 24px;
-        }
-
-        .vjs-fullscreen-control i {
-            font-size: 24px;
-        }
-
-        /* Estilos para el contenedor del QR */
+        /* Contenedor QR */
         .qr-container {
             text-align: center;
-            margin: 20px 0;
+            margin: 30px 20px;
             padding: 20px;
             background-color: rgba(0, 0, 0, 0.8);
-            border-radius: 10px;
+            border-radius: var(--border-radius-medium);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            position: relative;
         }
 
         .qr-container h3 {
             font-size: 1.2em;
-            color: #fff;
-            margin-bottom: 10px;
+            color: var(--text-color);
+            margin-top: 0;
+            margin-bottom: 15px;
         }
 
         .qr-container img {
-            width: 150px;
-            height: 150px;
-            border: 5px solid #fff;
-            border-radius: 10px;
+            width: 140px; /* Ligeramente más pequeño */
+            height: 140px;
+            border: 4px solid var(--text-color);
+            border-radius: var(--border-radius-medium);
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
         }
 
         .qr-container p {
             font-size: 0.9em;
-            color: #ccc;
-            margin-top: 10px;
+            color: var(--text-color-secondary);
+            margin-top: 15px;
         }
 
-        /* Estilos para el indicador de volumen */
+        /* Contador de visitas */
+        .visit-counter {
+            text-align: center;
+            margin: 20px;
+            color: var(--text-color-secondary);
+        }
+        .visit-counter h3 {
+            font-size: 1em;
+            margin-bottom: 5px;
+        }
+
+        /* Indicador de volumen */
         .volume-indicator {
             position: fixed;
             bottom: 20px;
             right: 20px;
-            background-color: rgba(0, 0, 0, 0.8);
-            padding: 10px 20px;
-            border-radius: 10px;
-            font-size: 1.2em;
-            color: #fff;
-            display: none;
-            z-index: 1000;
+            background-color: rgba(28, 28, 28, 0.9); /* Fondo más opaco */
+            padding: 8px 12px; /* Ajustado padding */
+            border-radius: var(--border-radius-medium);
+            font-size: 1em; /* Reducido tamaño */
+            color: var(--text-color);
+            display: none; /* Se muestra con JS */
+            z-index: 1001;
+            transition: opacity 0.3s ease-out; /* Transición suavizada */
+            pointer-events: none;
+        }
+         .volume-indicator i { /* Estilo para un posible ícono */
+             margin-right: 5px;
         }
 
-        #search {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border-radius: 5px;
-            border: none;
-            background-color: #333;
-            color: white;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        /* Estilos para el texto de instrucciones */
+        /* Instrucciones */
         #instructions-text {
-            background-color: rgba(0, 0, 0, 0.9);
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 20px;
+            background-color: rgba(30, 30, 30, 0.9); /* Fondo ligeramente diferente */
+            color: var(--text-color);
+            padding: 20px 25px; /* Ajustado padding */
+            border-radius: var(--border-radius-medium);
+            margin: 30px 20px;
             text-align: left;
-            font-size: 0.9em;
-            line-height: 1.5;
+            font-size: 0.85em; /* Reducido tamaño base */
+            line-height: 1.6;
+            box-shadow: 0 4px 12px var(--playlist-shadow);
         }
 
         #instructions-text h2{
-            color: #FFD700;
-            font-size: 1.2em;
-            margin-bottom: 10px;
+            color: var(--favorite-color);
+            font-size: 1.2em; /* Reducido tamaño */
+            margin-top: 0;
+            margin-bottom: 15px;
             text-align: center;
         }
 
         #instructions-text h3{
-            font-size: 1.1em;
-            margin-top: 15px;
-            margin-bottom: 5px;
+            font-size: 1em; /* Reducido tamaño */
+            margin-top: 18px;
+            margin-bottom: 8px;
+            color: var(--primary-color);
         }
 
         #instructions-text ol {
-            padding-left: 20px;
+            padding-left: 20px; /* Reducido padding */
             margin-bottom: 15px;
         }
 
         #instructions-text li{
-            margin-bottom: 5px;
+            margin-bottom: 6px; /* Reducido margen */
+        }
+         #instructions-text strong {
+             color: var(--text-color); /* Resaltar los pasos */
         }
 
-        /* Estilos para pantallas pequeñas */
+        /* Media Queries (Responsividad) */
+        @media (max-width: 1200px) {
+             .container {
+                 max-width: 100%;
+                 margin: 70px 10px 10px 10px; /* Menos margen horizontal */
+                 padding: 15px;
+                 height: calc(100vh - 80px); /* Ajustar altura */
+            }
+             #player-container {
+                 margin-right: 15px;
+            }
+        }
+
         @media (max-width: 768px) {
+            .header {
+                padding: 5px 10px;
+            }
+            .header img {
+                height: 45px;
+            }
+
             .container {
-                margin-top: 60px;
+                flex-direction: column;
+                height: auto; /* Cambiado a auto */
+                min-height: calc(100vh - 60px); /* Altura mínima */
+                padding: 0;
+                border-radius: 0;
+                margin: 60px 0 0 0;
+                box-shadow: none;
+                overflow: visible;
             }
 
-            #player-container {
-                height: 40vh;
+             #player-container {
+                 flex: none;
+                 height: 45vh; /* Altura del reproductor en móvil */
+                 width: 100%;
+                 margin-right: 0;
+                 margin-bottom: 0;
+                 border-radius: 0;
+                 box-shadow: none;
+            }
+            .video-js {
+                 border-radius: 0;
+            }
+             .vjs-control-bar {
+                 border-radius: 0;
+                 height: 3.2em; /* Barra más delgada en móvil */
+            }
+             .vjs-button > .vjs-icon-placeholder:before {
+                 font-size: 1.4em; /* Iconos más pequeños */
+                 line-height: 2.3;
+            }
+             .vjs-volume-panel .vjs-volume-control.vjs-volume-horizontal {
+                 width: 4em; /* Barra de volumen más corta */
             }
 
-            #playlist-container {
-                margin-top: 40vh;
+
+             #playlist-container {
+                flex-grow: 1;
+                width: 100%;
+                border-radius: 0;
+                padding: 10px;
+                box-shadow: none;
+                min-height: calc(55vh - 60px); /* Altura mínima para llenar espacio */
+                overflow-y: auto;
             }
 
+            #playlist li {
+                padding: 8px 12px;
+                margin-bottom: 6px;
+            }
+            #playlist li .channel-info img {
+                width: 30px;
+                height: 30px;
+            }
+             #playlist li .channel-title {
+                 font-size: 0.9em;
+            }
+             #playlist li .channel-desc {
+                 font-size: 0.7em;
+            }
+             #playlist li .star {
+                 font-size: 1em;
+                 padding: 5px;
+            }
+
+            .qr-container {
+                margin: 15px 10px;
+                padding: 15px;
+            }
             .qr-container h3 {
                 font-size: 1em;
             }
-
             .qr-container p {
                 font-size: 0.8em;
+            }
+             .qr-container img {
+                width: 110px;
+                height: 110px;
             }
 
             #instructions-text {
                 font-size: 0.8em;
                 padding: 15px;
+                margin: 15px 10px;
             }
             #instructions-text h2{
                  font-size: 1.1em;
+                 margin-bottom: 10px;
             }
              #instructions-text h3{
                  font-size: 1em;
+                 margin-top: 12px;
+                 margin-bottom: 6px;
+            }
+             #instructions-text ol {
+                 padding-left: 18px;
+                 margin-bottom: 12px;
+            }
+             #instructions-text li{
+                 margin-bottom: 5px;
+            }
+
+            .volume-indicator {
+                bottom: 10px;
+                right: 10px;
+                font-size: 0.9em;
+                padding: 6px 10px;
             }
         }
+         /* Ajustes para pantallas muy pequeñas */
+         @media (max-width: 480px) {
+             #playlist li .channel-info {
+                 gap: 8px;
+            }
+             #playlist li .channel-title {
+                 font-size: 0.85em;
+            }
+             #playlist li .channel-desc {
+                 display: none; /* Ocultar descripción en pantallas muy pequeñas */
+            }
+             .vjs-time-control { display: none; } /* Ocultar tiempos específicos */
+             .vjs-remaining-time { display: block !important; } /* Mostrar solo restante */
+             .vjs-fullscreen-control { margin-left: auto; } /* Mover fullscreen a la derecha */
+        }
+
     </style>
 </head>
 <body>
-    <div class="header">
+    <header class="header">
         <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjtH1eFwNcBk9FvfM8ozeG6zjDtvJR2j2CdfNtfn8rj0JP9PRWR7zeL_ayD_dwmmuqOe8-sTp-TcOGCVsg5yhUNBO_PqRVI9gCMu3B1x2MQ1ZsitAg-1NKxQ70x3H-O9eehSCsQO6DzLPxcB_uZpfGmfziYNcXQ0JylvrGY1PE-sc9nJ76l2c62PG3Kcvs/w457-h136/JORGEDEZ-19-3-2025.png" alt="JORGEDEZ Logo">
-    </div>
+    </header>
+
     <div class="container">
         <div id="player-container">
-            <video id="my-video" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto" aria-label="Reproductor de video">
-                <source src="" type="application/x-mpegURL">
+            <video id="my-video" class="video-js vjs-default-skin vjs-big-play-centered" controls preload="auto" playsinline aria-label="Reproductor de video">
+                <!-- playsinline es útil para iOS -->
+                 <p class="vjs-no-js">
+                    Para ver este video, por favor activa JavaScript y considera actualizar tu navegador a uno que
+                    <a href="https://videojs.com/html5-video-support/" target="_blank">soporte video HTML5</a>.
+                 </p>
             </video>
         </div>
 
         <div id="playlist-container">
             <h2>Lista de reproducción</h2>
-            <input type="text" id="search" placeholder="Buscar canal..." oninput="filterPlaylist()">
+            <input type="text" id="search" placeholder="Buscar canal...">
             <ul id="playlist">
+                <li>Cargando canales...</li>
             </ul>
         </div>
     </div>
@@ -380,7 +616,7 @@
     <div class="qr-container">
         <h3>¡Escanea el código QR!</h3>
         <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhJMKZYBgrggrXAZC6g9PFNXAyVDQqFl37nEqRhA3mwAxogX6n_WrzwLSmiVNyuS2rAi3Akt-Uu_dkUE1Rn7BKEhtVlZah4sX7k3lVb1JLAkWZxfGhD3wr_bK2ib2ajOqn34jhU_2Lcm24kE6K_3Cd5BEWOgO3fibL0q8yAuCifeM7WANXK4kzRb9op588/s320/JORGE_DEZ-1024.jpeg" alt="Código QR">
-        <p>Usa tu cámara para escanear y Compartir la aplicacion.</p>
+        <p>Usa tu cámara para escanear y compartir la aplicación.</p>
     </div>
 
     <div class="visit-counter">
@@ -389,507 +625,676 @@
     </div>
 
     <div id="volume-indicator" class="volume-indicator">
-        Volumen: <span id="volume-level">50</span>%
+         <i class="fas fa-volume-up"></i> <!-- Ícono opcional -->
+         <span id="volume-level">50</span>%
     </div>
 
     <div id="instructions-text">
-        <h2>Cómo añadir un acceso directo a una web en la pantalla de inicio</h2>
-        <p>Aquí te dejo los pasos para crear un acceso directo a una página web en tu pantalla de inicio, tanto en Android como en iOS:</p>
-
-        <h3>En Android</h3>
+        <h2>Añadir Acceso Directo</h2>
+        <p>Crea un acceso directo a esta página en tu pantalla de inicio:</p>
+        <h3><i class="fab fa-android"></i> Android (Chrome)</h3>
         <ol>
-            <li><strong>Abre Chrome</strong>: Inicia el navegador Chrome en tu dispositivo Android.</li>
-            <li><strong>Ve al sitio web</strong>: Navega hasta la página web que quieres añadir.</li>
-            <li><strong>Toca el menú</strong>: Pulsa el icono de tres puntos (Más) en la esquina superior derecha.</li>
-            <li><strong>Añade a la pantalla de inicio</strong>: Selecciona "Añadir a la pantalla de inicio".</li>
-            <li><strong>Edita el nombre (opcional)</strong>: Puedes cambiar el nombre del acceso directo.</li>
-            <li><strong>Añade automáticamente</strong>: Chrome añadirá el acceso directo a tu pantalla de inicio.</li>
+            <li>Toca el icono de <strong>Menú</strong> (⋮) en la esquina superior derecha.</li>
+            <li>Selecciona "<strong>Añadir a pantalla de inicio</strong>" o "<strong>Instalar aplicación</strong>".</li>
+            <li>Confirma el nombre y toca "<strong>Añadir</strong>".</li>
         </ol>
-
-        <h3>En iOS</h3>
+        <h3><i class="fab fa-apple"></i> iOS (Safari)</h3>
         <ol>
-            <li><strong>Abre Safari</strong>: Inicia el navegador Safari en tu iPhone o iPad.</li>
-            <li><strong>Ve al sitio web</strong>: Navega hasta la página web que deseas añadir.</li>
-            <li><strong>Toca el botón Compartir</strong>: Pulsa el icono de Compartir (un cuadrado con una flecha hacia arriba).</li>
-            <li><strong>Desplázate hacia abajo</strong>: Busca y selecciona "Añadir a la pantalla de inicio".</li>
-            <li><strong>Edita el nombre (opcional)</strong>: Puedes cambiar el nombre del acceso directo.</li>
-            <li><strong>Añade</strong>: Toca "Añadir" en la esquina superior derecha.</li>
+            <li>Toca el icono de <strong>Compartir</strong> (<i class="fas fa-share-square"></i> cuadrado con flecha).</li>
+            <li>Desplázate y selecciona "<strong>Añadir a pantalla de inicio</strong>".</li>
+            <li>Confirma el nombre y toca "<strong>Añadir</strong>".</li>
         </ol>
-
-        <p>¡Y listo! Ahora tendrás un acceso directo a tu página web favorita directamente en la pantalla de inicio de tu dispositivo.</p>
+        <p style="text-align: center; margin-top: 15px;">¡Acceso rápido a tus canales!</p>
     </div>
 
+    <!-- Librerías JS -->
     <script src="https://vjs.zencdn.net/8.6.1/video.min.js"></script>
     <script src="https://unpkg.com/@videojs/http-streaming@latest/dist/videojs-http-streaming.min.js"></script>
+
+    <!-- Script Propio Integrado -->
     <script>
-        const player = videojs('my-video', {
-            fluid: false,
-            controls: true,
-            preload: 'auto',
-            responsive: false,
-            playbackRates: [0.5, 1, 1.5, 2],
-            html5: {
-                vhs: {
-                    overrideNative: true
-                }
-            }
-        });
+        document.addEventListener('DOMContentLoaded', () => {
 
-        const playlistElement = document.getElementById('playlist');
-        const instructionsPopup = document.getElementById('instructions-text');
-
-        const defaultPlaylist = [
-            {
-                title: "Tele red",
-                url: "https://k20.usastreams.com:8081/telered/index.m3u8",
-                logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRc0CfBLPTdVRLyxhsV8Hq3wfIeJAPwiC2TQOhBNoFV893ShXIpe0MWXG9nhjQnTPtsMTk&usqp=CAU",
-                descripcion: "Canal de noticias local."
-            },
-            {
-                title: "Canal 13",
-                url: "https://ssh101.bozztv.com/ssh101/sinart13/chunks.m3u8",
-                logo: "https://sicultura-live.s3.amazonaws.com/public/styles/large_retina/public/media/sinart_canal_13_1.png?itok=WgWfcqWw",
-                descripcion: "Canal de entretenimiento."
-            },
-            {
-                title: "Canal 2",
-                url: "https://d30230c1j3h08x.cloudfront.net/360p.m3u8",
-                logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSf67Sxp-_WX2yWMZiWmW6teYlYvuPvJpud-w&s",
-                descripcion: "Canal de deportes."
-            },
-            {
-                title: "canal 36",
-                url: "https://liveingesta118.cdnmedia.tv/trivision36live/smil:dvrlive.smil/playlist.m3u8",
-                logo: "https://sicultura-live.s3.amazonaws.com/public/2022-11/313401143_527193602751613_1789836145711014030_n.png",
-                descripcion: "Canal de noticias regional."
-            },
-            {
-                title: "Retro Tv",
-                url: "https://retromusictv.streamtech.com.co:5443/retromusic/streams/zNDymkVySau6UBcU381637625188.m3u8",
-                logo: "https://play-lh.googleusercontent.com/zLkTnFfdGGq5-cuY0DBvsCoiRUToWFA8rcm_Z3ieUr7rwgmzyojRXIfqMXt9dm4ocjs",
-                descripcion: "Canal de música retro."
-            },
-            {
-                title: "TELE Clasica",
-                url: "https://ssh101stream.ssh101.com/akamaissh101/ssh101/teleclasik/chunks.m3u8",
-                logo: "https://lh5.googleusercontent.com/proxy/MzEB3oW1n1bQ0bSbXabvAYW0zaIfBBYQx9hn8e6Esp25BUZEyS3fZtj5cLpn0f9fovV6KnIXIYUvRWsTZr67VUEvfN0VaY42kBjN-kZt",
-                descripcion: "Canal de películas clásicas."
-            },
-            {
-                title: "Tv Retro",
-                url: "https://ssh101.bozztv.com/ssh101/tvretropalmares/chunks.m3u8",
-                logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSBsKLLZbFpvVQrOzRAnA9BCRraLxP3-GLwvBv30iNI6TpPz1o51sa1de7pGKS40Quzajw&usqp=CAU",
-                descripcion: "Canal de series retro."
-            },
-            {
-                title: "Canal 6",
-                url: "https://d1vr8yxz55pucr.cloudfront.net/index.m3u8",
-                logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/54/RepretelCanal62024.svg/1200px-RepretelCanal62024.svg.png",
-                descripcion: "Canal de noticias local."
-            },
-            {
-                title: "Telesistema",
-                url: "https://k20.usastreams.com:8081/telesistema/tracks-v1a1/mono.m3u8" ,
-                logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR9YKvejKBdJWBUfm0Oc32tKTO1QKQXXu2s4A&s",
-                descripcion: "Canal de entretenimiento."
-            },
-            {
-                title: "Canal 4",
-                url: "https://alba-cr-repretel-c4.stream.mediatiquestream.com/index.m3u8",
-                logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSgoRuZwypFBxNvCCqvC2hjEFnPdhI50u8ZgXnRQIOX3D0j03kEOFCofSIN-pdFF5T9VN0&usqp=CAU",
-                descripcion: "Canal de deportes."
-            },
-            {
-                 title: "Canal 1",
-                 url: "https://59ef525c24caa.streamlock.net/canal1cr/canal1cr/playlist.m3u8",
-                 logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRCPgX3BAyVJrhddZBS934xmT6Kev9EUhXHeQ&s",
-                 descripcion: "Canal de noticias."
-             },
-             {
-                 title: "Canal 11",
-                 url: "https://alba-cr-repretel-c11.stream.mediatiquestream.com/480p.m3u8",
-                 logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/RepretelCanal112024.svg/1200px-RepretelCanal112024.svg.png",
-                 descripcion: "Canal de entretenimiento."
-             },
-             {
-                 title: "Extrema TV",
-                 url: "https://627bb251f23c7.streamlock.net:444/ExtremaTV/ExtremaTV/playlist.m3u8",
-                 logo: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhqYT3mLOwSe2tCT9djITc1a4rC-hKxanvkywuAU8UeIkHaVkqwt1LDhrtUQqZO8m4cP-XHE4h-QnXlCBupaZ8oTASthEM7Rz5lAwu0l2_HRs9stLeJBvm8SUL4ONJ-kXWZM921yfOnAIdtz81kYBPy7JhQJLY8Lq1Ye4uuBeEawZvgAPT3-FfA0EaLfNkX/s600/extrema-tv.png",
-                 descripcion: "Canal de deportes extremos."
-             },
-             {
-                 title: "Nicoya tv",
-                 url: "https://59ef525c24caa.streamlock.net/nicoyatv/nicoyatv/chunklist_w1674958038.m3u8",
-                 logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNtuYqz3KCkvM3aBb-Lg3YRtfoaVaDe9srK_6QZaajqCb7jS0RBcJ1lBUJaEIqJo21ahY&usqp=CAU",
-                 descripcion: "Canal local de Nicoya."
-             },
-             {
-                 title: "Sony Canal Novelas",
-                 url: "https://a89829b8dca2471ab52ea9a57bc28a35.mediatailor.us-east-1.amazonaws.com/v1/manifest/0fb304b2320b25f067414d481a779b77db81760d/CanelaTV_SonyCanalNovelas/546d9696-a523-4794-9d79-b340f54b6d76/5.m3u8",
-                 logo: "https://static.wikia.nocookie.net/dreamlogos/images/a/a7/Sony_canal_logo.png/revision/latest?cb=20210224232334",
-                 descripcion: "Canal de telenovelas."
-             },
-             {
-                 title: "RCN Más",
-                 url: "https://rcntv-rcnmas-1-us.plex.wurl.tv/4300.m3u8",
-                 logo: "https://pbs.twimg.com/profile_images/1399263932456607750/XYvenBB4_400x400.jpg",
-                 descripcion: "Canal de noticias y entretenimiento."
-             },
-             {
-                 title: "Azteca Internacional",
-                 url: "https://azt-mun.otteravision.com/azt/mun/mun_1080p.m3u8",
-                 logo: "https://pbs.twimg.com/profile_images/1761972439863402496/HYFYy2Zg_400x400.jpg",
-                 descripcion: "Canal de noticias y deportes."
-             },
-             {
-                 title: "TV+ 2",
-                 url: "https://marine2.miplay.cl/tateti/tracks-v1a1/mono.m3u8",
-                 logo: "https://pbs.twimg.com/profile_images/1399263932456607750/XYvenBB4_400x400.jpg",
-                 descripcion: "Canal de entretenimiento."
-             },
-             {
-                 title: "24 Horas",
-                 url: "https://rtvelivestream.rtve.es/rtvesec/24h/24h_main_dvr_720.m3u8",
-                 logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNo8nRAN4wCgrjHF17KzyCdU34-SRV5oOcrQ&s",
-                 descripcion: "Canal de noticias."
-             },
-             {
-                 title: "Canal IQ",
-                 url: "https://rtmp.info/iqtv/envivo/chunklist_w1932587350.m3u8",
-                 logo: "https://www.kolbi.cr/wps/wcm/connect/www.kolbi.cr/f9cd3117-e95c-4406-8f7f-e178cdef05b0/IQ-Channel.png?MOD=AJPERES&CACHEID=ROOTWORKSPACE.Z18_GG1AHCC0P8VB70QI79ARQL0000-f9cd3117-e95c-4406-8f7f-e178cdef05b0-oBgaIj2",
-                 descripcion: "Canal de entretenimiento."
-             },
-             {
-                 title: "SOY Plancha TV",
-                 url: "https://59ef525c24caa.streamlock.net/vmtv/soyplancha/chunklist_w13201094.m3u8",
-                 logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTXOwrMnouaPiJ6KvJpA4NlJPkrMLATHUiQrw&s",
-                 descripcion: "Canal de música."
-             },
-             {
-                 title: "MetaVersus CR",
-                 url: "https://vivo.solumedia.com:19360/metaversus/metaversus.m3u8",
-                 logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQx0q4tLgJ1x4RdmIz885mRbQ6fHNbBt3_cKg&s",
-                 descripcion: "Canal de noticias y entretenimiento."
-             },
-             {
-                 title: "TVS Retro Live",
-                 url: "https://cdn.streamhispanatv.net:3531/live/tvsretrogtlive.m3u8",
-                 logo: "https://www.cxtv.com.br/img/Tvs/Logo/webp-m/a39ae0962d6b0b34320db480996652b7.webp",
-                 descripcion: "Canal de música retro."
-             },
-             {
-                 title: "Las Estrellas en vivo",
-                 url: "https://channel01-onlymex.akamaized.net/hls/live/2022749/event01/index_1.m3u8",
-                 logo: "https://yt3.googleusercontent.com/JOR8-8xL3x91J-1s4Rhu8N7odmnnrEFe5DDXxv9xRia88bCkkiWwiJQkUg3VFCScfRUxILaDNg=s900-c-k-c0x00ffffff-no-rj",
-                 descripcion: "Canal de entretenimiento y noticias."
-             },
-             {
-                 title: "Milagros TV en VIVO",
-                 url: "https://mediacp.us:8081/milagrostv/tracks-v1a1/mono.m3u8",
-                 logo: "https://cigars.roku.com/v1/contain/800x454/https%3A%2F%2Fimage.roku.com%2Fdeveloper_channels%2Fprod%2Fee509956731c6ace85f4a1836a1d0caf8d0b4d2f03c10fd2eb964bff8d3e5bd5.jpg",
-                 descripcion: "Canal de deportes."
-             },
-             {
-                 title: "Box Cinema Live",
-                 url: "https://e46fa4a445464f8a9150fa7d510eb85c.mediatailor.us-west-2.amazonaws.com/v1/manifest/2d2d0d97b0e548f025b2598a69b55bf30337aa0e/npp/c3d60978-8ce1-4ad7-be9c-859affe0d7c3/5.m3u8",
-                 logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQDkxKAAplJUdJXzxPDxGm9TuDARQLQ47PMG8ZBswhwhuyDegHkLUZUKy4XWB_qja-sFKw&usqp=CAU",
-                 descripcion: "Canal de películas."
-             },
-             {
-                 title: "Telemundo en vivo",
-                 url: "https://nbcu-telemundoflorida-firetv.amagi.tv/playlist1080.m3u8",
-                 logo: "https://yt3.googleusercontent.com/WZacbtWNLdznCtQ5Au7EjtrVNmktZfQNiXOnIzTwllgNd1iRMhPITW-CQrGQjUVnS8IxN75UBA=s900-c-k-c0x00ffffff-no-rj",
-                 descripcion: "Canal de noticias y entretenimiento."
-             },
-             {
-                 title: "Vision tv",
-                 url: "https://cdn.streamhispanatv.net:3076/live/visiontvlive.m3u8",
-                 logo: "https://www.cxtv.com.br/img/Tvs/Logo/webp-m/1fa9bd6990d735dab040d18ab1d044a9.webp",
-                 descripcion: "Canal de deportes extremos."
-             },
-             {
-                 title: "Retro RG",
-                 url: "https://acceso.radiosportstv.online:3259/hybrid/play.m3u8",
-                 logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSBxvhIPxIJvY8jcD7VFd6XnmqtnwC0YmUcG6Ttgtc3RSOnQrAcpq8bK8DljzNaqKchQbg&usqp=CAU",
-                 descripcion: "Canal de música retro."
-             },
-             {
-                 title: "Latino Classic TV",
-                 url: "https://streams2.sofast.tv/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/4d419a88-a62c-496f-b8a1-984e746f8259/manifest.m3u8",
-                 logo: "https://cdn.rudo.video/assets/canal-13/live/logoApi_151f8e8d0c9e2a144f59f11ec492c3e91710874647.png",
-                 descripcion: "Canal de películas clásicas latinas."
-             },
-             {
-                 title: "MIAMI TV",
-                 url: "https://59ec5453559f0.streamlock.net/JennyLive/_definst_/smil:41235/chunklist_w1924994432_b1896000.m3u8",
-                 logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTEzEB2GWG6aayElROaQBM_8F1Ii1F9eGGhRA&s",
-                 descripcion: "Canal de noticias y entretenimiento de Miami."
-             },
-             {
-                 title: "Sereno TV",
-                 url: "https://ssh101.bozztv.com/ssh101/tvretropalmares/chunks.m3u8",
-                 logo: "https://serenotv.com/cargas/2022/01/stv.jpg",
-                 descripcion: "Canal de música relajante."
-             },
-             {
-                 title: "Canal Turrialba",
-                 url: "https://cloudvideo.servers10.com:8081/8230/tracks-v1a1/mono.m3u8",
-                 logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRIo1iQW2AJvIdVjUFVAwAxLgPALnvBMwGYFw&s",
-                 descripcion: "Canal local de Turrialba."
-             },
-             {
-                 title: "Canal Demo",
-                 url: "https://tvservices.fullhd-streaming.com:3941/stream/play.m3u8",
-                 logo: "https://milemisoras.com/img/channel/abd12be06e14bf48011ce97f584bfefb.png",
-                 descripcion: "Canal de demostración."
-             },
-             {
-                 title: "Canal Tele Brunca",
-                 url: "https://59ef525c24caa.streamlock.net/telebrunca/telebrunca/chunklist_w942921838.m3u8",
-                 logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRU4uLGOuQaNRSDK8lSiCjICHX0Ld_weJoskA&s",
-                 descripcion: "Canal local de la región Brunca."
-             },
-             {
-                 title: "Canal Garabito TV",
-                 url: "https://59ef525c24caa.streamlock.net/garabitoTV/garabitotv/chunklist_w878297441.m3u8",
-                 logo: "https://i.ytimg.com/vi/hPwFk9PkcTs/maxresdefault.jpg",
-                 descripcion: "Canal local de Garabito."
-             },
-             {
-                 title: "Canal Dreiko TV",
-                 url: "https://rtv.fullhd-streaming.com:19360/dreikotv/dreikotv.m3u8",
-                 logo: "https://play-lh.googleusercontent.com/MKxancjPSbqrJIaCcndA9s6VkmYrNZC1X4SR7hDaMvJKUMd33qTN6pob2mVkS8Azd2o",
-                 descripcion: "Canal de entretenimiento."
-             },
-             {
-                 title: "Canal WOW TV",
-                 url: "https://cdn.elsalvadordigital.com:1936/wowtv/smil:wowtv.smil/chunklist_w619053377_b700000_slen.m3u8",
-                 logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRKXtZ-XPSnx1sNV7Ilp7D-x8231NVgr_kk-Q&s",
-                 descripcion: "Canal de noticias y entretenimiento."
-             },
-             {
-                 title: "Canal Visión Dorada",
-                 url: "https://movil.ejeserver.com/live/visiondorada.m3u8",
-                 logo: "https://serenotv.com/cargas/2022/01/Canal-vision-dorada-en-vivo.jpg",
-                 descripcion: "Canal de entretenimiento."
-             },
-             {
-                 title: "CANAL 10 CR",
-                 url: "https://acceso.radiosportstv.online:3285/hybrid/play.m3u8",
-                 logo: "https://www.vivalivetv.com/public/files/shows/0/1/3668-294x165-FFFFFF.jpg",
-                 descripcion: "Canal de deportes y noticias."
-             },
-             {  
-                 title: "Extrema TV Kids",
-                 url: "https://627bb251f23c7.streamlock.net:444/ExtremaKids/ExtremaKids/chunklist_w877184190.m3u8",
-                 logo: "https://image.roku.com/developer_channels/prod/685354bd84f85fe39c7ecae45018ccb60011681ba7838fd841e3f2392f4f6249.png",
-                 descripcion: "Canal de deportes y noticias."
-             },
-             {  
-                 title: "Extra tv",
-                 url: "https://d2axu5ozwr5gk0.cloudfront.net/live_0.m3u8",
-                 logo: "https://yt3.googleusercontent.com/C9h7zS31o2EHQndX7mvbFn9GKeLf9ls4w0sJKF1w2-81tbfQUVfurl3et_avxv4NL_o0_kZaEA=s900-c-k-c0x00ffffff-no-rj",
-                 descripcion: "Canal de deportes y noticias."
-             },
-             {
-                 title: "IQ TV",
-                 url: "http://tv.ticosmedia.com:1935/IQ/IQ/chunklist_w1774290041.m3u8",
-                 logo: "https://static-media.streema.com/media/cache/cc/d1/ccd144db07aadbd048f3d2c74076ba4e.jpg",
-                 descripcion: "Música que se vive."
-             },
-             /* ESPACIO PARA CANAL FUTURO 1 */
-             {
-                 title: "Canal 8",
-                 url: "https://mdstrm.com/live-stream-playlist/5a7b1e63a8da282c34d65445/master.m3u8",
-                 logo: "https://yt3.googleusercontent.com/ytc/AIdro_nGACtrTonEXYYD5AnmUJsUNj1XkvDaDMhlVqb-cS4DDCc=s900-c-k-c0x00ffffff-no-rj",
-                 descripcion: "Multimedios Costa Rica"
-             },
-             /* ESPACIO PARA CANAL FUTURO 2 */
-             {
-                 title: "",
-                 url: "https://video0.rogohosting.com:19360/8006/8006.m3u8",
-                 logo: "https://radiocostarica.net/sites/default/files/styles/player_image/public/2024-05/Costa%20Rica%20Channel-Costa%20Rica.png.webp?itok=jdj8aeqR",
-                 descripcion: "Costa Rica Channel"
-             },
-             /* ESPACIO PARA CANAL FUTURO 3 */
-             {
-                 title: "Gam tv",
-                 url: "https://v2.azulstream.com:8081/gamtv/gamtv/tracks-v1a1/mono.m3u8",
-                 logo: "https://radiocostarica.net/sites/default/files/styles/player_image/public/2024-06/GAM%20TV%20CR-Costa%20Rica_0.png.webp?itok=ExXxZFSr",
-                 descripcion: "Entretenimiento"
-             },
-             /* ESPACIO PARA CANAL FUTURO 4 */
-             {
-                 title: "ok",
-                 url: "",
-                 logo: "",
-                 descripcion: ""
-             },
-             /* ESPACIO PARA CANAL FUTURO 5 */
-             {
-                 title: "",
-                 url: "",
-                 logo: "",
-                 descripcion: ""
-             }
-        ];
-
-        // Cargar favoritos desde localStorage
-        let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
-
-        const renderPlaylist = () => {
-            playlistElement.innerHTML = '';
-
-            // Ordenar la lista poniendo los favoritos primero
-            const sortedPlaylist = [...defaultPlaylist].map((channel, index) => ({...channel, originalIndex: index}))
-                .sort((a, b) => {
-                    const aIsFavorite = favorites.includes(a.originalIndex.toString());
-                    const bIsFavorite = favorites.includes(b.originalIndex.toString());
-
-                    if (aIsFavorite && !bIsFavorite) return -1;
-                    if (!aIsFavorite && bIsFavorite) return 1;
-                    return 0;
-                });
-
-            sortedPlaylist.forEach((channel) => {
-                const li = document.createElement('li');
-                li.innerHTML = `
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <img src="${channel.logo}" alt="${channel.title} Logo" style="width: 40px; height: 40px; border-radius: 50%;">
-                        <div>
-                            <span style="font-size: 1.1em; font-weight: 500; color: #fff;">${channel.title}</span>
-                            <p style="font-size: 0.8em; color: #ccc; margin-bottom: 0;">${channel.descripcion}</p>
-                        </div>
-                    </div>
-                    <i class="star fas fa-star ${favorites.includes(channel.originalIndex.toString()) ? 'favorite' : ''}"
-                        data-index="${channel.originalIndex}"
-                        aria-label="${favorites.includes(channel.originalIndex.toString()) ? 'Remover de favoritos' : 'Agregar a favoritos'}"></i>
-                `;
-                li.addEventListener('click', () => playVideo(channel.url, channel.originalIndex));
-                playlistElement.appendChild(li);
-            });
-
-            // Agregar evento a las estrellas
-            document.querySelectorAll('.star').forEach(star => {
-                star.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const index = star.getAttribute('data-index');
-                    toggleFavorite(index);
-                    renderPlaylist();
-                });
-            });
-        };
-
-        const toggleFavorite = (index) => {
-            if (favorites.includes(index)) {
-                favorites = favorites.filter(fav => fav !== index);
-            } else {
-                favorites.push(index);
-            }
-            localStorage.setItem('favorites', JSON.stringify(favorites));
-        };
-
-        const playVideo = (url, index) => {
-            const items = playlistElement.querySelectorAll('li');
-            items.forEach((item) => item.classList.remove('active'));
-
-            const stars = document.querySelectorAll('.star');
-            stars.forEach((star, i) => {
-                if (star.getAttribute('data-index') === index.toString()) {
-                    star.parentElement.classList.add('active');
-                }
-            });
-
-            if (isValidUrl(url)) {
-                player.src({ type: 'application/x-mpegURL', src: url });
-                player.play();
-                localStorage.setItem('lastPlayed', index);
-            } else {
-                console.error('URL de video no válida:', url);
-                alert('No se puede reproducir el video. La URL no es válida.');
-            }
-        };
-
-        function isValidUrl(url) {
-            try {
-                new URL(url);
-                return true;
-            } catch (_) {
-                return false;
-            }
-        }
-
-        const filterPlaylist = () => {
-            const search = document.getElementById('search').value.toLowerCase();
-
-            const filteredPlaylist = [...defaultPlaylist]
-                .map((channel, index) => ({...channel, originalIndex: index}))
-                .filter(channel => channel.title.toLowerCase().includes(search))
-                .sort((a, b) => {
-                    const aIsFavorite = favorites.includes(a.originalIndex.toString());
-                    const bIsFavorite = favorites.includes(b.originalIndex.toString());
-
-                    if (aIsFavorite && !bIsFavorite) return -1;
-                    if (!aIsFavorite && bIsFavorite) return 1;
-                    return 0;
-                });
-
-            playlistElement.innerHTML = '';
-            filteredPlaylist.forEach((channel) => {
-                const li = document.createElement('li');
-                li.innerHTML = `
-                    <div style="display:flex; align-items: center; gap: 10px;">
-                        <img src="${channel.logo}" alt="${channel.title} Logo" style="width: 40px; height: 40px; border-radius: 50%;">
-                        <div>
-                            <span style="font-size: 1.1em; font-weight: 500; color: #fff;">${channel.title}</span>
-                            <p style="font-size: 0.8em; color: #ccc; margin-bottom: 0;">${channel.descripcion}</p>
-                        </div>
-                    </div>
-                    <i class="star fas fa-star ${favorites.includes(channel.originalIndex.toString()) ? 'favorite' : ''}"
-                        data-index="${channel.originalIndex}"
-                        aria-label="${favorites.includes(channel.originalIndex.toString()) ? 'Remover de favoritos' : 'Agregar a favoritos'}"></i>
-                `;
-                li.addEventListener('click', () => playVideo(channel.url, channel.originalIndex));
-                playlistElement.appendChild(li);
-            });
-             // Agregar evento a las estrellas
-             document.querySelectorAll('.star').forEach(star => {
-                star.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const index = star.getAttribute('data-index');
-                    toggleFavorite(index);
-                    renderPlaylist();
-                });
-            });
-        };
-
-        // Mostrar/ocultar el indicador de volumen
-        let volumeTimeout;
-        player.on('volumechange', () => {
-            const volumeLevel = Math.round(player.volume() * 100);
+            // --- REFERENCIAS A ELEMENTOS DEL DOM ---
+            const playerContainer = document.getElementById('player-container');
+            const playlistElement = document.getElementById('playlist');
+            const searchInput = document.getElementById('search');
             const volumeIndicator = document.getElementById('volume-indicator');
             const volumeLevelSpan = document.getElementById('volume-level');
+            const volumeIcon = volumeIndicator?.querySelector('i'); // Ícono de volumen
 
-            volumeLevelSpan.textContent = volumeLevel;
-            volumeIndicator.style.display = 'block';
+            // --- INICIALIZACIÓN DEL REPRODUCTOR ---
+            const player = videojs('my-video', {
+                controls: true,
+                preload: 'auto',
+                responsive: false, // Mantenido de tu config original
+                playbackRates: [0.5, 1, 1.5, 2],
+                html5: {
+                    vhs: {
+                        overrideNative: !videojs.browser.IS_SAFARI, // Usar nativo en Safari si es posible
+                        // enableLowInitialPlaylist: true, // Experimental: Carga calidad baja primero
+                        // useBandwidthFromLocalStorage: true, // Experimental: Recuerda ancho de banda
+                    }
+                },
+                // fluid: true // Prueba esto si quieres que el reproductor se ajuste mejor
+                 userActions: { // Doble clic para pantalla completa
+                     doubleClick: true
+                 }
+            });
 
-            clearTimeout(volumeTimeout);
-            volumeTimeout = setTimeout(() => {
-                volumeIndicator.style.display = 'none';
-            }, 1000);
-        });
+            // --- DATOS DE LA PLAYLIST (Embebidos - ¡TU LISTA!) ---
+            const defaultPlaylistData = [
+                {
+                    title: "Tele red",
+                    url: "https://k20.usastreams.com:8081/telered/index.m3u8",
+                    logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRc0CfBLPTdVRLyxhsV8Hq3wfIeJAPwiC2TQOhBNoFV893ShXIpe0MWXG9nhjQnTPtsMTk&usqp=CAU",
+                    descripcion: "Canal de noticias local."
+                },
+                {
+                    title: "Canal 13",
+                    url: "https://ssh101.bozztv.com/ssh101/sinart13/chunks.m3u8",
+                    logo: "https://sicultura-live.s3.amazonaws.com/public/styles/large_retina/public/media/sinart_canal_13_1.png?itok=WgWfcqWw",
+                    descripcion: "Canal de entretenimiento."
+                },
+                {
+                    title: "Canal 2",
+                    url: "https://d30230c1j3h08x.cloudfront.net/360p.m3u8",
+                    logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSf67Sxp-_WX2yWMZiWmW6teYlYvuPvJpud-w&s",
+                    descripcion: "Canal de deportes."
+                },
+                {
+                    title: "canal 36",
+                    url: "https://liveingesta118.cdnmedia.tv/trivision36live/smil:dvrlive.smil/playlist.m3u8",
+                    logo: "https://sicultura-live.s3.amazonaws.com/public/2022-11/313401143_527193602751613_1789836145711014030_n.png",
+                    descripcion: "Canal de noticias regional."
+                },
+                {
+                    title: "Retro Tv",
+                    url: "https://retromusictv.streamtech.com.co:5443/retromusic/streams/zNDymkVySau6UBcU381637625188.m3u8",
+                    logo: "https://play-lh.googleusercontent.com/zLkTnFfdGGq5-cuY0DBvsCoiRUToWFA8rcm_Z3ieUr7rwgmzyojRXIfqMXt9dm4ocjs",
+                    descripcion: "Canal de música retro."
+                },
+                {
+                    title: "TELE Clasica",
+                    url: "https://ssh101stream.ssh101.com/akamaissh101/ssh101/teleclasik/chunks.m3u8",
+                    logo: "https://lh5.googleusercontent.com/proxy/MzEB3oW1n1bQ0bSbXabvAYW0zaIfBBYQx9hn8e6Esp25BUZEyS3fZtj5cLpn0f9fovV6KnIXIYUvRWsTZr67VUEvfN0VaY42kBjN-kZt",
+                    descripcion: "Canal de películas clásicas."
+                },
+                {
+                    title: "Tv Retro",
+                    url: "https://ssh101.bozztv.com/ssh101/tvretropalmares/chunks.m3u8",
+                    logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSBsKLLZbFpvVQrOzRAnA9BCRraLxP3-GLwvBv30iNI6TpPz1o51sa1de7pGKS40Quzajw&usqp=CAU",
+                    descripcion: "Canal de series retro."
+                },
+                {
+                    title: "Canal 6",
+                    url: "https://d1vr8yxz55pucr.cloudfront.net/index.m3u8",
+                    logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/54/RepretelCanal62024.svg/1200px-RepretelCanal62024.svg.png",
+                    descripcion: "Canal de noticias local."
+                },
+                {
+                    title: "Telesistema",
+                    url: "https://k20.usastreams.com:8081/telesistema/tracks-v1a1/mono.m3u8" ,
+                    logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR9YKvejKBdJWBUfm0Oc32tKTO1QKQXXu2s4A&s",
+                    descripcion: "Canal de entretenimiento."
+                },
+                {
+                    title: "Canal 4",
+                    url: "https://alba-cr-repretel-c4.stream.mediatiquestream.com/index.m3u8",
+                    logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSgoRuZwypFBxNvCCqvC2hjEFnPdhI50u8ZgXnRQIOX3D0j03kEOFCofSIN-pdFF5T9VN0&usqp=CAU",
+                    descripcion: "Canal de deportes."
+                },
+                {
+                    title: "Canal 1",
+                    url: "https://59ef525c24caa.streamlock.net/canal1cr/canal1cr/playlist.m3u8",
+                    logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRCPgX3BAyVJrhddZBS934xmT6Kev9EUhXHeQ&s",
+                    descripcion: "Canal de noticias."
+                },
+                {
+                    title: "Canal 11",
+                    url: "https://alba-cr-repretel-c11.stream.mediatiquestream.com/480p.m3u8",
+                    logo: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/RepretelCanal112024.svg/1200px-RepretelCanal112024.svg.png",
+                    descripcion: "Canal de entretenimiento."
+                },
+                {
+                    title: "Extrema TV",
+                    url: "https://627bb251f23c7.streamlock.net:444/ExtremaTV/ExtremaTV/playlist.m3u8",
+                    logo: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhqYT3mLOwSe2tCT9djITc1a4rC-hKxanvkywuAU8UeIkHaVkqwt1LDhrtUQqZO8m4cP-XHE4h-QnXlCBupaZ8oTASthEM7Rz5lAwu0l2_HRs9stLeJBvm8SUL4ONJ-kXWZM921yfOnAIdtz81kYBPy7JhQJLY8Lq1Ye4uuBeEawZvgAPT3-FfA0EaLfNkX/s600/extrema-tv.png",
+                    descripcion: "Canal de deportes extremos."
+                },
+                {
+                    title: "Nicoya tv",
+                    url: "https://59ef525c24caa.streamlock.net/nicoyatv/nicoyatv/chunklist_w1674958038.m3u8",
+                    logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTNtuYqz3KCkvM3aBb-Lg3YRtfoaVaDe9srK_6QZaajqCb7jS0RBcJ1lBUJaEIqJo21ahY&usqp=CAU",
+                    descripcion: "Canal local de Nicoya."
+                },
+                {
+                    title: "Sony Canal Novelas",
+                    url: "https://a89829b8dca2471ab52ea9a57bc28a35.mediatailor.us-east-1.amazonaws.com/v1/manifest/0fb304b2320b25f067414d481a779b77db81760d/CanelaTV_SonyCanalNovelas/546d9696-a523-4794-9d79-b340f54b6d76/5.m3u8",
+                    logo: "https://static.wikia.nocookie.net/dreamlogos/images/a/a7/Sony_canal_logo.png/revision/latest?cb=20210224232334",
+                    descripcion: "Canal de telenovelas."
+                },
+                {
+                    title: "RCN Más",
+                    url: "https://rcntv-rcnmas-1-us.plex.wurl.tv/4300.m3u8",
+                    logo: "https://pbs.twimg.com/profile_images/1399263932456607750/XYvenBB4_400x400.jpg",
+                    descripcion: "Canal de noticias y entretenimiento."
+                },
+                {
+                    title: "Azteca Internacional",
+                    url: "https://azt-mun.otteravision.com/azt/mun/mun_1080p.m3u8",
+                    logo: "https://pbs.twimg.com/profile_images/1761972439863402496/HYFYy2Zg_400x400.jpg",
+                    descripcion: "Canal de noticias y deportes."
+                },
+                {
+                    title: "TV+ 2",
+                    url: "https://marine2.miplay.cl/tateti/tracks-v1a1/mono.m3u8",
+                    logo: "https://pbs.twimg.com/profile_images/1399263932456607750/XYvenBB4_400x400.jpg",
+                    descripcion: "Canal de entretenimiento."
+                },
+                {
+                    title: "24 Horas",
+                    url: "https://rtvelivestream.rtve.es/rtvesec/24h/24h_main_dvr_720.m3u8",
+                    logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNo8nRAN4wCgrjHF17KzyCdU34-SRV5oOcrQ&s",
+                    descripcion: "Canal de noticias."
+                },
+                {
+                    title: "Canal IQ",
+                    url: "https://rtmp.info/iqtv/envivo/chunklist_w1932587350.m3u8",
+                    logo: "https://www.kolbi.cr/wps/wcm/connect/www.kolbi.cr/f9cd3117-e95c-4406-8f7f-e178cdef05b0/IQ-Channel.png?MOD=AJPERES&CACHEID=ROOTWORKSPACE.Z18_GG1AHCC0P8VB70QI79ARQL0000-f9cd3117-e95c-4406-8f7f-e178cdef05b0-oBgaIj2",
+                    descripcion: "Canal de entretenimiento."
+                },
+                {
+                    title: "SOY Plancha TV",
+                    url: "https://59ef525c24caa.streamlock.net/vmtv/soyplancha/chunklist_w13201094.m3u8",
+                    logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTXOwrMnouaPiJ6KvJpA4NlJPkrMLATHUiQrw&s",
+                    descripcion: "Canal de música."
+                },
+                {
+                    title: "MetaVersus CR",
+                    url: "https://vivo.solumedia.com:19360/metaversus/metaversus.m3u8",
+                    logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQx0q4tLgJ1x4RdmIz885mRbQ6fHNbBt3_cKg&s",
+                    descripcion: "Canal de noticias y entretenimiento."
+                },
+                {
+                    title: "TVS Retro Live",
+                    url: "https://cdn.streamhispanatv.net:3531/live/tvsretrogtlive.m3u8",
+                    logo: "https://www.cxtv.com.br/img/Tvs/Logo/webp-m/a39ae0962d6b0b34320db480996652b7.webp",
+                    descripcion: "Canal de música retro."
+                },
+                {
+                    title: "Las Estrellas en vivo",
+                    url: "https://channel01-onlymex.akamaized.net/hls/live/2022749/event01/index_1.m3u8",
+                    logo: "https://yt3.googleusercontent.com/JOR8-8xL3x91J-1s4Rhu8N7odmnnrEFe5DDXxv9xRia88bCkkiWwiJQkUg3VFCScfRUxILaDNg=s900-c-k-c0x00ffffff-no-rj",
+                    descripcion: "Canal de entretenimiento y noticias."
+                },
+                {
+                    title: "Milagros TV en VIVO",
+                    url: "https://mediacp.us:8081/milagrostv/tracks-v1a1/mono.m3u8",
+                    logo: "https://cigars.roku.com/v1/contain/800x454/https%3A%2F%2Fimage.roku.com%2Fdeveloper_channels%2Fprod%2Fee509956731c6ace85f4a1836a1d0caf8d0b4d2f03c10fd2eb964bff8d3e5bd5.jpg",
+                    descripcion: "Canal de deportes."
+                },
+                {
+                    title: "Box Cinema Live",
+                    url: "https://e46fa4a445464f8a9150fa7d510eb85c.mediatailor.us-west-2.amazonaws.com/v1/manifest/2d2d0d97b0e548f025b2598a69b55bf30337aa0e/npp/c3d60978-8ce1-4ad7-be9c-859affe0d7c3/5.m3u8",
+                    logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQDkxKAAplJUdJXzxPDxGm9TuDARQLQ47PMG8ZBswhwhuyDegHkLUZUKy4XWB_qja-sFKw&usqp=CAU",
+                    descripcion: "Canal de películas."
+                },
+                {
+                    title: "Telemundo en vivo",
+                    url: "https://nbcu-telemundoflorida-firetv.amagi.tv/playlist1080.m3u8",
+                    logo: "https://yt3.googleusercontent.com/WZacbtWNLdznCtQ5Au7EjtrVNmktZfQNiXOnIzTwllgNd1iRMhPITW-CQrGQjUVnS8IxN75UBA=s900-c-k-c0x00ffffff-no-rj",
+                    descripcion: "Canal de noticias y entretenimiento."
+                },
+                {
+                    title: "Vision tv",
+                    url: "https://cdn.streamhispanatv.net:3076/live/visiontvlive.m3u8",
+                    logo: "https://www.cxtv.com.br/img/Tvs/Logo/webp-m/1fa9bd6990d735dab040d18ab1d044a9.webp",
+                    descripcion: "Canal de deportes extremos."
+                },
+                {
+                    title: "Retro RG",
+                    url: "https://acceso.radiosportstv.online:3259/hybrid/play.m3u8",
+                    logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSBxvhIPxIJvY8jcD7VFd6XnmqtnwC0YmUcG6Ttgtc3RSOnQrAcpq8bK8DljzNaqKchQbg&usqp=CAU",
+                    descripcion: "Canal de música retro."
+                },
+                {
+                    title: "Latino Classic TV",
+                    url: "https://streams2.sofast.tv/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/4d419a88-a62c-496f-b8a1-984e746f8259/manifest.m3u8",
+                    logo: "https://cdn.rudo.video/assets/canal-13/live/logoApi_151f8e8d0c9e2a144f59f11ec492c3e91710874647.png",
+                    descripcion: "Canal de películas clásicas latinas."
+                },
+                {
+                    title: "MIAMI TV",
+                    url: "https://59ec5453559f0.streamlock.net/JennyLive/_definst_/smil:41235/chunklist_w1924994432_b1896000.m3u8",
+                    logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTEzEB2GWG6aayElROaQBM_8F1Ii1F9eGGhRA&s",
+                    descripcion: "Canal de noticias y entretenimiento de Miami."
+                },
+                {
+                    title: "Sereno TV",
+                    url: "https://ssh101.bozztv.com/ssh101/tvretropalmares/chunks.m3u8",
+                    logo: "https://serenotv.com/cargas/2022/01/stv.jpg",
+                    descripcion: "Canal de música relajante."
+                },
+                {
+                    title: "Canal Turrialba",
+                    url: "https://cloudvideo.servers10.com:8081/8230/tracks-v1a1/mono.m3u8",
+                    logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRIo1iQW2AJvIdVjUFVAwAxLgPALnvBMwGYFw&s",
+                    descripcion: "Canal local de Turrialba."
+                },
+                {
+                    title: "Canal Demo",
+                    url: "https://tvservices.fullhd-streaming.com:3941/stream/play.m3u8",
+                    logo: "https://milemisoras.com/img/channel/abd12be06e14bf48011ce97f584bfefb.png",
+                    descripcion: "Canal de demostración."
+                },
+                {
+                    title: "Canal Tele Brunca",
+                    url: "https://59ef525c24caa.streamlock.net/telebrunca/telebrunca/chunklist_w942921838.m3u8",
+                    logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRU4uLGOuQaNRSDK8lSiCjICHX0Ld_weJoskA&s",
+                    descripcion: "Canal local de la región Brunca."
+                },
+                {
+                    title: "Canal Garabito TV",
+                    url: "https://59ef525c24caa.streamlock.net/garabitoTV/garabitotv/chunklist_w878297441.m3u8",
+                    logo: "https://i.ytimg.com/vi/hPwFk9PkcTs/maxresdefault.jpg",
+                    descripcion: "Canal local de Garabito."
+                },
+                {
+                    title: "Canal Dreiko TV",
+                    url: "https://rtv.fullhd-streaming.com:19360/dreikotv/dreikotv.m3u8",
+                    logo: "https://play-lh.googleusercontent.com/MKxancjPSbqrJIaCcndA9s6VkmYrNZC1X4SR7hDaMvJKUMd33qTN6pob2mVkS8Azd2o",
+                    descripcion: "Canal de entretenimiento."
+                },
+                {
+                    title: "Canal WOW TV",
+                    url: "https://cdn.elsalvadordigital.com:1936/wowtv/smil:wowtv.smil/chunklist_w619053377_b700000_slen.m3u8",
+                    logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRKXtZ-XPSnx1sNV7Ilp7D-x8231NVgr_kk-Q&s",
+                    descripcion: "Canal de noticias y entretenimiento."
+                },
+                {
+                    title: "Canal Visión Dorada",
+                    url: "https://movil.ejeserver.com/live/visiondorada.m3u8",
+                    logo: "https://serenotv.com/cargas/2022/01/Canal-vision-dorada-en-vivo.jpg",
+                    descripcion: "Canal de entretenimiento."
+                },
+                {
+                    title: "CANAL 10 CR",
+                    url: "https://acceso.radiosportstv.online:3285/hybrid/play.m3u8",
+                    logo: "https://www.vivalivetv.com/public/files/shows/0/1/3668-294x165-FFFFFF.jpg",
+                    descripcion: "Canal de deportes y noticias."
+                },
+                {
+                    title: "Extrema TV Kids",
+                    url: "https://627bb251f23c7.streamlock.net:444/ExtremaKids/ExtremaKids/chunklist_w877184190.m3u8",
+                    logo: "https://image.roku.com/developer_channels/prod/685354bd84f85fe39c7ecae45018ccb60011681ba7838fd841e3f2392f4f6249.png",
+                    descripcion: "Canal de deportes y noticias."
+                },
+                {
+                    title: "Extra tv",
+                    url: "https://d2axu5ozwr5gk0.cloudfront.net/live_0.m3u8",
+                    logo: "https://yt3.googleusercontent.com/C9h7zS31o2EHQndX7mvbFn9GKeLf9ls4w0sJKF1w2-81tbfQUVfurl3et_avxv4NL_o0_kZaEA=s900-c-k-c0x00ffffff-no-rj",
+                    descripcion: "Canal de deportes y noticias."
+                },
+                {
+                    title: "IQ TV",
+                    url: "http://tv.ticosmedia.com:1935/IQ/IQ/chunklist_w1774290041.m3u8",
+                    logo: "https://static-media.streema.com/media/cache/cc/d1/ccd144db07aadbd048f3d2c74076ba4e.jpg",
+                    descripcion: "Música que se vive."
+                },
+                {
+                    title: "Canal 8",
+                    url: "https://mdstrm.com/live-stream-playlist/5a7b1e63a8da282c34d65445/master.m3u8",
+                    logo: "https://yt3.googleusercontent.com/ytc/AIdro_nGACtrTonEXYYD5AnmUJsUNj1XkvDaDMhlVqb-cS4DDCc=s900-c-k-c0x00ffffff-no-rj",
+                    descripcion: "Multimedios Costa Rica"
+                },
+                {
+                    title: "Costa Rica Channel",
+                    url: "https://video0.rogohosting.com:19360/8006/8006.m3u8",
+                    logo: "https://radiocostarica.net/sites/default/files/styles/player_image/public/2024-05/Costa%20Rica%20Channel-Costa%20Rica.png.webp?itok=jdj8aeqR",
+                    descripcion: "Costa Rica Channel"
+                },
+                {
+                    title: "Gam tv",
+                    url: "https://v2.azulstream.com:8081/gamtv/gamtv/tracks-v1a1/mono.m3u8",
+                    logo: "https://radiocostarica.net/sites/default/files/styles/player_image/public/2024-06/GAM%20TV%20CR-Costa%20Rica_0.png.webp?itok=ExXxZFSr",
+                    descripcion: "Entretenimiento"
+                }
+            ];
+            // --- FIN DE DATOS DE LA PLAYLIST ---
 
-        // Reproducir el último video reproducido al cargar la página
-        const lastPlayedIndex = localStorage.getItem('lastPlayed');
-        if (lastPlayedIndex) {
-            const index = parseInt(lastPlayedIndex);
-            const channel = defaultPlaylist[index];
-            if (channel) {
-                playVideo(channel.url, index);
+
+            // --- VARIABLES GLOBALES ---
+            let fullPlaylist = defaultPlaylistData; // Usar los datos embebidos
+            let favorites = JSON.parse(localStorage.getItem('favoritesTvChannels')) || [];
+            let volumeTimeout;
+
+            // --- FUNCIONES ---
+
+            function debounce(func, wait) {
+                let timeout;
+                return function executedFunction(...args) {
+                    const later = () => {
+                        clearTimeout(timeout);
+                        func(...args);
+                    };
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                };
             }
-        }
 
-        renderPlaylist();
+            function isValidUrl(urlString) {
+                if (!urlString || typeof urlString !== 'string') return false;
+                try {
+                    const url = new URL(urlString);
+                    // Permitir protocolos comunes para streaming
+                    return ['http:', 'https:', 'rtmp:', 'rtsp:'].includes(url.protocol);
+                } catch (_) {
+                    // Intentar validar URLs relativas o sin protocolo explícito (menos fiable)
+                     return urlString.includes('/') || urlString.includes('.m3u8');
+                }
+            }
+
+            function createPlaylistItem(channel) {
+                const li = document.createElement('li');
+                const isFavorite = favorites.includes(channel.originalIndex.toString());
+
+                // Fallback para logo mejorado
+                const defaultLogo = `https://via.placeholder.com/35/444/ccc?text=${channel.title.charAt(0).toUpperCase()}`;
+                const logoSrc = channel.logo || defaultLogo;
+
+                li.innerHTML = `
+                    <div class="channel-info">
+                        <img src="${logoSrc}" alt="${channel.title || 'Canal'} Logo" loading="lazy" onerror="this.src='${defaultLogo}'; this.onerror=null;">
+                        <div class="channel-details">
+                            <span class="channel-title">${channel.title || 'Canal sin título'}</span>
+                            <p class="channel-desc">${channel.descripcion || ''}</p>
+                        </div>
+                    </div>
+                    <i class="star fas fa-star ${isFavorite ? 'favorite' : ''}"
+                        data-index="${channel.originalIndex}"
+                        aria-label="${isFavorite ? 'Remover de favoritos' : 'Agregar a favoritos'}"
+                        title="${isFavorite ? 'Remover de favoritos' : 'Agregar a favoritos'}"></i>
+                `;
+
+                li.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('star')) return;
+                    playVideo(channel.url, channel.originalIndex);
+                });
+
+                const star = li.querySelector('.star');
+                star.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleFavorite(channel.originalIndex.toString());
+                    renderPlaylist(getCurrentFilter()); // Re-renderizar para actualizar orden/estilo
+                });
+
+                return li;
+            }
+
+            function renderPlaylist(filter = '') {
+                if (!playlistElement) return; // Salir si el elemento no existe
+                playlistElement.innerHTML = ''; // Limpiar antes de empezar
+                const searchTerm = filter.toLowerCase().trim();
+
+                // Filtrar canales válidos y que coincidan con la búsqueda
+                const filteredPlaylist = fullPlaylist
+                    .map((channel, index) => ({ ...channel, originalIndex: index })) // Mantener índice original
+                    .filter(channel =>
+                         channel && channel.title && // Asegurar que el canal y título existan
+                        (channel.title.toLowerCase().includes(searchTerm) ||
+                        (channel.descripcion && channel.descripcion.toLowerCase().includes(searchTerm)))
+                    );
+
+                // Ordenar: favoritos primero, luego alfabéticamente
+                filteredPlaylist.sort((a, b) => {
+                    const aIsFavorite = favorites.includes(a.originalIndex.toString());
+                    const bIsFavorite = favorites.includes(b.originalIndex.toString());
+                    if (aIsFavorite && !bIsFavorite) return -1;
+                    if (!aIsFavorite && bIsFavorite) return 1;
+                    // Orden alfabético si ambos son o no son favoritos
+                    return (a.title || '').localeCompare(b.title || '');
+                });
+
+                // Mostrar mensaje si no hay resultados
+                if (filteredPlaylist.length === 0) {
+                    playlistElement.innerHTML = `<li style="cursor: default; text-align: center; color: var(--text-color-secondary);">No se encontraron canales ${searchTerm ? 'para "' + searchTerm + '"': ''}.</li>`;
+                } else {
+                     // Usar DocumentFragment para optimizar la adición al DOM
+                    const fragment = document.createDocumentFragment();
+                    filteredPlaylist.forEach(channel => {
+                        const li = createPlaylistItem(channel);
+                        fragment.appendChild(li);
+                    });
+                     playlistElement.appendChild(fragment);
+                }
+
+                // Resaltar el video que se está reproduciendo actualmente
+                highlightCurrentVideo();
+            }
+
+
+            function toggleFavorite(indexStr) {
+                const indexInFavorites = favorites.indexOf(indexStr);
+                if (indexInFavorites > -1) {
+                    favorites.splice(indexInFavorites, 1); // Quitar
+                } else {
+                    favorites.push(indexStr); // Añadir
+                }
+                // Guardar en localStorage
+                try {
+                     localStorage.setItem('favoritesTvChannels', JSON.stringify(favorites));
+                } catch (e) {
+                     console.warn("No se pudo guardar favoritos en localStorage:", e);
+                }
+            }
+
+            function playVideo(url, index) {
+                 // Verificar si player existe
+                 if (!player) {
+                    console.error("El reproductor de video no está inicializado.");
+                    return;
+                 }
+
+                if (isValidUrl(url)) {
+                    try {
+                        // Determinar tipo de fuente (simplificado)
+                        const isHls = url.includes('.m3u8');
+                        const sourceType = isHls ? 'application/x-mpegURL' : 'video/mp4'; // Añadir más tipos si es necesario
+
+                        // Actualizar fuente del reproductor
+                        player.src({ type: sourceType, src: url });
+                        player.load(); // Es buena práctica llamar a load()
+
+                        // Intentar reproducir (maneja la promesa devuelta)
+                        const playPromise = player.play();
+                        if (playPromise !== undefined) {
+                            playPromise.catch(error => {
+                                // El navegador puede bloquear autoplay, Video.js suele mostrar un botón de play
+                                console.warn("Reproducción automática bloqueada o fallida:", error);
+                            });
+                        }
+
+                        // Guardar último canal reproducido y resaltar en la lista
+                        localStorage.setItem('lastPlayedTvChannel', index);
+                        highlightCurrentVideo(index);
+
+                    } catch (error) {
+                         console.error('Error al configurar la fuente del video:', error);
+                         alert('Error al intentar cargar el video. Revisa la consola para más detalles.');
+                         player.reset(); // Limpiar el reproductor
+                    }
+                } else {
+                    console.error('URL de video no válida proporcionada:', url);
+                    alert(`La URL para este canal no es válida o no se pudo cargar: ${url}`);
+                    player.reset(); // Limpiar el reproductor
+                }
+            }
+
+            function highlightCurrentVideo(currentIndex = null) {
+                if (!playlistElement) return;
+
+                const lastPlayedIndexStr = (currentIndex !== null)
+                    ? currentIndex.toString()
+                    : localStorage.getItem('lastPlayedTvChannel');
+
+                // Quitar clase 'active' de todos los items primero
+                playlistElement.querySelectorAll('li.active').forEach(item => item.classList.remove('active'));
+
+                if (lastPlayedIndexStr !== null) {
+                    // Buscar el <li> correspondiente usando el data-index de la estrella
+                    const activeLi = playlistElement.querySelector(`li .star[data-index="${lastPlayedIndexStr}"]`)?.closest('li');
+                    if (activeLi) {
+                        activeLi.classList.add('active');
+                        // Scroll suave para que el elemento activo sea visible si está fuera de la vista
+                         activeLi.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                    }
+                }
+            }
+
+            function getCurrentFilter() {
+                return searchInput?.value || ''; // Devolver cadena vacía si searchInput no existe
+            }
+
+            function updateVolumeIndicator(volume) {
+                 if (!volumeIndicator || !volumeLevelSpan) return;
+
+                const currentVolume = Math.round(volume * 100);
+                const isMuted = player.muted();
+
+                 volumeLevelSpan.textContent = isMuted ? 'Muted' : `${currentVolume}`;
+
+                 // Cambiar ícono según volumen y estado mute
+                 if (volumeIcon) {
+                     volumeIcon.className = 'fas'; // Reset class
+                     if (isMuted || currentVolume === 0) {
+                         volumeIcon.classList.add('fa-volume-mute');
+                     } else if (currentVolume < 50) {
+                         volumeIcon.classList.add('fa-volume-down');
+                     } else {
+                         volumeIcon.classList.add('fa-volume-up');
+                     }
+                 }
+
+
+                // Lógica para mostrar/ocultar el indicador
+                if (volumeIndicator.style.display !== 'block') {
+                    volumeIndicator.style.opacity = '0';
+                    volumeIndicator.style.display = 'block';
+                    void volumeIndicator.offsetWidth; // Forzar reflow
+                    volumeIndicator.style.opacity = '1';
+                } else {
+                     volumeIndicator.style.opacity = '1'; // Resetear opacidad si ya estaba visible
+                }
+
+                // Ocultar después de un tiempo
+                clearTimeout(volumeTimeout);
+                volumeTimeout = setTimeout(() => {
+                    volumeIndicator.style.opacity = '0';
+                    setTimeout(() => {
+                         if (volumeIndicator.style.opacity === '0') { // Comprobar antes de ocultar
+                            volumeIndicator.style.display = 'none';
+                         }
+                    }, 300); // Duración de la transición CSS
+                }, 1500); // Tiempo visible
+            }
+
+            // --- MANEJO DE EVENTOS ---
+
+            // Inicialización
+             if (fullPlaylist && fullPlaylist.length > 0) {
+                renderPlaylist(); // Renderiza la lista inicial
+             } else {
+                 if(playlistElement) playlistElement.innerHTML = '<li>No hay canales disponibles.</li>';
+                 console.error("La lista de reproducción está vacía o no es válida.");
+             }
+
+
+            // Intenta reproducir el último video visto (si existe y es válido)
+            const lastPlayedIndexStr = localStorage.getItem('lastPlayedTvChannel');
+            let playedInitial = false;
+            if (lastPlayedIndexStr !== null && fullPlaylist && fullPlaylist.length > 0) {
+                const index = parseInt(lastPlayedIndexStr, 10);
+                if (!isNaN(index) && index >= 0 && index < fullPlaylist.length) {
+                    const channel = fullPlaylist[index];
+                    // Asegurarse que el canal recuperado es válido
+                    if (channel && channel.url) {
+                        playVideo(channel.url, index);
+                        playedInitial = true;
+                    } else {
+                         localStorage.removeItem('lastPlayedTvChannel'); // Eliminar índice inválido
+                    }
+                } else {
+                    localStorage.removeItem('lastPlayedTvChannel'); // Eliminar índice fuera de rango
+                }
+            }
+            // Opcional: Si no se reprodujo nada, reproducir el primer canal válido
+             // if (!playedInitial && fullPlaylist && fullPlaylist.length > 0) {
+             //    const firstValidChannelIndex = fullPlaylist.findIndex(ch => ch && ch.url && isValidUrl(ch.url));
+             //    if (firstValidChannelIndex !== -1) {
+             //        playVideo(fullPlaylist[firstValidChannelIndex].url, firstValidChannelIndex);
+             //    }
+             // }
+
+
+            // Búsqueda en la lista (con Debounce)
+             if (searchInput) {
+                searchInput.addEventListener('input', debounce(() => {
+                    renderPlaylist(getCurrentFilter());
+                }, 300)); // 300ms de espera
+             }
+
+            // Control de volumen con rueda del ratón sobre el reproductor
+             if (playerContainer) {
+                playerContainer.addEventListener('wheel', (e) => {
+                    // Solo actuar si el scroll es vertical y sobre el área del reproductor
+                    if (Math.abs(e.deltaY) > Math.abs(e.deltaX) && e.target.closest('#player-container')) {
+                        e.preventDefault(); // Prevenir scroll de página
+                        const delta = Math.sign(e.deltaY); // -1 scroll up, 1 scroll down
+                        let newVolume = player.volume() - (delta * 0.05); // Ajuste más fino
+                        newVolume = Math.max(0, Math.min(1, newVolume)); // Limitar entre 0 y 1
+                        player.volume(newVolume);
+                         player.muted(false); // Desactivar mute al ajustar volumen con rueda
+                    }
+                }, { passive: false }); // Necesario para preventDefault
+             }
+
+            // Control de volumen desde el reproductor (actualiza indicador)
+            player.on('volumechange', () => {
+                updateVolumeIndicator(player.volume());
+            });
+
+            // Manejo de errores del reproductor
+            player.on('error', () => {
+                const error = player.error();
+                if (!error) return; // Salir si no hay objeto de error
+
+                console.error('Error de Video.js:', error);
+                const messages = {
+                     1: "Descarga abortada.", 2: "Error de red.",
+                     3: "Error de decodificación.", 4: "Fuente no soportada o inválida.",
+                     5: "Video encriptado."
+                };
+                const errorMessage = messages[error.code] || error.message || 'Error desconocido';
+
+                 // Podrías mostrar un overlay sobre el video en lugar de un alert
+                 console.warn(`Error en reproductor (Código ${error.code}): ${errorMessage}`);
+                 // alert(`Error al cargar el video: ${errorMessage}`);
+
+                 // Opcional: Intentar limpiar el reproductor
+                 // player.reset();
+            });
+
+             // Listener para cuando el reproductor está listo
+             player.ready(() => {
+                 console.log("Reproductor listo.");
+                 // Actualizar indicador de volumen inicial al cargar
+                 updateVolumeIndicator(player.volume());
+             });
+
+
+        }); // Fin de DOMContentLoaded
     </script>
+
 </body>
 </html>
