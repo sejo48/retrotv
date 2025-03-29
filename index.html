@@ -49,6 +49,7 @@
         }
 
         .container {
+            /* Original Layout (commented out for test)
             display: flex;
             flex-direction: row;
             max-width: 1400px;
@@ -57,9 +58,21 @@
             background-color: var(--background-color);
             height: 80vh;
             overflow: hidden;
+            */
+
+             /* --- Layout for Single Column Test --- */
+            display: flex;
+            flex-direction: column; /* << CAMBIO CLAVE: Fuerza columna */
+            max-width: 1400px; /* Mantener ancho máximo si se quiere */
+            margin: 70px auto 20px; /* Ajuste por header */
+            padding: 10px;          /* Menos padding quizás */
+            background-color: var(--background-color);
+            height: auto;           /* Altura automática */
+            overflow: visible;      /* Quitar overflow fijo del container */
         }
 
         #player-container {
+            /* Original Layout (commented out)
             flex: 3;
             position: relative;
             margin-right: 20px;
@@ -67,16 +80,31 @@
             overflow: hidden;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
             background-color: #000;
+            */
+
+             /* --- Layout for Single Column Test --- */
+            flex: none; /* No flexible */
+            position: relative;
+            margin-right: 0;        /* Quitar margen derecho */
+            margin-bottom: 15px;    /* Espacio debajo del video */
+            height: 55vh;           /* Altura para el video (ajustable) */
+            width: 100%;            /* Ancho completo */
+            border-radius: var(--border-radius-medium); /* Menos redondeo quizás */
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+            background-color: #000;
+
         }
 
         #my-video {
             width: 100%;
             height: 100%;
             object-fit: contain;
-            border-radius: var(--border-radius-large);
+            /* border-radius: var(--border-radius-large); -> Usar el del contenedor ahora */
         }
 
         #playlist-container {
+            /* Original Layout (commented out)
             flex: 1;
             background-color: var(--background-color);
             border-radius: var(--border-radius-large);
@@ -86,6 +114,22 @@
             display: flex;
             flex-direction: column;
             min-width: 250px;
+            */
+
+             /* --- Layout for Single Column Test --- */
+            flex: none; /* No flexible */
+            background-color: var(--background-color);
+            min-width: unset;       /* Quitar ancho mínimo */
+            width: 100%;            /* Ancho completo */
+            height: calc(100vh - 55vh - 90px - 30px); /* Altura restante aprox (Video - Header - Margen Inf - Padding Cont) */
+            /* O asegurar una altura mínima */
+            min-height: 200px; /* Altura minima por si acaso */
+            overflow-y: auto;       /* Mantenemos scroll vertical si es necesario */
+            display: flex;
+            flex-direction: column;
+            padding: 15px;          /* Padding interno */
+            border-radius: var(--border-radius-medium); /* Menos redondeo quizás */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
         }
 
         #playlist-container h2 {
@@ -283,9 +327,11 @@
             background-color: var(--primary-color-hover);
         }
 
+        /* Media query original para pantallas pequeñas */
         @media (max-width: 768px) {
+            /* Sobreescribir el test de una columna si la pantalla es pequeña */
             .container {
-                flex-direction: column;
+                flex-direction: column; /* Ya está en columna, ok */
                 height: auto;
                 min-height: calc(100vh - 60px); /* Ajustar altura mínima */
                 padding: 0;
@@ -297,7 +343,7 @@
 
             #player-container {
                 flex: none; /* No flexible */
-                height: 45vh; /* Altura relativa */
+                height: 45vh; /* Altura relativa original */
                 width: 100%;
                 margin-right: 0;
                 margin-bottom: 0; /* Sin margen inferior */
@@ -312,10 +358,9 @@
                 padding: 10px;
                 box-shadow: none;
                 min-height: calc(55vh - 60px); /* Altura mínima restante */
+                height: auto; /* Sobreescribir altura fija del test */
                 overflow-y: auto; /* Permitir scroll si es necesario */
             }
-
-            /* Los estilos base de #playlist li y .channel-info img/title/desc ya usan los valores de @media */
 
         }
     </style>
@@ -1133,20 +1178,7 @@
             });
 
             // Función auxiliar para cambiar de canal con teclado (Ya no se usa con PageUp/Down)
-            /* function changeChannel(direction) {
-                let currentChannelIndex = parseInt(localStorage.getItem('lastPlayedTvChannel') || '0');
-                let totalChannels = channels.length;
-                if (isNaN(currentChannelIndex) || currentChannelIndex < 0 || currentChannelIndex >= totalChannels) {
-                    currentChannelIndex = 0;
-                }
-                let nextChannelIndex = (currentChannelIndex + direction + totalChannels) % totalChannels;
-                if (channels[nextChannelIndex]) {
-                    console.log(`Cambiando a canal (Índice: ${nextChannelIndex}): ${channels[nextChannelIndex].title}`);
-                    selectChannel(nextChannelIndex);
-                } else {
-                     console.warn(`Índice de canal inválido calculado: ${nextChannelIndex}`);
-                }
-            } */
+            /* function changeChannel(direction) { ... } */
             // --- FIN: Control Remoto por Teclado / Mando TV ---
 
             // Búsqueda de canales
@@ -1160,8 +1192,11 @@
                  // Restaurar highlight si el canal activo está en los resultados filtrados
                 const lastPlayed = localStorage.getItem('lastPlayedTvChannel');
                  if (lastPlayed !== null && filtered.some((ch, idx) => channels.findIndex(orig => orig.title === ch.title) === parseInt(lastPlayed))) {
-                    setActiveChannelHighlight(parseInt(lastPlayed));
-                }
+                     const lastPlayedIdx = parseInt(lastPlayed);
+                     if (!isNaN(lastPlayedIdx) && lastPlayedIdx >= 0 && lastPlayedIdx < channels.length) {
+                         setActiveChannelHighlight(lastPlayedIdx);
+                     }
+                 }
             });
 
             // Inicializar
@@ -1182,7 +1217,10 @@
                  // Si no hay último canal, quizás enfocar el primer botón de la lista por defecto?
                  // Opcional: Podrías llamar a setActiveChannelHighlight(0) aquí si quieres que el foco
                  // siempre empiece en la lista si no hay canal guardado.
-                 // setActiveChannelHighlight(0);
+                  if (channels.length > 0) {
+                     console.log("No hay último canal, intentando enfocar el primero (índice 0).");
+                     setActiveChannelHighlight(0); // Intentar enfocar el primer canal
+                  }
             }
 
         }); // Fin de DOMContentLoaded
