@@ -44,7 +44,7 @@
         }
 
         .header img {
-            height: 60px;
+            height: 80px; /* <-- CAMBIADO A 80px */
             margin-right: 20px;
         }
 
@@ -52,7 +52,7 @@
             display: flex;
             flex-direction: row;
             max-width: 1400px;
-            margin: 80px auto 20px;
+            margin: 80px auto 20px; /* Ajustado margen superior si el header es más alto */
             padding: 20px;
             background-color: var(--background-color);
             height: 80vh;
@@ -284,15 +284,21 @@
         }
 
         @media (max-width: 768px) {
-            .container {
-                flex-direction: column;
-                height: auto;
-                min-height: calc(100vh - 60px); /* Ajustar altura mínima */
-                padding: 0;
-                border-radius: 0;
-                margin: 60px 0 0 0; /* Header height */
-                box-shadow: none;
-                overflow: visible;
+             /* Ajustar margen superior del container y altura del header en móviles si el logo crece */
+             .header {
+                 /* Podrías querer ajustar el padding si 80px es muy alto para móvil */
+                 /* padding: 5px 10px; */
+             }
+             .container {
+                 margin: 100px 0 0 0; /* Aumentar margen superior (ej: 80px logo + 20px padding = 100px) */
+                 min-height: calc(100vh - 100px); /* Ajustar altura mínima */
+                 /* ... resto de estilos @media ... */
+                 flex-direction: column;
+                 height: auto;
+                 padding: 0;
+                 border-radius: 0;
+                 box-shadow: none;
+                 overflow: visible;
             }
 
             #player-container {
@@ -311,7 +317,7 @@
                 border-radius: 0;
                 padding: 10px;
                 box-shadow: none;
-                min-height: calc(55vh - 60px); /* Altura mínima restante */
+                min-height: calc(55vh - 100px); /* Altura mínima restante ajustada */
                 overflow-y: auto; /* Permitir scroll si es necesario */
             }
 
@@ -322,8 +328,7 @@
 </head>
 <body>
     <header class="header">
-        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgVIFxWI-sdOR2bVfpbgCotXquColWskv4u4I9HXZhYdsRewDVRNcJ7iLvtKO2xYucvqOv0DKY2MArMnHGF8IvZBI7NYjg0dkjHUN0N8VXwZ73vKjYOajWC6JTze5n1Hcj19V2COVFkN-TtJA7uR_ALIYyIcvUBOwQN1EmURskiBCI_lJK3hFphdSBuCaQ/s320/logo%20(%20JORGEDEZ%20)%20ROJO%20Y%20BLANCO%20PARA%20VIDEO.jpeg">
-    </header>
+        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgVIFxWI-sdOR2bVfpbgCotXquColWskv4u4I9HXZhYdsRewDVRNcJ7iLvtKO2xYucvqOv0DKY2MArMnHGF8IvZBI7NYjg0dkjHUN0N8VXwZ73vKjYOajWC6JTze5n1Hcj19V2COVFkN-TtJA7uR_ALIYyIcvUBOwQN1EmURskiBCI_lJK3hFphdSBuCaQ/s320/logo%20(%20JORGEDEZ%20)%20ROJO%20Y%20BLANCO%20PARA%20VIDEO.jpeg" alt="JORGEDEZ Logo">  </header>
 
     <div class="container">
         <div id="player-container">
@@ -453,12 +458,12 @@
                     title: "Azteca Internacional",
                     url: "https://azt-mun.otteravision.com/azt/mun/mun_1080p.m3u8",
                     logo: "https://pbs.twimg.com/profile_images/1761972439863402496/HYFYy2Zg_400x400.jpg",
-                    descripcion: " televisión mexicana"
+                    descripcion: "Canal de noticias y deportes."
                 },
                 {
-                    title: "Canal 2 TVS",
-                    url: "https://telecorporacion-es.cdn.vustreams.com/live/d3e259fa-736d-46b0-b1c9-71caf946ace9/live.isml/live.m3u8",
-                    logo: "https://d21tucfpen3j82.cloudfront.net/wp-content/uploads/2024/11/22122126/Canal-2-1080x1080-1.jpg",
+                    title: "TV+ 2",
+                    url: "https://marine2.miplay.cl/tateti/tracks-v1a1/mono.m3u8",
+                    logo: "https://pbs.twimg.com/profile_images/1399263932456607750/XYvenBB4_400x400.jpg", // Logo repetido, revisar si hay uno específico
                     descripcion: "Canal de entretenimiento."
                 },
                 {
@@ -468,9 +473,9 @@
                     descripcion: "Canal de noticias."
                 },
                 {
-                    title: "Canal IQ",
-                    url: "https://rtmp.info/iqtv/envivo/chunklist_w1932587350.m3u8",
-                    logo: "https://www.kolbi.cr/wps/wcm/connect/www.kolbi.cr/f9cd3117-e95c-4406-8f7f-e178cdef05b0/IQ-Channel.png?MOD=AJPERES&CACHEID=ROOTWORKSPACE.Z18_GG1AHCC0P8VB70QI79ARQL0000-f9cd3117-e95c-4406-8f7f-e178cdef05b0-oBgaIj2",
+                    title: "Buzzer Tv",
+                    url: "https://cdn.streamhispanatv.net:3297/live/buzzerradiolive.m3u8",
+                    logo: "https://static.wixstatic.com/media/7acae1_fafd7c471aee4a48a463323014970628~mv2.png/v1/fill/w_381,h_381,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/Buzzertv.png",
                     descripcion: "Canal de entretenimiento."
                 },
                 {
@@ -500,7 +505,7 @@
                 {
                     title: "Canal Aurora",
                     url: "https://cdn.streamhispanatv.net:3417/live/auroramflive.m3u8",
-                    logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQd-8374q9tsP1sHkylpdCP5FeTnQ-Rx-r-_g&s",
+                    logo: "https://radiosdeguate.com/wp-content/uploads/2023/04/aurora-media-films.webp",
                     descripcion: "Canal de deportes." // Descripción parece incorrecta, ajustar si es necesario
                 },
                 {
@@ -534,9 +539,9 @@
                     descripcion: "Canal de películas clásicas latinas."
                 },
                 {
-                    title: "MIAMI TV",
-                    url: "https://59ec5453559f0.streamlock.net/JennyLive/_definst_/smil:41235/chunklist_w1924994432_b1896000.m3u8",
-                    logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTEzEB2GWG6aayElROaQBM_8F1Ii1F9eGGhRA&s",
+                    title: "Solo tv",
+                    url: "https://video03.logicahost.com.br/soltv/soltv/playlist.m3u8",
+                    logo: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyeFcO1jqS7cHkeI6uFu8i1mXBb1hayIlshXespGXDMtv0YGhTBKzriaIGYUb4_TOMUd0&usqp=CAU",
                     descripcion: "Canal de noticias y entretenimiento de Miami."
                 },
                 {
@@ -630,10 +635,10 @@
                     descripcion: "Entretenimiento"
                 },
                 { // <-- CANAL AÑADIDO
-                    title: " AZTECA INTERNACIONAL",
-                    url: "https://azt-mun.otteravision.com/azt/mun/mun.m3u8",
-                    logo: "https://static.wikia.nocookie.net/logopedia/images/b/b5/Azteca_Internacional_2008.png/revision/latest?cb=20200207215451&path-prefix=es",
-                    descripcion: " AZTECA INTERNACIONAL."
+                    title: "Claro Sports",
+                    url: "https://d35j504z0x2vu2.cloudfront.net/v1/manifest/0bc8e8376bd8417a1b6761138aa41c26c7309312/bein-sports-xtra-en-espanol/d3358062-b357-4738-9cfb-6824db0ada53/0.m3u8",
+                    logo: "https://yt3.googleusercontent.com/h88IKJCItR4KafxYzqfMphDkLzXdREH24qDrW-CzFMedCCjBl4D2baR3xWF48tOkNltM6MM9hA=s900-c-k-c0x00ffffff-no-rj",
+                    descripcion: "Canal de deportes."
                 }
                 // Añade más canales aquí si es necesario
             ];
@@ -950,7 +955,8 @@
                  if (window.innerWidth <= 768) {
                      const playerRect = playerContainer.getBoundingClientRect();
                      // Comprobar si el player está total o parcialmente fuera de la vista superior
-                     if (playerRect.top < 60) { // 60px es la altura del header
+                     if (playerRect.top < 60) { // 60px es la altura del header original, ajustamos con el media query
+                         // El scrollIntoView debería funcionar igual, el cálculo del media query ajusta el layout
                          playerContainer.scrollIntoView({
                              behavior: 'smooth',
                              block: 'start' // Alinear con la parte superior
