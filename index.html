@@ -102,31 +102,40 @@
             max-height: 100%; /* Ensure it doesn't overflow container */
         }
 
+         /* Container for Title and Count */
+        .playlist-title-container {
+            display: flex;
+            align-items: center; /* Vertically center items */
+            justify-content: center; /* Horizontally center the group */
+            gap: 10px; /* Space between title and circle */
+            margin-bottom: 15px; /* Space below the title group */
+        }
+
         /* Channel Count Display */
         #channel-count-container {
-            width: 40px;
-            height: 40px;
+            width: 35px; /* Slightly smaller circle */
+            height: 35px;
             background-color: var(--primary-color);
             border-radius: 50%; /* Make it a circle */
             display: flex;
             align-items: center;
             justify-content: center;
-            margin: 0 auto 10px auto; /* Center horizontally, add bottom margin */
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            flex-shrink: 0; /* Prevent shrinking */
+            margin: 0; /* Reset margin, handled by parent gap */
         }
 
         #channel-count-number {
             color: var(--text-color);
-            font-size: 1em;
+            font-size: 0.9em; /* Adjust font size */
             font-weight: bold;
         }
 
         #playlist-container h2 {
-            margin-top: 0;
-            margin-bottom: 15px;
+            margin: 0; /* Reset margin, handled by parent */
             text-align: center;
-            font-size: 1.4em; /* Larger title */
-            color: var(--primary-color); /* Use primary color for heading */
+            font-size: 1.4em;
+            color: var(--primary-color);
         }
 
         /* Search Input Styling */
@@ -407,12 +416,15 @@
              }
               /* Adjust count circle size on mobile */
              #channel-count-container {
-                 width: 35px;
-                 height: 35px;
-                 margin-bottom: 8px;
+                 width: 30px; /* Make circle smaller on mobile */
+                 height: 30px;
              }
              #channel-count-number {
-                 font-size: 0.9em;
+                 font-size: 0.8em; /* Smaller font in circle */
+             }
+             .playlist-title-container {
+                 gap: 8px; /* Reduce gap on mobile */
+                 margin-bottom: 12px;
              }
 
              #playlist-container h2 {
@@ -453,9 +465,11 @@
         </div>
 
         <div id="playlist-container">
-             <div id="channel-count-container" aria-label="Número total de canales">
-                <span id="channel-count-number">0</span> </div>
-            <h2>Lista de Canales</h2>
+             <div class="playlist-title-container">
+                <h2>Lista de Canales</h2>
+                <div id="channel-count-container" aria-label="Número total de canales">
+                    <span id="channel-count-number">0</span> </div>
+            </div>
             <input type="text" id="search" placeholder="Buscar canal...">
             <ul id="playlist">
                 </ul>
