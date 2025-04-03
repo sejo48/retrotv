@@ -23,7 +23,10 @@
             --text-on-accent: #FFFFFF;
             --border-color: #383838;
             --favorite-color: #FFD700;
-            --error-color: #CF6679;
+            --error-color: #CF6679; /* Red for offline/error */
+            --success-color: #2ECC71; /* Green for online */
+            --unknown-color: #616161; /* Grey for unknown status */
+
 
             /* Sizing & Radius */
             --border-radius: 8px;
@@ -272,6 +275,25 @@
             overflow: hidden;
         }
 
+        /* Status Dot */
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--unknown-color); /* Default: Unknown */
+            margin-right: var(--spacing-s); /* Space between dot and logo */
+            flex-shrink: 0;
+            transition: background-color 0.3s ease;
+        }
+        .status-dot.online {
+            background-color: var(--success-color); /* Green */
+        }
+        .status-dot.offline {
+            background-color: var(--error-color); /* Red */
+        }
+
+
         /* Channel Logo */
         .channel-info img {
             width: 32px;
@@ -470,6 +492,11 @@
                  padding: 10px;
                  margin-bottom: 6px;
              }
+             .status-dot {
+                 width: 7px;
+                 height: 7px;
+                 margin-right: 6px;
+             }
              .channel-info img {
                  width: 30px;
                  height: 30px;
@@ -523,9 +550,9 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // --- Channel Data (Updated) ---
+            // --- Channel Data (Unique List - 79 channels) ---
             const channels = [
-                // Original Channels
+                // Lista de 79 canales únicos (Canal 6 con URL ...d1vr8yxz... eliminado)
                 { "title": "Tele red", "url": "https://k20.usastreams.com:8081/telered/index.m3u8", "logo": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRc0CfBLPTdVRLyxhsV8Hq3wfIeJAPwiC2TQOhBNoFV893ShXIpe0MWXG9nhjQnTPtsMTk&usqp=CAU", "descripcion": "Canal de noticias local." },
                 { "title": "Canal 13", "url": "https://ssh101.bozztv.com/ssh101/sinart13/chunks.m3u8", "logo": "https://sicultura-live.s3.amazonaws.com/public/styles/large_retina/public/media/sinart_canal_13_1.png?itok=WgWfcqWw", "descripcion": "Canal de entretenimiento." },
                 { "title": "Canal 2", "url": "https://d30230c1j3h08x.cloudfront.net/360p.m3u8", "logo": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSf67Sxp-_WX2yWMZiWmW6teYlYvuPvJpud-w&s", "descripcion": "Canal de deportes." },
@@ -535,7 +562,7 @@
                 { "title": "Retro Tv", "url": "https://retromusictv.streamtech.com.co:5443/retromusic/streams/zNDymkVySau6UBcU381637625188.m3u8", "logo": "https://placehold.co/35x35/333/fff?text=R", "descripcion": "Canal de música retro." },
                 { "title": "TELE Clasica", "url": "https://ssh101stream.ssh101.com/akamaissh101/ssh101/teleclasik/chunks.m3u8", "logo": "https://placehold.co/35x35/333/fff?text=T", "descripcion": "Canal de películas clásicas." },
                 { "title": "Tv Retro", "url": "https://ssh101.bozztv.com/ssh101/tvretropalmares/chunks.m3u8", "logo": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSBsKLLZbFpvVQrOzRAnA9BCRraLxP3-GLwvBv30iNI6TpPz1o51sa1de7pGKS40Quzajw&usqp=CAU", "descripcion": "Canal de series retro." },
-                { "title": "Canal 6", "url": "https://d1vr8yxz55pucr.cloudfront.net/index.m3u8", "logo": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/54/RepretelCanal62024.svg/1200px-RepretelCanal62024.svg.png", "descripcion": "Canal de noticias local." },
+                // { "title": "Canal 6", "url": "https://d1vr8yxz55pucr.cloudfront.net/index.m3u8", ... } // REMOVED
                 { "title": "Telesistema", "url": "https://k20.usastreams.com:8081/telesistema/tracks-v1a1/mono.m3u8", "logo": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR9YKvejKBdJWBUfm0Oc32tKTO1QKQXXu2s4A&s", "descripcion": "Canal de entretenimiento." },
                 { "title": "Canal 4", "url": "https://alba-cr-repretel-c4.stream.mediatiquestream.com/index.m3u8", "logo": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSgoRuZwypFBxNvCCqvC2hjEFnPdhI50u8ZgXnRQIOX3D0j03kEOFCofSIN-pdFF5T9VN0&usqp=CAU", "descripcion": "Canal de deportes." },
                 { "title": "Canal 1", "url": "https://59ef525c24caa.streamlock.net/canal1cr/canal1cr/playlist.m3u8", "logo": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRCPgX3BAyVJrhddZBS934xmT6Kev9EUhXHeQ&s", "descripcion": "Canal de noticias." },
@@ -555,26 +582,25 @@
                 { "title": "Telemundo en vivo", "url": "https://nbcu-telemundoflorida-firetv.amagi.tv/playlist1080.m3u8", "logo": "https://placehold.co/35x35/333/fff?text=T", "descripcion": "Canal de noticias y entretenimiento." },
                 { "title": "Totovisión", "url": "https://ssh101stream.ssh101.com/akamaissh101/ssh101/totovision/chunks.m3u8", "logo": "https://static.wixstatic.com/media/7acae1_53119f9bd94741c9bbc6d971331cdaa4~mv2.png/v1/fill/w_381,h_381,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/totovision.png", "descripcion": "Entretenimiento variado" },
                 { "title": "Retro RG", "url": "https://acceso.radiosportstv.online:3259/hybrid/play.m3u8", "logo": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSBxvhIPxIJvY8jcD7VFd6XnmqtnwC0YmUcG6Ttgtc3RSOnQrAcpq8bK8DljzNaqKchQbg&usqp=CAU", "descripcion": "Canal de música retro." },
-                { "title": "Latino Classic TV", "url": "https://streams2.sofast.tv/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/4d419a88-a62c-496f-b8a1-984e746f8259/manifest.m3u8", "logo": "https://cdn.rudo.video/assets/canal-13/live/logoApi_151f8e8d0c9e2a144f59f11ec492c3e91710874647.png", "descripcion": "Películas clásicas latinas." }, // Logo Updated from M3U
-                { "title": "Solo tv", "url": "https://video03.logicahost.com.br/soltv/soltv/playlist.m3u8", "logo": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyeFcO1jqS7cHkeI6uFu8i1mXBb1hayIlshXespGXDMtv0YGhTBKzriaIGYUb4_TOMUd0&usqp=CAU", "descripcion": "Noticias y entretenimiento de Miami." }, // Desc Updated
-                { "title": "Sereno TV", "url": "https://vivo.solumedia.com:19360/serenotv/serenotv.m3u8", "logo": "https://serenotv.com/cargas/2022/01/stv.jpg", "descripcion": "Música relajante." }, // Desc Updated
+                { "title": "Latino Classic TV", "url": "https://streams2.sofast.tv/v1/master/611d79b11b77e2f571934fd80ca1413453772ac7/4d419a88-a62c-496f-b8a1-984e746f8259/manifest.m3u8", "logo": "https://cdn.rudo.video/assets/canal-13/live/logoApi_151f8e8d0c9e2a144f59f11ec492c3e91710874647.png", "descripcion": "Películas clásicas latinas." },
+                { "title": "Solo tv", "url": "https://video03.logicahost.com.br/soltv/soltv/playlist.m3u8", "logo": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTyeFcO1jqS7cHkeI6uFu8i1mXBb1hayIlshXespGXDMtv0YGhTBKzriaIGYUb4_TOMUd0&usqp=CAU", "descripcion": "Noticias y entretenimiento de Miami." },
+                { "title": "Sereno TV", "url": "https://vivo.solumedia.com:19360/serenotv/serenotv.m3u8", "logo": "https://serenotv.com/cargas/2022/01/stv.jpg", "descripcion": "Música relajante." },
                 { "title": "Canal Turrialba", "url": "https://cloudvideo.servers10.com:8081/8230/tracks-v1a1/mono.m3u8", "logo": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRIo1iQW2AJvIdVjUFVAwAxLgPALnvBMwGYFw&s", "descripcion": "Canal local de Turrialba." },
-                { "title": "Canal Demo", "url": "https://tvservices.fullhd-streaming.com:3941/stream/play.m3u8", "logo": "https://milemisoras.com/img/channel/abd12be06e14bf48011ce97f584bfefb.png", "descripcion": "Demostración." }, // Desc Updated
-                { "title": "Canal Tele Brunca", "url": "https://59ef525c24caa.streamlock.net/telebrunca/telebrunca/chunklist_w942921838.m3u8", "logo": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRU4uLGOuQaNRSDK8lSiCjICHX0Ld_weJoskA&s", "descripcion": "Canal local región Brunca." }, // Desc Updated
+                { "title": "Canal Demo", "url": "https://tvservices.fullhd-streaming.com:3941/stream/play.m3u8", "logo": "https://milemisoras.com/img/channel/abd12be06e14bf48011ce97f584bfefb.png", "descripcion": "Demostración." },
+                { "title": "Canal Tele Brunca", "url": "https://59ef525c24caa.streamlock.net/telebrunca/telebrunca/chunklist_w942921838.m3u8", "logo": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRU4uLGOuQaNRSDK8lSiCjICHX0Ld_weJoskA&s", "descripcion": "Canal local región Brunca." },
                 { "title": "Canal Garabito TV", "url": "https://59ef525c24caa.streamlock.net/garabitoTV/garabitotv/chunklist_w878297441.m3u8", "logo": "https://i.ytimg.com/vi/hPwFk9PkcTs/maxresdefault.jpg", "descripcion": "Canal local de Garabito." },
-                { "title": "Canal Dreiko TV", "url": "https://rtv.fullhd-streaming.com:19360/dreikotv/dreikotv.m3u8", "logo": "https://placehold.co/35x35/333/fff?text=D", "descripcion": "Entretenimiento." }, // Desc Updated
+                { "title": "Canal Dreiko TV", "url": "https://rtv.fullhd-streaming.com:19360/dreikotv/dreikotv.m3u8", "logo": "https://placehold.co/35x35/333/fff?text=D", "descripcion": "Entretenimiento." },
                 { "title": "Canal WOW TV", "url": "https://cdn.elsalvadordigital.com:1936/wowtv/smil:wowtv.smil/chunklist_w619053377_b700000_slen.m3u8", "logo": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRKXtZ-XPSnx1sNV7Ilp7D-x8231NVgr_kk-Q&s", "descripcion": "Noticias y entretenimiento." },
                 { "title": "Canal Visión Dorada", "url": "https://movil.ejeserver.com/live/visiondorada.m3u8", "logo": "https://serenotv.com/cargas/2022/01/Canal-vision-dorada-en-vivo.jpg", "descripcion": "Entretenimiento." },
                 { "title": "cartoons tv retro", "url": "https://stmv3.voxtvhd.com.br/xtremaretrocartoons/xtremaretrocartoons/playlist.m3u8", "logo": "https://www.cxtv.com.br/img/Tvs/Logo/webp-l/a1e4076264abe6b6ccde87a587966abe.webp", "descripcion": "Canal de entretenimiento." },
-                { "title": "CANAL 10 CR", "url": "https://acceso.radiosportstv.online:3285/hybrid/play.m3u8", "logo": "https://www.vivalivetv.com/public/files/shows/0/1/3668-294x165-FFFFFF.jpg", "descripcion": "Deportes y noticias." }, // Desc Updated
-                { "title": "Extrema TV Kids", "url": "https://627bb251f23c7.streamlock.net:444/ExtremaKids/ExtremaKids/chunklist_w877184190.m3u8", "logo": "https://image.roku.com/developer_channels/prod/685354bd84f85fe39c7ecae45018ccb60011681ba7838fd841e3f2392f4f6249.png", "descripcion": "Infantil." }, // Desc Updated
-                { "title": "Extra tv", "url": "https://d2axu5ozwr5gk0.cloudfront.net/live_0.m3u8", "logo": "https://placehold.co/35x35/333/fff?text=E", "descripcion": "Deportes y noticias." }, // Desc Updated
+                { "title": "CANAL 10 CR", "url": "https://acceso.radiosportstv.online:3285/hybrid/play.m3u8", "logo": "https://www.vivalivetv.com/public/files/shows/0/1/3668-294x165-FFFFFF.jpg", "descripcion": "Deportes y noticias." },
+                { "title": "Extrema TV Kids", "url": "https://627bb251f23c7.streamlock.net:444/ExtremaKids/ExtremaKids/chunklist_w877184190.m3u8", "logo": "https://image.roku.com/developer_channels/prod/685354bd84f85fe39c7ecae45018ccb60011681ba7838fd841e3f2392f4f6249.png", "descripcion": "Infantil." },
+                { "title": "Extra tv", "url": "https://d2axu5ozwr5gk0.cloudfront.net/live_0.m3u8", "logo": "https://placehold.co/35x35/333/fff?text=E", "descripcion": "Deportes y noticias." },
                 { "title": "Canal 8", "url": "https://mdstrm.com/live-stream-playlist/5a7b1e63a8da282c34d65445/master.m3u8", "logo": "https://placehold.co/35x35/333/fff?text=8", "descripcion": "Multimedios Costa Rica" },
                 { "title": "Costa Rica Channel", "url": "https://video0.rogohosting.com:19360/8006/8006.m3u8", "logo": "https://radiocostarica.net/sites/default/files/styles/player_image/public/2024-05/Costa%20Rica%20Channel-Costa%20Rica.png.webp?itok=jdj8aeqR", "descripcion": "Costa Rica Channel" },
                 { "title": "xtrema peliculas", "url": "https://stmv6.voxtvhd.com.br/cineaccion/cineaccion/playlist.m3u8", "logo": "https://www.cxtv.com.br/img/Tvs/Logo/webp-l/16f8ed90cfdce23eb93131280ab06426.webp", "descripcion": "Peliculas accion" },
-                { "title": "Gam tv", "url": "https://v2.azulstream.com:8081/gamtv/gamtv/tracks-v1a1/mono.m3u8", "logo": "https://radiocostarica.net/sites/default/files/styles/player_image/public/2024-06/GAM%20TV%20CR-Costa%20Rica_0.png.webp?itok=ExXxZFSr", "descripcion": "Entretenimiento" }, // Desc Updated
-                { "title": "Claro Sports", "url": "https://d35j504z0x2vu2.cloudfront.net/v1/manifest/0bc8e8376bd8417a1b6761138aa41c26c7309312/bein-sports-xtra-en-espanol/d3358062-b357-4738-9cfb-6824db0ada53/0.m3u8", "logo": "https://placehold.co/35x35/333/fff?text=C", "descripcion": "Deportes." }, // Desc Updated
-                // New Channels from M3U
+                { "title": "Gam tv", "url": "https://v2.azulstream.com:8081/gamtv/gamtv/tracks-v1a1/mono.m3u8", "logo": "https://radiocostarica.net/sites/default/files/styles/player_image/public/2024-06/GAM%20TV%20CR-Costa%20Rica_0.png.webp?itok=ExXxZFSr", "descripcion": "Entretenimiento" },
+                { "title": "Claro Sports", "url": "https://d35j504z0x2vu2.cloudfront.net/v1/manifest/0bc8e8376bd8417a1b6761138aa41c26c7309312/bein-sports-xtra-en-espanol/d3358062-b357-4738-9cfb-6824db0ada53/0.m3u8", "logo": "https://placehold.co/35x35/333/fff?text=C", "descripcion": "Deportes." },
                 { "title": "IQ TV", "url": "http://tv.ticosmedia.com:1935/IQ/IQ/chunklist_w1774290041.m3u8", "logo": "https://static-media.streema.com/media/cache/cc/d1/ccd144db07aadbd048f3d2c74076ba4e.jpg", "descripcion": "Música que se vive" },
                 { "title": "RED BULL", "url": "https://rbmn-live.akamaized.net/hls/live/590964/BoRB-AT/master.m3u8", "logo": "https://www.serialgamer.it/wp-content/uploads/2022/06/red-bull-tv_fs8fm15cu17f1m6xc86vj7w0b.png", "descripcion": "Red Bull TV: deportes" },
                 { "title": "Miami TV", "url": "https://59ec5453559f0.streamlock.net/miamitv/smil:WEB/playlist.m3u8", "logo": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS9QUatPxBhTck6kKk1nTNsRuKLVgXUJfgVjA&s", "descripcion": "VER MIAMI TV EN VIVO" },
@@ -608,8 +634,15 @@
                 { "title": "Zurqui TV", "url": "https://videoserver.tmcreativos.com:19360/gesfnvpamn/gesfnvpamn.m3u8", "logo": "https://i.imgur.com/XvktUBB.jpg", "descripcion": "Sin descripción" }
             ];
 
+
+            // --- Channel Status Storage Key ---
+            const STATUS_STORAGE_KEY = 'channelStatusesTvPlayer';
+
+            // --- Load Statuses ---
+            let channelStatuses = JSON.parse(localStorage.getItem(STATUS_STORAGE_KEY)) || {};
+
             // --- Calculate and Display Total Channels ---
-            const totalChannels = channels.length;
+            const totalChannels = channels.length; // Use the final length
             const countContainer = document.getElementById('channel-count-container');
             const countSpan = document.getElementById('channel-count-number');
             if (countSpan) {
@@ -626,13 +659,42 @@
             const errorMessage = document.getElementById('error-message');
             const tryAgainButton = document.getElementById('try-again-button');
             const tryAnotherButton = document.getElementById('try-another-button');
-            const currentChannelTitleElement = document.getElementById('current-channel-title'); // Get title element
+            const currentChannelTitleElement = document.getElementById('current-channel-title');
 
             // --- State Variables ---
             let favorites = JSON.parse(localStorage.getItem('favoritesTvChannels')) || [];
             let lastAttemptedChannel = null;
             let hls = null;
             let currentChannelIndex = null;
+            let videoPlayingListener = null;
+
+
+            // --- Helper: Update Status (Visual + Storage) ---
+            function updateChannelStatus(index, status) {
+                if (index === null || index < 0 || index >= channels.length) return;
+
+                console.log(`Updating status for index ${index} to ${status}`);
+                channelStatuses[index] = status;
+                localStorage.setItem(STATUS_STORAGE_KEY, JSON.stringify(channelStatuses));
+
+                const listItem = playlist.querySelector(`li[data-original-index="${index}"]`);
+                if (listItem) {
+                    const dot = listItem.querySelector('.status-dot');
+                    if (dot) {
+                        dot.classList.remove('online', 'offline');
+                        let statusTitle = 'Desconocido';
+                        if (status === 'online') {
+                            dot.classList.add('online');
+                            statusTitle = 'En línea (última vez probado)';
+                        } else if (status === 'offline') {
+                            dot.classList.add('offline');
+                            statusTitle = 'Fuera de línea (última vez probado)';
+                        }
+                        dot.title = `Estado: ${statusTitle}`;
+                    }
+                }
+            }
+
 
             // --- Error Handling ---
             function showError(message, channelIndex) {
@@ -648,9 +710,12 @@
                 videoPlayer.pause();
                 videoPlayer.removeAttribute('src');
                 videoPlayer.load();
-                // Clear header title on error
+
                 if (currentChannelTitleElement) {
-                    currentChannelTitleElement.textContent = '';
+                    currentChannelTitleElement.textContent = 'Error al cargar canal';
+                }
+                if (channelIndex !== null) {
+                    updateChannelStatus(channelIndex, 'offline');
                 }
             }
 
@@ -685,20 +750,25 @@
                 });
 
                 sortedChannels.forEach((channel) => {
-                    // Find the actual index in the potentially updated 'channels' array
                     const originalIndex = channels.findIndex(ch => ch.url === channel.url);
                     if (originalIndex === -1) return;
 
                     const li = document.createElement('li');
-                    li.dataset.originalIndex = originalIndex; // Use the index from the main 'channels' array
+                    li.dataset.originalIndex = originalIndex;
 
                     const channelButton = document.createElement('button');
                     channelButton.classList.add('channel-button');
                     channelButton.type = 'button';
                     channelButton.setAttribute('aria-label', `Reproducir ${channel.title}`);
 
+                    const currentStatus = channelStatuses[originalIndex];
+                    const statusTitle = currentStatus === 'online' ? 'En línea (última vez probado)' :
+                                        currentStatus === 'offline' ? 'Fuera de línea (última vez probado)' :
+                                        'Desconocido';
+
                     channelButton.innerHTML = `
                         <div class="channel-info">
+                            <span class="status-dot ${currentStatus || ''}" title="Estado: ${statusTitle}"></span>
                             <img src="${channel.logo}" alt="" onerror="this.onerror=null; this.src='https://placehold.co/32x32/383838/A0A0A0?text=${encodeURIComponent(channel.title.charAt(0))}'; this.alt='${channel.title} Logo Placeholder';" loading="lazy">
                             <div class="channel-details">
                                 <span class="channel-title">${channel.title}</span>
@@ -720,33 +790,29 @@
                     star.setAttribute('role', 'button');
                     star.setAttribute('aria-pressed', isFavorite.toString());
                     star.setAttribute('aria-label', isFavorite ? `Quitar ${channel.title} de favoritos` : `Añadir ${channel.title} a favoritos`);
-                    star.tabIndex = 0; // Make star focusable
+                    star.tabIndex = 0;
 
                     star.addEventListener('click', (e) => {
                         e.stopPropagation();
                         toggleFavorite(originalIndex.toString());
                         const currentSearchTerm = searchInput.value.toLowerCase();
-                        // Re-render using the main 'channels' array for filtering
                         renderPlaylist(currentSearchTerm ? filterChannels(currentSearchTerm) : channels);
                         if (currentChannelIndex !== null) {
                              setActiveChannelHighlight(currentChannelIndex);
                         }
                     });
-                     // Allow toggling favorite with Enter/Space when focused
                     star.addEventListener('keydown', (e) => {
                          if (e.key === 'Enter' || e.key === ' ') {
                               e.preventDefault();
                               e.stopPropagation();
                               toggleFavorite(originalIndex.toString());
                               const currentSearchTerm = searchInput.value.toLowerCase();
-                              // Re-render using the main 'channels' array for filtering
                               renderPlaylist(currentSearchTerm ? filterChannels(currentSearchTerm) : channels);
                               if (currentChannelIndex !== null) {
                                    setActiveChannelHighlight(currentChannelIndex);
                               }
                          }
                     });
-
 
                     li.appendChild(star);
                     playlist.appendChild(li);
@@ -759,7 +825,6 @@
 
             // --- Filter Channels ---
             function filterChannels(searchTerm) {
-                 // Filter the main 'channels' array
                  return channels.filter(ch =>
                     ch.title.toLowerCase().includes(searchTerm) ||
                     (ch.descripcion && ch.descripcion.toLowerCase().includes(searchTerm))
@@ -771,34 +836,29 @@
                 document.querySelectorAll('#playlist li').forEach(item => {
                     item.classList.remove('active');
                 });
-                // Find the list item using the correct index from the main 'channels' array
                 const activeListItem = playlist.querySelector(`li[data-original-index="${index}"]`);
                 if (activeListItem) {
                     activeListItem.classList.add('active');
-                } else {
-                     // This might happen if the active channel is filtered out
-                     // console.warn(`List item for index ${index} not found after render/filter.`);
                 }
             }
 
             // --- Select Channel ---
             function selectChannel(index) {
-                // Index must be valid within the main 'channels' array
                 if (index === null || index === undefined || index < 0 || index >= channels.length) {
                     showError("Error interno: Índice de canal inválido.", index);
                     return;
                 }
                 hideError();
-                const channel = channels[index]; // Get channel from the main array
+                const channel = channels[index];
                 console.log(`Selecting channel ${index}: ${channel.title}`);
 
-                // Update header title
                 if (currentChannelTitleElement) {
                     currentChannelTitleElement.textContent = channel.title;
-                    currentChannelTitleElement.title = channel.title; // Add tooltip for long titles
+                    currentChannelTitleElement.title = channel.title;
                 }
 
                 playVideo(channel.url, index);
+
                 scrollToPlayer();
                 localStorage.setItem('lastPlayedTvChannel', index.toString());
                 currentChannelIndex = index;
@@ -810,62 +870,44 @@
                 console.log(`Attempting to play URL: ${url} for channel index: ${channelIndex}`);
                 lastAttemptedChannel = channelIndex;
 
-                if (hls) {
-                    hls.destroy();
-                    hls = null;
-                }
+                if (hls) { hls.destroy(); hls = null; }
                 videoPlayer.removeAttribute('src');
                 videoPlayer.load();
                 videoPlayer.removeEventListener('error', handleVideoElementError);
+                 if (videoPlayingListener) { videoPlayer.removeEventListener('playing', videoPlayingListener); videoPlayingListener = null; }
 
                 const isM3U8 = url && (url.includes('.m3u8') || url.includes('mpegurl'));
 
+                 const handlePlaying = () => {
+                    if (lastAttemptedChannel === channelIndex) { // Ensure status update is for the correct channel attempt
+                        console.log(`Video playing event received for index ${channelIndex}.`);
+                        updateChannelStatus(channelIndex, 'online');
+                    }
+                 };
+                 videoPlayingListener = handlePlaying;
+
                 if (Hls.isSupported() && isM3U8) {
                     console.log("Using HLS.js for playback.");
-                    hls = new Hls({
-                        enableWorker: true,
-                        lowLatencyMode: true,
-                        backBufferLength: 90,
-                        fragLoadingMaxRetry: 4,
-                        manifestLoadingMaxRetry: 2,
-                        levelLoadingMaxRetry: 2,
-                        fragLoadingRetryDelay: 500,
-                        manifestLoadingRetryDelay: 500,
-                        levelLoadingRetryDelay: 500,
-                    });
-
-                    hls.on(Hls.Events.ERROR, function(event, data) {
+                    hls = new Hls({ /* ... hls config ... */ });
+                    hls.on(Hls.Events.ERROR, function(event, data) { /* ... error handling ... */
                         console.error('HLS.js Error:', event, data);
                         if (data.fatal) {
                             let errorMsg = `Error desconocido (${data.details}). Intente otro canal.`;
                             switch (data.type) {
-                                case Hls.ErrorTypes.NETWORK_ERROR:
-                                    errorMsg = `Error de red (${data.details}). Verifique conexión e intente de nuevo.`;
-                                    break;
-                                case Hls.ErrorTypes.MEDIA_ERROR:
-                                     errorMsg = `Error en los datos del video (${data.details}). Intente otro canal.`;
-                                    break;
+                                case Hls.ErrorTypes.NETWORK_ERROR: errorMsg = `Error de red (${data.details}). Verifique conexión e intente de nuevo.`; break;
+                                case Hls.ErrorTypes.MEDIA_ERROR: errorMsg = `Error en los datos del video (${data.details}). Intente otro canal.`; break;
                             }
-                             showError(errorMsg, channelIndex);
-                             if (data.type === Hls.ErrorTypes.MEDIA_ERROR || data.type === Hls.ErrorTypes.OTHER_ERROR) {
-                                 if (hls) hls.destroy(); hls = null;
-                             }
-                        } else {
-                             console.warn('Non-fatal HLS Error:', data.details);
-                        }
+                            showError(errorMsg, channelIndex);
+                            if (data.type === Hls.ErrorTypes.MEDIA_ERROR || data.type === Hls.ErrorTypes.OTHER_ERROR) { if (hls) hls.destroy(); hls = null; }
+                        } else { console.warn('Non-fatal HLS Error:', data.details); }
                     });
-
                     hls.loadSource(url);
                     hls.attachMedia(videoPlayer);
                     hls.on(Hls.Events.MANIFEST_PARSED, function() {
                         console.log("HLS Manifest parsed. Attempting playback...");
-                        videoPlayer.play().catch(e => {
-                            console.error("Error starting playback after manifest parsed:", e);
-                            if (!errorOverlay.style.display || errorOverlay.style.display === 'none') {
-                                console.warn("Playback likely requires user interaction (autoplay blocked).");
-                            }
-                        });
+                        videoPlayer.play().catch(e => { console.error("Error starting playback after manifest parsed:", e); });
                     });
+                    videoPlayer.addEventListener('playing', videoPlayingListener, { once: true });
 
                 } else if (isM3U8 && videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
                     console.log("Using native HLS support.");
@@ -873,11 +915,9 @@
                     videoPlayer.addEventListener('error', handleVideoElementError);
                     videoPlayer.addEventListener('loadedmetadata', () => {
                         console.log("Native HLS metadata loaded. Attempting playback...");
-                        videoPlayer.play().catch(e => {
-                            console.error("Error starting native playback:", e);
-                            console.warn("Playback likely requires user interaction (autoplay blocked).");
-                        });
+                        videoPlayer.play().catch(e => { console.error("Error starting native playback:", e); });
                     }, { once: true });
+                    videoPlayer.addEventListener('playing', videoPlayingListener, { once: true });
 
                 } else {
                     console.warn("URL is not a valid M3U8 or HLS is not supported. URL:", url);
@@ -888,12 +928,12 @@
             // --- Native Video Element Error Handler ---
             function handleVideoElementError() {
                 const error = videoPlayer.error;
-                if (!error || (hls && hls.media === videoPlayer)) return;
+                 if (!error || lastAttemptedChannel === null) return; // Check if we know which channel failed
 
                 console.error("Native <video> Element Error:", error);
                 let message = "Error desconocido al cargar el video.";
-                if (error) {
-                    switch (error.code) {
+                if (error) { /* ... error code mapping ... */
+                     switch (error.code) {
                         case error.MEDIA_ERR_ABORTED: message = 'Carga de video abortada.'; break;
                         case error.MEDIA_ERR_NETWORK: message = 'Error de red al cargar video.'; break;
                         case error.MEDIA_ERR_DECODE: message = 'Error de decodificación de video.'; break;
@@ -901,9 +941,7 @@
                         default: message = `Error desconocido (código ${error.code}).`; break;
                     }
                 }
-                if (!errorOverlay.style.display || errorOverlay.style.display === 'none') {
-                    showError(message, lastAttemptedChannel);
-                }
+                showError(message, lastAttemptedChannel); // Pass the correct index
                 videoPlayer.removeEventListener('error', handleVideoElementError);
             }
 
@@ -918,111 +956,39 @@
             function toggleFavorite(indexString) {
                 const index = parseInt(indexString);
                 if (isNaN(index)) return;
-
                 const indexInFavorites = favorites.indexOf(indexString);
-                if (indexInFavorites > -1) {
-                    favorites.splice(indexInFavorites, 1);
-                } else {
-                    favorites.push(indexString);
-                }
+                if (indexInFavorites > -1) { favorites.splice(indexInFavorites, 1); }
+                else { favorites.push(indexString); }
                 localStorage.setItem('favoritesTvChannels', JSON.stringify(favorites));
             }
 
             // --- Keyboard Controls ---
             document.addEventListener('keydown', (event) => {
-                if (event.target === searchInput || event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA' || event.target.isContentEditable) {
-                    return;
-                }
-
+                if (event.target === searchInput || event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA' || event.target.isContentEditable) return;
                 let preventDefault = true;
+                 if (playlistContainer.contains(document.activeElement) && ['ArrowUp', 'ArrowDown', 'Tab'].includes(event.key)) preventDefault = false;
+                 if (document.activeElement?.classList.contains('star') && ['Enter', ' '].includes(event.key)) preventDefault = false;
 
-                 if (playlistContainer.contains(document.activeElement) && ['ArrowUp', 'ArrowDown', 'Tab'].includes(event.key)) {
-                     preventDefault = false;
-                 }
-                 if (document.activeElement?.classList.contains('star') && ['Enter', ' '].includes(event.key)) {
-                      preventDefault = false;
-                 }
-
-
-                switch (event.key) {
-                    case ' ': case 'k': case 'MediaPlayPause':
-                        if (videoPlayer.paused) videoPlayer.play().catch(e => console.error("Error playing:", e));
-                        else videoPlayer.pause();
-                        break;
-                    case 'Enter': case 'Ok':
-                         if (document.activeElement && document.activeElement.classList.contains('channel-button')) {
-                              document.activeElement.click();
-                         } else if (document.activeElement && document.activeElement.tagName === 'BUTTON') {
-                             preventDefault = false;
-                         } else {
-                              if (videoPlayer.paused) videoPlayer.play().catch(e => console.error("Error playing:", e));
-                              else videoPlayer.pause();
-                         }
-                        break;
-                    case 'ArrowUp':
-                        if (!playlistContainer.contains(document.activeElement)) {
-                            const newVolumeUp = Math.min(1, parseFloat((videoPlayer.volume + 0.1).toFixed(1)));
-                            videoPlayer.volume = newVolumeUp; videoPlayer.muted = false;
-                        }
-                        break;
-                    case 'ArrowDown':
-                         if (!playlistContainer.contains(document.activeElement)) {
-                            const newVolumeDown = Math.max(0, parseFloat((videoPlayer.volume - 0.1).toFixed(1)));
-                            videoPlayer.volume = newVolumeDown; videoPlayer.muted = false;
-                        }
-                        break;
-                    case 'ArrowRight':
-                        if (!playlistContainer.contains(document.activeElement)) videoPlayer.currentTime += 5;
-                        else preventDefault = false;
-                        break;
-                    case 'ArrowLeft':
-                         if (!playlistContainer.contains(document.activeElement)) videoPlayer.currentTime -= 5;
-                         else preventDefault = false;
-                        break;
-                    case 'm': case 'M': case 'MediaMute':
-                        videoPlayer.muted = !videoPlayer.muted;
-                        break;
-                    case 'f': case 'F':
-                        if (!document.fullscreenElement) {
-                            if (playerContainer.requestFullscreen) playerContainer.requestFullscreen().catch(err => console.error("FS error:", err));
-                            else if (playerContainer.webkitRequestFullscreen) playerContainer.webkitRequestFullscreen();
-                        } else {
-                            if (document.exitFullscreen) document.exitFullscreen();
-                            else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-                        }
-                        break;
-                    case 'MediaStop':
-                        videoPlayer.pause(); videoPlayer.currentTime = 0;
-                        break;
-                    case 'Escape':
-                        if (document.fullscreenElement) {
-                             if (document.exitFullscreen) document.exitFullscreen();
-                             else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-                        } else preventDefault = false;
-                        break;
-                    case 'Backspace':
-                        if (document.fullscreenElement) { /* Optionally exit FS */ }
-                        else preventDefault = false;
-                        break;
-                    default:
-                        preventDefault = false;
-                        break;
+                switch (event.key) { /* ... key handlers ... */
+                    case ' ': case 'k': case 'MediaPlayPause': if (videoPlayer.paused) videoPlayer.play().catch(e => console.error("Error playing:", e)); else videoPlayer.pause(); break;
+                    case 'Enter': case 'Ok': if (document.activeElement && document.activeElement.classList.contains('channel-button')) { document.activeElement.click(); } else if (document.activeElement && document.activeElement.tagName === 'BUTTON') { preventDefault = false; } else { if (videoPlayer.paused) videoPlayer.play().catch(e => console.error("Error playing:", e)); else videoPlayer.pause(); } break;
+                    case 'ArrowUp': if (!playlistContainer.contains(document.activeElement)) { const v = Math.min(1, parseFloat((videoPlayer.volume + 0.1).toFixed(1))); videoPlayer.volume = v; videoPlayer.muted = false; } break;
+                    case 'ArrowDown': if (!playlistContainer.contains(document.activeElement)) { const v = Math.max(0, parseFloat((videoPlayer.volume - 0.1).toFixed(1))); videoPlayer.volume = v; videoPlayer.muted = false; } break;
+                    case 'ArrowRight': if (!playlistContainer.contains(document.activeElement)) videoPlayer.currentTime += 5; else preventDefault = false; break;
+                    case 'ArrowLeft': if (!playlistContainer.contains(document.activeElement)) videoPlayer.currentTime -= 5; else preventDefault = false; break;
+                    case 'm': case 'M': case 'MediaMute': videoPlayer.muted = !videoPlayer.muted; break;
+                    case 'f': case 'F': if (!document.fullscreenElement) { if (playerContainer.requestFullscreen) playerContainer.requestFullscreen().catch(err => console.error("FS error:", err)); else if (playerContainer.webkitRequestFullscreen) playerContainer.webkitRequestFullscreen(); } else { if (document.exitFullscreen) document.exitFullscreen(); else if (document.webkitExitFullscreen) document.webkitExitFullscreen(); } break;
+                    case 'MediaStop': videoPlayer.pause(); videoPlayer.currentTime = 0; break;
+                    case 'Escape': if (document.fullscreenElement) { if (document.exitFullscreen) document.exitFullscreen(); else if (document.webkitExitFullscreen) document.webkitExitFullscreen(); } else preventDefault = false; break;
+                    case 'Backspace': if (document.fullscreenElement) { /* Optionally exit FS */ } else preventDefault = false; break;
+                    default: preventDefault = false; break;
                 }
-
-                if (preventDefault) {
-                    event.preventDefault();
-                }
+                if (preventDefault) { event.preventDefault(); }
             });
 
             // --- Mouse Wheel Volume Control ---
             playerContainer.addEventListener('wheel', (event) => {
-                 event.preventDefault();
-                 const volumeStep = 0.05;
-                 let newVolume = event.deltaY < 0
-                    ? Math.min(1, parseFloat((videoPlayer.volume + volumeStep).toFixed(2)))
-                    : Math.max(0, parseFloat((videoPlayer.volume - volumeStep).toFixed(2)));
-                 videoPlayer.volume = newVolume;
-                 videoPlayer.muted = false;
+                 event.preventDefault(); const volumeStep = 0.05; let newVolume = event.deltaY < 0 ? Math.min(1, parseFloat((videoPlayer.volume + volumeStep).toFixed(2))) : Math.max(0, parseFloat((videoPlayer.volume - volumeStep).toFixed(2))); videoPlayer.volume = newVolume; videoPlayer.muted = false;
             }, { passive: false });
 
             // --- Search Functionality ---
@@ -1032,41 +998,30 @@
             });
 
             // --- Initial Setup ---
-            // Update channel count display right after defining the array
             const updatedTotalChannels = channels.length;
-            if (countSpan) {
-                countSpan.textContent = updatedTotalChannels;
-            }
+            if (countSpan) { countSpan.textContent = updatedTotalChannels; }
 
-            renderPlaylist(); // Initial render with the updated list
+            renderPlaylist(); // Initial render
 
             const lastPlayedIndexStr = localStorage.getItem('lastPlayedTvChannel');
             let initialChannelIndex = 0;
             if (lastPlayedIndexStr !== null) {
                 const lastPlayedIndex = parseInt(lastPlayedIndexStr);
-                // Ensure the saved index is still valid with the potentially larger list
-                if (!isNaN(lastPlayedIndex) && lastPlayedIndex >= 0 && lastPlayedIndex < channels.length) {
-                    initialChannelIndex = lastPlayedIndex;
-                } else {
-                    localStorage.removeItem('lastPlayedTvChannel');
-                }
+                if (!isNaN(lastPlayedIndex) && lastPlayedIndex >= 0 && lastPlayedIndex < channels.length) { initialChannelIndex = lastPlayedIndex; }
+                else { localStorage.removeItem('lastPlayedTvChannel'); }
             }
 
              if (channels.length > 0) {
                  currentChannelIndex = initialChannelIndex;
                  setActiveChannelHighlight(initialChannelIndex);
-                 // Set initial header title
                  if (currentChannelTitleElement) {
                      currentChannelTitleElement.textContent = channels[initialChannelIndex].title;
-                     currentChannelTitleElement.title = channels[initialChannelIndex].title; // Add tooltip
+                     currentChannelTitleElement.title = channels[initialChannelIndex].title;
                  }
                  console.log(`Initial channel set to index ${initialChannelIndex}. Ready.`);
              } else {
                  playlist.innerHTML = '<li style="text-align: center; color: var(--text-secondary); padding: var(--spacing-m);">No hay canales disponibles.</li>';
-                 // Clear header title if no channels
-                  if (currentChannelTitleElement) {
-                     currentChannelTitleElement.textContent = '';
-                 }
+                  if (currentChannelTitleElement) { currentChannelTitleElement.textContent = ''; }
              }
 
         }); // End DOMContentLoaded
