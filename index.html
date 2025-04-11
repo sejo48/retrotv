@@ -48,7 +48,6 @@
             font-size: 16px;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-            /* Add padding top to prevent content from hiding behind fixed header */
             padding-top: var(--header-height);
         }
         @media (max-width: 768px) {
@@ -57,26 +56,18 @@
             }
         }
 
-        /* --- Header Styles (From Jorge's Code - Adjusted for Tabs) --- */
-        .main-header { /* Renamed from .header to avoid potential conflicts */
-            background-color: var(--surface-color);
-            padding: 0 var(--spacing-m);
-            position: fixed;
-            top: 0; left: 0; right: 0;
-            z-index: 1000;
-            display: flex;
-            align-items: center;
-            height: var(--header-height);
-            border-bottom: 1px solid var(--border-color);
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        /* --- Header Styles --- */
+        .main-header {
+            background-color: var(--surface-color); padding: 0 var(--spacing-m);
+            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+            display: flex; align-items: center; height: var(--header-height);
+            border-bottom: 1px solid var(--border-color); box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
         }
-        .main-header img {
-            height: 45px; object-fit: contain; flex-shrink: 0;
-        }
-        #current-channel-title { /* Title specific to M3U8 section */
+        .main-header img { height: 45px; object-fit: contain; flex-shrink: 0; }
+        #current-channel-title {
             color: var(--text-primary); font-size: 1.1em; font-weight: 600;
-            margin-left: var(--spacing-l); white-space: nowrap;
-            overflow: hidden; text-overflow: ellipsis; flex-grow: 1; min-width: 0;
+            margin-left: var(--spacing-l); white-space: nowrap; overflow: hidden;
+            text-overflow: ellipsis; flex-grow: 1; min-width: 0;
         }
         @media (max-width: 768px) {
             .main-header { height: var(--header-height-mobile); padding: 0 var(--spacing-s); }
@@ -84,12 +75,10 @@
              #current-channel-title { margin-left: var(--spacing-m); font-size: 1em;}
         }
 
-        /* --- Tab Navigation Styles (Adapted from Immersive) --- */
+        /* --- Tab Navigation Styles --- */
         .tab-navigation {
-            background-color: var(--surface-color); /* Match header */
-            padding: var(--spacing-s) var(--spacing-m);
-            text-align: center;
-            border-bottom: 1px solid var(--border-color);
+            background-color: var(--surface-color); padding: var(--spacing-s) var(--spacing-m);
+            text-align: center; border-bottom: 1px solid var(--border-color);
         }
         .tab-button {
             padding: 0.6rem 1.2rem; margin: 0 0.25rem; border-radius: var(--border-radius);
@@ -97,134 +86,99 @@
             color: var(--text-secondary); font-weight: 600; cursor: pointer;
             transition: all 0.2s ease-in-out;
         }
-        .tab-button:hover {
-            background-color: var(--surface-hover-color); color: var(--text-primary);
-        }
+        .tab-button:hover { background-color: var(--surface-hover-color); color: var(--text-primary); }
         .tab-button.active {
             background-color: var(--primary-accent); color: var(--text-on-accent);
             box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-color: var(--primary-accent);
         }
-        @media (max-width: 768px) {
-             .tab-button { padding: 0.5rem 0.8rem; font-size: 0.9em;}
-        }
-
+        @media (max-width: 768px) { .tab-button { padding: 0.5rem 0.8rem; font-size: 0.9em;} }
 
         /* --- Content Section Styling --- */
         .content-section { display: none; padding: var(--spacing-m); }
         .content-section.active { display: block; }
-        /* Remove padding for mobile if sections stack directly */
-         @media (max-width: 768px) {
-             .content-section { padding: var(--spacing-s); }
-         }
+         @media (max-width: 768px) { .content-section { padding: var(--spacing-s); } }
 
-        /* --- M3U8 Player Section Styles (From Jorge's Code) --- */
-        /* Container for M3U8 player and playlist */
+        /* --- M3U8 Player Section Styles --- */
         .m3u8-container {
-            display: flex; flex-direction: row;
-            max-width: 1600px; margin: 0 auto; /* Centered */
-            /* Adjust height calculation if needed, considering header and tabs */
-            height: calc(100vh - var(--header-height) - 80px - var(--spacing-m) * 2); /* Example adjustment */
+            display: flex; flex-direction: row; max-width: 1600px; margin: 0 auto;
+            height: calc(100vh - var(--header-height) - 80px - var(--spacing-m) * 2); /* Adjust if needed */
             overflow: hidden; gap: var(--spacing-l);
         }
         #player-container { /* M3U8 Video Player */
             flex: 3; position: relative; border-radius: var(--border-radius);
-            overflow: hidden; background-color: #000;
-            display: flex; align-items: center; justify-content: center;
-            border: 1px solid var(--border-color);
+            overflow: hidden; background-color: #000; display: flex;
+            align-items: center; justify-content: center; border: 1px solid var(--border-color);
         }
-        #my-video { /* M3U8 Video element */
-            width: 100%; height: 100%; object-fit: contain; display: block;
-            border-radius: var(--border-radius);
-        }
+        #my-video { width: 100%; height: 100%; object-fit: contain; display: block; border-radius: var(--border-radius); }
         #playlist-container { /* M3U8 Playlist */
             flex: 1; background-color: var(--surface-color); border-radius: var(--border-radius);
-            padding: var(--spacing-m); border: 1px solid var(--border-color);
-            display: flex; flex-direction: column; min-width: 300px;
-            max-height: 100%; position: relative;
+            padding: var(--spacing-m); border: 1px solid var(--border-color); display: flex;
+            flex-direction: column; min-width: 300px; max-height: 100%; position: relative;
         }
-        .playlist-title-container { /* M3U8 Title/Count */
+        .playlist-title-container {
             display: flex; align-items: center; justify-content: space-between;
             margin-bottom: var(--spacing-m); padding-bottom: var(--spacing-s);
             border-bottom: 1px solid var(--border-color); flex-shrink: 0;
         }
-        #playlist-container h2 { /* M3U8 "Canales" title */
-            margin: 0; font-size: 1.25em; font-weight: 600; color: var(--text-primary);
-        }
-        #channel-count-container { /* M3U8 Count Bubble */
+        #playlist-container h2 { margin: 0; font-size: 1.25em; font-weight: 600; color: var(--text-primary); }
+        #channel-count-container {
             width: auto; height: 28px; background-color: var(--primary-accent);
             border-radius: 14px; display: flex; align-items: center; justify-content: center;
             padding: 0 var(--spacing-s); flex-shrink: 0; margin: 0;
         }
-        #channel-count-number { /* M3U8 Count Number */
-            color: var(--text-on-accent); font-size: 0.8em; font-weight: 600; line-height: 1;
-        }
-        #search { /* M3U8 Search Input */
+        #channel-count-number { color: var(--text-on-accent); font-size: 0.8em; font-weight: 600; line-height: 1; }
+        #search {
             width: 100%; padding: var(--spacing-s) var(--spacing-m); margin-bottom: var(--spacing-m);
             border-radius: var(--border-radius); border: 1px solid var(--border-color);
-            background-color: var(--bg-color); color: var(--text-primary);
-            font-size: 0.95em; transition: border-color 0.2s ease, box-shadow 0.2s ease;
-            flex-shrink: 0;
+            background-color: var(--bg-color); color: var(--text-primary); font-size: 0.95em;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease; flex-shrink: 0;
         }
         #search::placeholder { color: var(--text-secondary); }
-        #search:focus {
-            outline: none; border-color: var(--primary-accent);
-            box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.3);
-        }
-        #playlist { /* M3U8 UL */
-            list-style-type: none; padding: 0; margin: 0; flex-grow: 1; overflow-y: auto;
-        }
-        /* Custom Scrollbar for M3U8 Playlist - CORRECTED SYNTAX */
+        #search:focus { outline: none; border-color: var(--primary-accent); box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.3); }
+        #playlist { list-style-type: none; padding: 0; margin: 0; flex-grow: 1; overflow-y: auto; }
         #playlist::-webkit-scrollbar { width: 8px; }
         #playlist::-webkit-scrollbar-track { background: var(--surface-color); border-radius: 4px; }
         #playlist::-webkit-scrollbar-thumb { background-color: var(--border-color); border-radius: 4px; border: 2px solid var(--surface-color); }
         #playlist::-webkit-scrollbar-thumb:hover { background-color: var(--text-secondary); }
-
-        #playlist li { /* M3U8 LI */
-            display: flex; justify-content: space-between; align-items: center;
-            cursor: default; padding: var(--spacing-s); margin-bottom: var(--spacing-s);
-            background-color: transparent; border-radius: var(--border-radius);
-            transition: background-color 0.15s ease-in-out; border: 1px solid transparent;
+        #playlist li {
+            display: flex; justify-content: space-between; align-items: center; cursor: default;
+            padding: var(--spacing-s); margin-bottom: var(--spacing-s); background-color: transparent;
+            border-radius: var(--border-radius); transition: background-color 0.15s ease-in-out;
+            border: 1px solid transparent;
         }
         #playlist li:hover { background-color: var(--surface-hover-color); }
-        #playlist li.active { /* M3U8 Active Channel */
-            background-color: rgba(74, 144, 226, 0.15); border: 1px solid var(--primary-accent);
-        }
+        #playlist li.active { background-color: rgba(74, 144, 226, 0.15); border: 1px solid var(--primary-accent); }
         #playlist li.active .channel-title { color: var(--primary-accent); font-weight: 600; }
         #playlist li.active .channel-desc { color: var(--text-secondary); }
-        .channel-button { /* M3U8 Button inside LI */
-            background: none; border: none; padding: 0; margin: 0; color: inherit;
-            font-family: inherit; font-size: inherit; text-align: left; cursor: pointer;
-            display: block; flex-grow: 1; margin-right: var(--spacing-s);
-            border-radius: var(--border-radius); overflow: hidden;
+        .channel-button {
+            background: none; border: none; padding: 0; margin: 0; color: inherit; font-family: inherit;
+            font-size: inherit; text-align: left; cursor: pointer; display: block; flex-grow: 1;
+            margin-right: var(--spacing-s); border-radius: var(--border-radius); overflow: hidden;
         }
         .channel-info { display: flex; align-items: center; gap: var(--spacing-s); overflow: hidden; }
-        .status-dot { /* M3U8 Status Dot */
+        .status-dot {
             display: inline-block; width: 8px; height: 8px; border-radius: 50%;
-            background-color: var(--unknown-color); margin-right: var(--spacing-s);
-            flex-shrink: 0; transition: background-color 0.3s ease;
+            background-color: var(--unknown-color); margin-right: var(--spacing-s); flex-shrink: 0;
+            transition: background-color 0.3s ease;
         }
         .status-dot.online { background-color: var(--success-color); }
         .status-dot.offline { background-color: var(--error-color); }
-        .channel-info img { /* M3U8 Logo */
-            width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0;
-            object-fit: cover; border: 1px solid var(--border-color);
-            background-color: var(--border-color);
+        .channel-info img {
+            width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; object-fit: cover;
+            border: 1px solid var(--border-color); background-color: var(--border-color);
         }
         .channel-details { overflow: hidden; display: flex; flex-direction: column; }
-        .channel-title { /* M3U8 Channel Title */
+        .channel-title {
             font-size: 0.9em; font-weight: 500; color: var(--text-primary); display: block;
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.4;
             transition: color 0.15s ease-in-out;
         }
-        .channel-desc { /* M3U8 Channel Desc */
-            font-size: 0.8em; color: var(--text-secondary); margin: 2px 0 0 0;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-            transition: color 0.15s ease-in-out;
+        .channel-desc {
+            font-size: 0.8em; color: var(--text-secondary); margin: 2px 0 0 0; white-space: nowrap;
+            overflow: hidden; text-overflow: ellipsis; transition: color 0.15s ease-in-out;
         }
-        #playlist li:has(.channel-button:focus-visible) { /* M3U8 Focus */
-            box-shadow: 0 0 0 2px var(--primary-accent); background-color: var(--surface-hover-color);
-        }
-        .star { /* M3U8 Favorite Star */
+        #playlist li:has(.channel-button:focus-visible) { box-shadow: 0 0 0 2px var(--primary-accent); background-color: var(--surface-hover-color); }
+        .star {
             cursor: pointer; color: var(--text-secondary); transition: color 0.2s ease, transform 0.2s ease;
             font-size: 1em; flex-shrink: 0; padding: var(--spacing-xs); line-height: 1;
             margin-right: var(--spacing-xs);
@@ -232,13 +186,13 @@
         .star:hover { transform: scale(1.15); color: var(--text-primary); }
         .star.favorite { color: var(--favorite-color); }
         .star.favorite:hover { filter: brightness(1.1); }
-        .loading-indicator { /* M3U8 Loading */
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            font-size: 1em; color: var(--text-secondary); display: none;
-            flex-direction: column; align-items: center; gap: var(--spacing-s);
+        .loading-indicator {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 1em;
+            color: var(--text-secondary); display: none; flex-direction: column; align-items: center;
+            gap: var(--spacing-s);
         }
         .loading-indicator.show { display: flex; }
-        .spinner { /* M3U8 Spinner */
+        .spinner {
             border: 4px solid var(--surface-hover-color); border-top: 4px solid var(--loading-color);
             border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite;
         }
@@ -247,18 +201,13 @@
         /* M3U8 Mobile Styles */
         @media (max-width: 768px) {
             .m3u8-container {
-                flex-direction: column; height: auto; /* Let content define height */
-                 /* Adjust height calculation if needed */
-                 min-height: calc(100vh - var(--header-height-mobile) - 70px); /* Approx height */
-                gap: 0;
+                flex-direction: column; height: auto; min-height: calc(100vh - var(--header-height-mobile) - 70px); gap: 0;
             }
             #player-container { flex: none; height: 40vh; width: 100%; margin: 0; border-radius: 0; border: none; border-bottom: 1px solid var(--border-color); }
             #my-video { border-radius: 0; }
             #playlist-container {
                 flex-grow: 1; width: 100%; border-radius: 0; padding: var(--spacing-m); border: none;
-                /* Adjust height calculation if needed */
-                min-height: calc(60vh - 70px); /* Approx height */
-                max-height: none; overflow-y: auto; min-width: unset;
+                min-height: calc(60vh - 70px); max-height: none; overflow-y: auto; min-width: unset;
             }
             .playlist-title-container { padding-bottom: var(--spacing-s); margin-bottom: var(--spacing-m); }
             #playlist-container h2 { font-size: 1.1em; }
@@ -273,8 +222,8 @@
             .star { font-size: 1em; margin-right: var(--spacing-xs); }
         }
 
-        /* --- Series Section Styles (Adapted from Immersive, using CSS Variables) --- */
-        .series-list-item { /* Series List Item */
+        /* --- Series Section Styles --- */
+        .series-list-item {
             display: flex; align-items: center; padding: var(--spacing-m); margin-bottom: var(--spacing-s);
             border-radius: var(--border-radius); background-color: var(--surface-color);
             border: 1px solid var(--border-color); cursor: pointer; transition: all 0.2s ease;
@@ -283,27 +232,22 @@
             background-color: var(--surface-hover-color); border-color: var(--text-secondary);
             transform: translateY(-2px); box-shadow: 0 3px 6px rgba(0,0,0,0.1);
         }
-        .series-list-item img { /* Series Poster */
+        .series-list-item img {
             width: 50px; height: 70px; object-fit: cover; border-radius: calc(var(--border-radius) / 2);
             margin-right: var(--spacing-m); background-color: var(--border-color);
         }
         .series-list-item .text-content { flex-grow: 1; overflow: hidden; }
-        .series-list-item h3 { /* Series Title in List */
+        .series-list-item h3 {
             font-weight: 600; color: var(--text-primary); margin-bottom: var(--spacing-xs);
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
-        .series-list-item p { /* Series Desc in List */
+        .series-list-item p {
             font-size: 0.875em; color: var(--text-secondary); line-height: 1.4;
-            /* Limit description lines shown in list */
              display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
         }
-        #seriesDetailContainer h3 { /* Series Title in Detail */
-            font-size: 1.5em; font-weight: 700; color: var(--text-primary); margin-bottom: var(--spacing-s);
-        }
-        #seriesDetailContainer .description { /* Series Desc in Detail */
-            color: var(--text-secondary); margin-bottom: var(--spacing-l); font-size: 0.95em;
-        }
-        .episode-list-item { /* Episode Item */
+        #seriesDetailContainer h3 { font-size: 1.5em; font-weight: 700; color: var(--text-primary); margin-bottom: var(--spacing-s); }
+        #seriesDetailContainer .description { color: var(--text-secondary); margin-bottom: var(--spacing-l); font-size: 0.95em; }
+        .episode-list-item {
             padding: var(--spacing-s) var(--spacing-m); margin-bottom: var(--spacing-s);
             border-radius: var(--border-radius); background-color: var(--surface-hover-color);
             cursor: pointer; transition: background-color 0.2s ease, color 0.2s ease;
@@ -311,50 +255,91 @@
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
         .episode-list-item:hover { background-color: var(--surface-color); color: var(--text-primary); }
-        .episode-list-item.playing { /* Active Episode */
+        .episode-list-item.playing {
             background-color: var(--primary-accent); color: var(--text-on-accent);
             font-weight: 600; border-color: var(--primary-accent-hover);
         }
-        .back-button { /* Series Back Button */
+        .back-button {
             background-color: var(--text-secondary); color: var(--bg-color);
             padding: var(--spacing-s) var(--spacing-m); border: none; border-radius: var(--border-radius);
             cursor: pointer; margin-bottom: var(--spacing-l); transition: background-color 0.2s ease;
             font-weight: 600; display: inline-block;
         }
         .back-button:hover { background-color: var(--text-primary); }
-        .video-container { /* Series Video Container (iframe) */
+        .video-container { /* Series iframe container */
             position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;
             max-width: 100%; background: #000; border-radius: var(--border-radius);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); margin-bottom: var(--spacing-l);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
             border: 1px solid var(--border-color);
+            /* Remove margin-bottom here, handle spacing in grid */
         }
         .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
-        .video-container .message { /* Message inside Series player */
+        .video-container .message {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             color: var(--text-secondary); text-align: center; padding: var(--spacing-m);
         }
-         #episodeList { /* Container for episode list items */
-             max-height: 300px; /* Limit height and allow scroll */
-             overflow-y: auto;
-             padding-right: var(--spacing-xs); /* Space for scrollbar */
+         #episodeList { /* Episode list UL */
+             flex-grow: 1; /* Allow list to take height in flex container */
+             overflow-y: auto; padding-right: var(--spacing-xs);
          }
-        /* Custom Scrollbar for Episode List - CORRECTED SYNTAX */
+         /* Custom Scrollbar for Episode List */
          #episodeList::-webkit-scrollbar { width: 6px; }
          #episodeList::-webkit-scrollbar-track { background: var(--surface-color); border-radius: 3px; }
          #episodeList::-webkit-scrollbar-thumb { background-color: var(--border-color); border-radius: 3px; }
          #episodeList::-webkit-scrollbar-thumb:hover { background-color: var(--text-secondary); }
 
-        /* --- Error Overlay Styles (From Jorge's Code) --- */
+        /* --- NEW: Desktop Layout for Series Detail --- */
+        .series-detail-grid {
+            /* Default is block layout (mobile) */
+            display: block;
+        }
+        .video-area { margin-bottom: var(--spacing-l); } /* Space below video on mobile */
+        .episode-area {} /* No special style needed on mobile */
+
+        @media (min-width: 769px) { /* Apply side-by-side layout on larger screens */
+            .series-detail-grid {
+                display: flex;
+                flex-direction: row; /* Side-by-side */
+                gap: var(--spacing-l);
+                align-items: flex-start; /* Align tops */
+            }
+            .video-area {
+                flex: 2; /* Video takes more space */
+                margin-bottom: 0; /* Remove bottom margin on desktop */
+                min-width: 0; /* Prevent flex item overflow */
+            }
+            .episode-area {
+                flex: 1; /* List takes less space */
+                min-width: 0; /* Prevent flex item overflow */
+                /* Limit height of the episode list area on desktop */
+                max-height: 65vh; /* Adjust as needed, e.g., based on video height */
+                display: flex;
+                flex-direction: column;
+                background-color: var(--surface-color); /* Optional: Background for list area */
+                padding: var(--spacing-m); /* Optional: Padding for list area */
+                border-radius: var(--border-radius);
+                border: 1px solid var(--border-color);
+            }
+            #episodeList {
+                flex-grow: 1; /* Allow list to fill the episode-area */
+                /* max-height: none; /* Remove fixed max-height if previously set */
+            }
+            /* Ensure episode list heading stays with the list */
+            .episode-area h4 {
+                 margin-bottom: var(--spacing-m);
+                 flex-shrink: 0; /* Don't shrink heading */
+            }
+        }
+
+        /* --- Error Overlay Styles --- */
         .error-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background-color: rgba(0, 0, 0, 0.9); display: flex; flex-direction: column;
             justify-content: center; align-items: center; z-index: 2000;
             color: var(--text-primary); text-align: center; padding: var(--spacing-l);
-            display: none; /* Hidden by default */
+            display: none;
         }
-        .error-message {
-            font-size: 1.2em; margin-bottom: var(--spacing-l); color: var(--error-color);
-        }
+        .error-message { font-size: 1.2em; margin-bottom: var(--spacing-l); color: var(--error-color); }
         .error-buttons { display: flex; gap: var(--spacing-m); }
         .error-button {
             padding: var(--spacing-s) var(--spacing-l); background-color: var(--primary-accent);
@@ -364,12 +349,9 @@
         .error-button:hover { background-color: var(--primary-accent-hover); }
         .error-button:focus-visible { outline: 2px solid var(--text-on-accent); outline-offset: 2px; }
 
-        /* Series Mobile Styles */
+        /* Series Mobile Styles Adjustment */
         @media (max-width: 768px) {
-            #seriesDetailContainer { /* Adjust padding/layout for mobile */
-                padding-left: var(--spacing-xs);
-                padding-right: var(--spacing-xs);
-            }
+            #seriesDetailContainer { padding-left: var(--spacing-xs); padding-right: var(--spacing-xs); }
              .series-list-item img { width: 40px; height: 56px; margin-right: var(--spacing-s);}
              .series-list-item h3 { font-size: 0.95em; }
              .series-list-item p { font-size: 0.8em; }
@@ -377,10 +359,10 @@
              #seriesDetailContainer .description { font-size: 0.9em; margin-bottom: var(--spacing-m); }
              .episode-list-item { font-size: 0.9em; padding: var(--spacing-s); }
              .back-button { padding: var(--spacing-s) var(--spacing-m); margin-bottom: var(--spacing-m); }
-             .video-container { margin-bottom: var(--spacing-m); }
-             #episodeList { max-height: 250px; } /* Adjust episode list height */
+             /* .video-container { margin-bottom: var(--spacing-m); } /* Already handled by .video-area */
+             .episode-area { max-height: none; padding: 0; border: none; background: none; } /* Reset desktop styles */
+             #episodeList { max-height: 250px; flex-grow: 0;} /* Restore mobile max-height */
         }
-
 
     </style>
 </head>
@@ -434,15 +416,19 @@
                 <h3 id="seriesDetailTitle" class="text-center mb-2"></h3>
                 <p id="seriesDetailDescription" class="description text-center text-sm mb-6"></p>
 
-                <div class="video-container">
-                    <iframe id="drivePlayer" src="" allow="autoplay; fullscreen" allowfullscreen></iframe>
-                     <div id="drivePlayerMessage" class="message" style="display: none;">Selecciona un episodio</div>
-                     </div>
-
-                <h4 class="text-lg font-semibold mb-3" style="color: var(--text-secondary);">Episodios:</h4>
-                <div id="episodeList">
+                <div class="series-detail-grid">
+                    <div class="video-area">
+                        <div class="video-container">
+                            <iframe id="drivePlayer" src="" allow="autoplay; fullscreen" allowfullscreen></iframe>
+                            <div id="drivePlayerMessage" class="message" style="display: none;">Selecciona un episodio</div>
+                        </div>
                     </div>
-            </div>
+                    <div class="episode-area">
+                        <h4 class="text-lg font-semibold mb-3" style="color: var(--text-secondary);">Episodios:</h4>
+                        <div id="episodeList">
+                            </div>
+                    </div>
+                </div> </div>
         </section>
     </div>
 
