@@ -122,7 +122,8 @@
         .m3u8-container {
             display: flex; flex-direction: row;
             max-width: 1600px; margin: 0 auto; /* Centered */
-            height: calc(100vh - var(--header-height) - 80px); /* Adjust height considering header and tabs */
+            /* Adjust height calculation if needed, considering header and tabs */
+            height: calc(100vh - var(--header-height) - 80px - var(--spacing-m) * 2); /* Example adjustment */
             overflow: hidden; gap: var(--spacing-l);
         }
         #player-container { /* M3U8 Video Player */
@@ -171,12 +172,13 @@
         }
         #playlist { /* M3U8 UL */
             list-style-type: none; padding: 0; margin: 0; flex-grow: 1; overflow-y: auto;
-            /* Custom Scrollbar */
-            &::-webkit-scrollbar { width: 8px; }
-            &::-webkit-scrollbar-track { background: var(--surface-color); border-radius: 4px; }
-            &::-webkit-scrollbar-thumb { background-color: var(--border-color); border-radius: 4px; border: 2px solid var(--surface-color); }
-            &::-webkit-scrollbar-thumb:hover { background-color: var(--text-secondary); }
         }
+        /* Custom Scrollbar for M3U8 Playlist - CORRECTED SYNTAX */
+        #playlist::-webkit-scrollbar { width: 8px; }
+        #playlist::-webkit-scrollbar-track { background: var(--surface-color); border-radius: 4px; }
+        #playlist::-webkit-scrollbar-thumb { background-color: var(--border-color); border-radius: 4px; border: 2px solid var(--surface-color); }
+        #playlist::-webkit-scrollbar-thumb:hover { background-color: var(--text-secondary); }
+
         #playlist li { /* M3U8 LI */
             display: flex; justify-content: space-between; align-items: center;
             cursor: default; padding: var(--spacing-s); margin-bottom: var(--spacing-s);
@@ -246,14 +248,16 @@
         @media (max-width: 768px) {
             .m3u8-container {
                 flex-direction: column; height: auto; /* Let content define height */
-                min-height: calc(100vh - var(--header-height-mobile) - 60px); /* Approx height */
+                 /* Adjust height calculation if needed */
+                 min-height: calc(100vh - var(--header-height-mobile) - 70px); /* Approx height */
                 gap: 0;
             }
             #player-container { flex: none; height: 40vh; width: 100%; margin: 0; border-radius: 0; border: none; border-bottom: 1px solid var(--border-color); }
             #my-video { border-radius: 0; }
             #playlist-container {
                 flex-grow: 1; width: 100%; border-radius: 0; padding: var(--spacing-m); border: none;
-                min-height: calc(60vh - 60px); /* Approx height */
+                /* Adjust height calculation if needed */
+                min-height: calc(60vh - 70px); /* Approx height */
                 max-height: none; overflow-y: auto; min-width: unset;
             }
             .playlist-title-container { padding-bottom: var(--spacing-s); margin-bottom: var(--spacing-m); }
@@ -333,12 +337,12 @@
              max-height: 300px; /* Limit height and allow scroll */
              overflow-y: auto;
              padding-right: var(--spacing-xs); /* Space for scrollbar */
-             /* Custom Scrollbar for episode list */
-             &::-webkit-scrollbar { width: 6px; }
-             &::-webkit-scrollbar-track { background: var(--surface-color); border-radius: 3px; }
-             &::-webkit-scrollbar-thumb { background-color: var(--border-color); border-radius: 3px; }
-             &::-webkit-scrollbar-thumb:hover { background-color: var(--text-secondary); }
          }
+        /* Custom Scrollbar for Episode List - CORRECTED SYNTAX */
+         #episodeList::-webkit-scrollbar { width: 6px; }
+         #episodeList::-webkit-scrollbar-track { background: var(--surface-color); border-radius: 3px; }
+         #episodeList::-webkit-scrollbar-thumb { background-color: var(--border-color); border-radius: 3px; }
+         #episodeList::-webkit-scrollbar-thumb:hover { background-color: var(--text-secondary); }
 
         /* --- Error Overlay Styles (From Jorge's Code) --- */
         .error-overlay {
@@ -359,6 +363,24 @@
         }
         .error-button:hover { background-color: var(--primary-accent-hover); }
         .error-button:focus-visible { outline: 2px solid var(--text-on-accent); outline-offset: 2px; }
+
+        /* Series Mobile Styles */
+        @media (max-width: 768px) {
+            #seriesDetailContainer { /* Adjust padding/layout for mobile */
+                padding-left: var(--spacing-xs);
+                padding-right: var(--spacing-xs);
+            }
+             .series-list-item img { width: 40px; height: 56px; margin-right: var(--spacing-s);}
+             .series-list-item h3 { font-size: 0.95em; }
+             .series-list-item p { font-size: 0.8em; }
+             #seriesDetailContainer h3 { font-size: 1.3em; }
+             #seriesDetailContainer .description { font-size: 0.9em; margin-bottom: var(--spacing-m); }
+             .episode-list-item { font-size: 0.9em; padding: var(--spacing-s); }
+             .back-button { padding: var(--spacing-s) var(--spacing-m); margin-bottom: var(--spacing-m); }
+             .video-container { margin-bottom: var(--spacing-m); }
+             #episodeList { max-height: 250px; } /* Adjust episode list height */
+        }
+
 
     </style>
 </head>
@@ -453,12 +475,12 @@
                  // Pause videos before switching
                  if (isSwitchingToSeries && m3u8VideoPlayer && !m3u8VideoPlayer.paused) {
                      console.log("Pausing M3U8 player");
-                     m3u8VideoPlayer.pause();
-                     // Optional: Destroy HLS instance if needed to save resources
-                     // if (hls) { hls.destroy(); hls = null; }
+                     m3u8Logic.pauseVideo(); // Use namespaced pause function
                  } else if (isSwitchingToTv && driveIframePlayer) {
                      console.log("Resetting Drive player");
                      driveIframePlayer.src = 'about:blank'; // Reset iframe src to stop playback
+                     // Also reset series detail view if visible
+                     seriesLogic.showSeriesListView();
                  }
 
 
@@ -475,7 +497,7 @@
                  const headerTitle = document.getElementById('current-channel-title');
                  if (headerTitle) {
                      if (isSwitchingToTv) {
-                         // Restore M3U8 title (might need adjustment based on M3U8 logic state)
+                         // Restore M3U8 title
                          headerTitle.textContent = m3u8Logic.getCurrentChannelTitle() || 'Canales de TV';
                      } else if (isSwitchingToSeries) {
                          headerTitle.textContent = 'Series'; // Set a generic title for Series section
@@ -487,8 +509,6 @@
                 if (isSwitchingToSeries && seriesLogic.allSeriesData.length === 0) {
                     seriesLogic.fetchSeriesData();
                 }
-                 // If switching to TV and M3U8 list hasn't loaded, load it (handled by m3u8Logic.initializeApp)
-                 // Maybe trigger re-render or check state if needed
             }
 
             tvButton.addEventListener('click', () => showSection('tvSection'));
@@ -659,7 +679,10 @@
                          videoPlayer.removeAttribute('src');
                          videoPlayer.load();
                      }
-                     if (currentChannelTitleElement) currentChannelTitleElement.textContent = 'Error al cargar';
+                     // Update header title only if TV section is active when error occurs
+                     if (tvSection.classList.contains('active') && currentChannelTitleElement) {
+                        currentChannelTitleElement.textContent = 'Error al cargar';
+                     }
                      if (channelIndex !== null && channelIndex < channels.length) {
                          updateChannelStatus(channelIndex, 'offline');
                      }
@@ -688,7 +711,10 @@
                      playlist.innerHTML = '';
                      if (!channelsToRender || channelsToRender.length === 0) {
                          if (countSpan) countSpan.textContent = '0';
-                         if (currentChannelTitleElement && tvSection.classList.contains('active')) currentChannelTitleElement.textContent = 'No hay canales';
+                         // Update header title only if TV section is active
+                         if (tvSection.classList.contains('active') && currentChannelTitleElement) {
+                            currentChannelTitleElement.textContent = 'No hay canales';
+                         }
                          playlist.innerHTML = '<li style="color: var(--text-secondary); text-align: center; margin-top: var(--spacing-l);">No hay canales para mostrar.</li>';
                          return;
                      }
@@ -780,7 +806,8 @@
                      hideError();
                      const channel = channels[index];
                      console.log(`Selecting M3U8 channel ${index}: ${channel.title}`);
-                     if (currentChannelTitleElement && tvSection.classList.contains('active')) { // Only update if TV section is active
+                     // Update header title ONLY if TV section is active
+                     if (tvSection.classList.contains('active') && currentChannelTitleElement) {
                          currentChannelTitleElement.textContent = channel.title || 'Canal sin título';
                          currentChannelTitleElement.title = channel.title || 'Canal sin título';
                      }
@@ -918,23 +945,33 @@
                          }
                          setActiveChannelHighlight(initialChannelIndex); // Highlight but don't auto-play
                      } else {
-                          if (currentChannelTitleElement && tvSection.classList.contains('active')) currentChannelTitleElement.textContent = 'Error al cargar lista';
+                          // Update header title only if TV section is active
+                          if (tvSection.classList.contains('active') && currentChannelTitleElement) {
+                            currentChannelTitleElement.textContent = 'Error al cargar lista';
+                          }
                      }
                  }
 
-                 // --- Public Methods/Properties (Optional) ---
+                 // --- Public Methods/Properties ---
                  return {
                      initializeApp,
                      getCurrentChannelTitle: () => {
                          if (currentChannelIndex !== null && currentChannelIndex >= 0 && currentChannelIndex < channels.length) {
                              return channels[currentChannelIndex].title || 'Canal sin título';
                          }
-                         return null; // Or a default title
+                         // Return a default or the last known good title if needed
+                         return document.getElementById('current-channel-title')?.textContent || 'Canales de TV';
                      },
                      pauseVideo: () => {
                          if (videoPlayer && !videoPlayer.paused) videoPlayer.pause();
-                     }
-                     // Add other methods if needed for external control
+                         // Optionally destroy HLS instance here if desired on tab switch
+                         // if (hls) { hls.destroy(); hls = null; }
+                     },
+                     // Expose necessary elements if needed by global controls
+                     videoPlayer: videoPlayer,
+                     playlistContainer: playlistContainer,
+                     searchInput: searchInput,
+                     playerContainer: playerContainer // Expose for fullscreen
                  };
              })(); // End m3u8Logic IIFE
 
@@ -952,7 +989,7 @@
                  const backBtn = document.getElementById('backButton');
 
                  // --- State ---
-                 let allSeriesData = [];
+                 let allSeriesData = []; // Keep internal
                  let currentSeriesIndex = -1;
                  const placeholderImage = "https://placehold.co/50x70/1e1e1e/A0A0A0?text=Serie"; // Dark theme placeholder
 
@@ -974,22 +1011,29 @@
                  async function fetchSeriesData() {
                      const playlistUrl = "https://raw.githubusercontent.com/sejo48/jorgedrive/refs/heads/main/playlist.json"; // Your JSON URL
                      if (!listDiv) return; // Don't fetch if the element doesn't exist
-                     listDiv.innerHTML = `<p class="text-center" style="color: var(--text-secondary);">Cargando series...</p>`;
+                     // Avoid showing loading message if data already exists (e.g., tab switch)
+                     if (seriesLogic.allSeriesData.length === 0) {
+                        listDiv.innerHTML = `<p class="text-center" style="color: var(--text-secondary);">Cargando series...</p>`;
+                     }
                      try {
                          const response = await fetch(playlistUrl, { cache: "no-store", headers: { 'Accept': 'application/json' } });
                          if (!response.ok) throw new Error(`Error HTTP ${response.status}`);
                          const data = await response.json();
                          if (!Array.isArray(data)) throw new Error("El JSON no es un array.");
                          // Basic validation of structure
-                         if (data.length > 0 && (!data[0].tituloSerie || !data[0].episodios)) {
+                         if (data.length > 0 && (typeof data[0].tituloSerie === 'undefined' || typeof data[0].episodios === 'undefined')) {
                              console.warn("JSON structure might be incorrect. Expected 'tituloSerie' and 'episodios'.");
                              // Optionally throw error or try to adapt
+                             throw new Error("Formato JSON de series incorrecto.");
                          }
                          seriesLogic.allSeriesData = data; // Store data in the namespace
                          displaySeriesList(seriesLogic.allSeriesData);
                      } catch (error) {
                          console.error("Error fetching/processing Series playlist:", error);
-                         listDiv.innerHTML = `<p class="text-center" style="color: var(--error-color);">Error al cargar series: ${error.message}</p>`;
+                         // Display error only if the list is currently empty
+                         if(listDiv.children.length === 0 || listDiv.textContent.includes('Cargando')) {
+                            listDiv.innerHTML = `<p class="text-center" style="color: var(--error-color);">Error al cargar series: ${error.message}</p>`;
+                         }
                      }
                  }
 
@@ -1043,11 +1087,19 @@
                              const epItem = document.createElement('div');
                              epItem.className = 'episode-list-item';
                              epItem.textContent = episodio.tituloEpisodio || `Episodio ${index + 1}`;
-                             epItem.dataset.url = episodio.urlDrive;
-                             epItem.onclick = () => {
-                                 loadVideo(episodio.urlDrive);
-                                 updatePlayingEpisodeUI(epItem);
-                             };
+                             // Validate episode URL before setting dataset
+                             if (typeof episodio.urlDrive === 'string' && episodio.urlDrive.includes('/preview')) {
+                                 epItem.dataset.url = episodio.urlDrive;
+                                 epItem.onclick = () => {
+                                     loadVideo(episodio.urlDrive);
+                                     updatePlayingEpisodeUI(epItem);
+                                 };
+                             } else {
+                                 console.warn(`URL inválida para episodio: ${episodio.tituloEpisodio || index + 1}`, episodio.urlDrive);
+                                 epItem.style.cursor = 'not-allowed';
+                                 epItem.style.opacity = '0.6';
+                                 epItem.title = 'URL de video inválida';
+                             }
                              episodeListDiv.appendChild(epItem);
                          });
                          if(iframePlayer) iframePlayer.src = 'about:blank'; // Clear player initially
@@ -1096,8 +1148,8 @@
                  // --- Public Methods/Properties ---
                  return {
                      fetchSeriesData,
+                     showSeriesListView, // Expose for tab switching logic
                      allSeriesData // Expose data array (read-only recommended)
-                     // Add other methods if needed
                  };
              })(); // End seriesLogic IIFE
 
@@ -1105,7 +1157,9 @@
             // --- Global Keyboard Controls (From M3U8 Logic - Needs review/adaptation) ---
             // This might need adjustment depending on which section is active
             document.addEventListener('keydown', (event) => {
-                if (event.target === m3u8Logic.searchInput || event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA' || event.target.isContentEditable) return;
+                // Ignore key presses if focus is on an input field
+                const searchInput = document.getElementById('search'); // Re-get search input if needed
+                if (event.target === searchInput || event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA' || event.target.isContentEditable) return;
 
                 let activeSection = document.querySelector('.content-section.active');
                 let preventDefault = true;
@@ -1151,8 +1205,6 @@
                     }
                 } else if (activeSection && activeSection.id === 'seriesSection') {
                     // --- Series Keyboard Controls (Example - can be expanded) ---
-                    // Basic example: Allow space to toggle iframe focus (not playback)
-                    // More complex controls would require interacting with the iframe content if possible, or managing playback state externally.
                      switch (event.key) {
                          case 'f': case 'F': // Fullscreen for the iframe container
                              const driveContainer = document.querySelector('#seriesDetailContainer .video-container');
@@ -1161,8 +1213,17 @@
                                  else { if (document.exitFullscreen) document.exitFullscreen(); else if (document.webkitExitFullscreen) document.webkitExitFullscreen(); }
                              }
                              break;
-                         case 'Escape': if (document.fullscreenElement) { if (document.exitFullscreen) document.exitFullscreen(); else if (document.webkitExitFullscreen) document.webkitExitFullscreen(); } else preventDefault = false; break;
-                         // Add more controls if needed, e.g., for navigating episode list
+                         case 'Escape':
+                             if (document.fullscreenElement) {
+                                 if (document.exitFullscreen) document.exitFullscreen(); else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+                             } else if (document.getElementById('seriesDetailContainer').style.display === 'block') {
+                                 // If in detail view and not fullscreen, trigger back button
+                                 seriesLogic.showSeriesListView();
+                             } else {
+                                 preventDefault = false;
+                             }
+                             break;
+                         // Add more controls if needed, e.g., for navigating episode list with arrows
                          default: preventDefault = false; break;
                      }
                 } else {
@@ -1175,7 +1236,10 @@
             // --- Mouse Wheel Volume Control (Only for M3U8 player) ---
             const m3u8PlayerContainer = document.getElementById('player-container');
             if(m3u8PlayerContainer) m3u8PlayerContainer.addEventListener('wheel', (event) => {
-                const videoPlayer = m3u8Logic.videoPlayer;
+                // Check if the TV section is active before changing volume
+                 if (!tvSection.classList.contains('active')) return;
+
+                 const videoPlayer = m3u8Logic.videoPlayer; // Get reference inside listener
                  if (videoPlayer && (event.target === videoPlayer || m3u8PlayerContainer.contains(event.target))) {
                      event.preventDefault();
                      const volumeStep = 0.05;
@@ -1189,8 +1253,7 @@
             // --- Initial Application Setup ---
             showSection('tvSection'); // Show TV section by default
             m3u8Logic.initializeApp(); // Initialize M3U8 player
-            // Series data will be fetched when the tab is clicked or can be pre-fetched here:
-            // seriesLogic.fetchSeriesData(); // Optional: Pre-fetch series data
+            // Series data fetch is triggered when switching to the Series tab if not already loaded
 
         }); // End DOMContentLoaded
     </script>
