@@ -3,1328 +3,540 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reproductor de TV y Series</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Reproductor TV y Series v1.0 (Smart TV)</title>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        /* --- Modern Dark Theme Variables --- */
+        /* --- CSS Variables --- */
         :root {
-            --bg-color: #121212;
-            --surface-color: #1e1e1e;
-            --surface-hover-color: #2a2a2a;
-            --primary-accent: #4A90E2; /* Blue accent */
-            --primary-accent-hover: #357ABD;
-            --text-primary: #E0E0E0;
-            --text-secondary: #A0A0A0;
-            --text-on-accent: #FFFFFF;
-            --border-color: #383838;
-            --favorite-color: #FFD700; /* Gold for favorite */
-            --error-color: #CF6679; /* Red for offline/error */
-            --success-color: #2ECC71; /* Green for online */
-            --unknown-color: #616161; /* Grey for unknown status */
-            --loading-color: var(--primary-accent); /* Color para indicador de carga */
-            --border-radius: 8px;
-            --spacing-xs: 4px;
-            --spacing-s: 8px;
-            --spacing-m: 16px;
-            --spacing-l: 24px;
-            --header-height: 70px;
-            --header-height-mobile: 60px;
-            --tab-nav-height: 60px; /* Approximate height of tab navigation */
+            --primary-bg: #121212;
+            --secondary-bg: #1e1e1e;
+            --tertiary-bg: #2a2a2a;
+            --text-color: #e0e0e0;
+            --text-secondary-color: #b3b3b3;
+            --highlight-color: #1DB954; /* Spotify green */
+            --highlight-darker-color: #1aa34a;
+            --accent-color: #4A90E2; /* Blue accent for tabs/buttons */
+            --accent-hover-color: #357ABD;
+            --favorite-color: #FFD700; /* Gold */
+            --error-color: #CF6679;
+            --sidebar-width: 240px;
+            --border-radius: 4px;
+            --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            --transition-speed: 0.4s;
+            --timing-function: cubic-bezier(0.645, 0.045, 0.355, 1.000);
+            --focus-outline-color: #60a5fa; /* Blue focus outline */
         }
 
-        /* --- Global Styles --- */
-        * { box-sizing: border-box; }
-        html, body { overflow-x: hidden; }
-        body {
-            font-family: 'Inter', sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            line-height: 1.6;
-            font-size: 16px;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            padding-top: var(--header-height);
+        /* --- Reset and Globals --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            background-color: var(--primary-bg);
+            color: var(--text-color);
+            font-family: var(--font-family);
         }
-        @media (max-width: 768px) {
-            body {
-                padding-top: var(--header-height-mobile);
-            }
+        /* Remove default focus outline globally, we'll add custom ones */
+        *:focus {
+            outline: none !important;
+        }
+         /* Custom Focus Style (Example for buttons/list items) */
+        *:focus-visible {
+            outline: 2px solid var(--focus-outline-color) !important;
+            outline-offset: 2px;
+            box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.3); /* Optional glow */
+        }
+        /* Ensure video players themselves don't get the custom outline */
+         #videoPlayer:focus-visible, #seriesPlayerFrame:focus-visible { /* Updated ID */
+             outline: none !important;
+             box-shadow: none !important;
+         }
+
+        .app-container {
+            display: flex;
+            flex-direction: column; /* Stack header, tabs, content */
+            height: 100vh; /* Full viewport height */
         }
 
-        /* --- Header Styles --- */
+        /* --- Header --- */
         .main-header {
-            background-color: var(--surface-color); padding: 0 var(--spacing-m);
-            position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-            display: flex; align-items: center; height: var(--header-height);
-            border-bottom: 1px solid var(--border-color); box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            background-color: var(--secondary-bg);
+            padding: 0 15px;
+            height: 60px; /* Fixed header height */
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid var(--tertiary-bg);
+            flex-shrink: 0; /* Prevent shrinking */
+            z-index: 100;
         }
-        .main-header img { height: 45px; object-fit: contain; flex-shrink: 0; }
-        #current-channel-title {
-            color: var(--text-primary); font-size: 1.1em; font-weight: 600;
-            margin-left: var(--spacing-l); white-space: nowrap; overflow: hidden;
-            text-overflow: ellipsis; flex-grow: 1; min-width: 0;
+        .app-logo-header { /* Different class for header logo */
+            max-height: 35px;
+            object-fit: contain;
+            margin-right: auto; /* Push other elements to the right */
         }
-        @media (max-width: 768px) {
-            .main-header { height: var(--header-height-mobile); padding: 0 var(--spacing-s); }
-            .main-header img { height: 35px; }
-             #current-channel-title { margin-left: var(--spacing-m); font-size: 1em;}
+        #current-media-title { /* Title in the header */
+             color: var(--text-color);
+             font-size: 1.1em;
+             font-weight: 500;
+             white-space: nowrap;
+             overflow: hidden;
+             text-overflow: ellipsis;
+             text-align: right;
+             margin-left: 20px;
         }
 
-        /* --- Tab Navigation Styles --- */
+        /* --- Tab Navigation --- */
         .tab-navigation {
-            background-color: var(--surface-color); padding: var(--spacing-s) var(--spacing-m);
-            text-align: center; border-bottom: 1px solid var(--border-color);
-            height: var(--tab-nav-height);
-            display: flex; align-items: center; justify-content: center;
+            background-color: var(--secondary-bg);
+            padding: 8px 15px;
+            text-align: center;
+            border-bottom: 1px solid var(--tertiary-bg);
+            flex-shrink: 0; /* Prevent shrinking */
+            z-index: 90;
         }
         .tab-button {
-            padding: 0.6rem 1.2rem; margin: 0 0.25rem; border-radius: var(--border-radius);
-            border: 1px solid transparent; background-color: transparent;
-            color: var(--text-secondary); font-weight: 600; cursor: pointer;
-            transition: all 0.2s ease-in-out;
-        }
-        .tab-button:hover { background-color: var(--surface-hover-color); color: var(--text-primary); }
-        .tab-button.active {
-            background-color: var(--primary-accent); color: var(--text-on-accent);
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1); border-color: var(--primary-accent);
-        }
-        @media (max-width: 768px) {
-             .tab-navigation { height: auto; padding: var(--spacing-xs) var(--spacing-s); }
-            .tab-button { padding: 0.5rem 0.8rem; font-size: 0.9em;}
-        }
-
-        /* --- Content Section Styling --- */
-        .content-section { display: none; padding: var(--spacing-m); }
-        .content-section.active { display: block; }
-         @media (max-width: 768px) { .content-section { padding: var(--spacing-s); } }
-
-        /* --- M3U8 Player Section Styles --- */
-        .m3u8-container {
-            display: flex; flex-direction: row; max-width: 1600px; margin: 0 auto;
-            height: calc(100vh - var(--header-height) - var(--tab-nav-height) - var(--spacing-m) * 2);
-            overflow: hidden; gap: var(--spacing-l);
-        }
-        #player-container {
-            flex: 3; position: relative; border-radius: var(--border-radius);
-            overflow: hidden; background-color: #000; display: flex;
-            align-items: center; justify-content: center; border: 1px solid var(--border-color);
-        }
-        #my-video { width: 100%; height: 100%; object-fit: contain; display: block; border-radius: var(--border-radius); }
-        #playlist-container {
-            flex: 1; background-color: var(--surface-color); border-radius: var(--border-radius);
-            padding: var(--spacing-m); border: 1px solid var(--border-color); display: flex;
-            flex-direction: column; min-width: 300px; max-height: 100%; position: relative;
-        }
-        .playlist-title-container {
-            display: flex; align-items: center; justify-content: space-between;
-            margin-bottom: var(--spacing-m); padding-bottom: var(--spacing-s);
-            border-bottom: 1px solid var(--border-color); flex-shrink: 0;
-        }
-        #playlist-container h2 { margin: 0; font-size: 1.25em; font-weight: 600; color: var(--text-primary); }
-        #channel-count-container {
-            width: auto; height: 28px; background-color: var(--primary-accent);
-            border-radius: 14px; display: flex; align-items: center; justify-content: center;
-            padding: 0 var(--spacing-s); flex-shrink: 0; margin: 0;
-        }
-        #channel-count-number { color: var(--text-on-accent); font-size: 0.8em; font-weight: 600; line-height: 1; }
-        #search {
-            width: 100%; padding: var(--spacing-s) var(--spacing-m); margin-bottom: var(--spacing-m);
-            border-radius: var(--border-radius); border: 1px solid var(--border-color);
-            background-color: var(--bg-color); color: var(--text-primary); font-size: 0.95em;
-            transition: border-color 0.2s ease, box-shadow 0.2s ease; flex-shrink: 0;
-        }
-        #search::placeholder { color: var(--text-secondary); }
-        #search:focus { outline: none; border-color: var(--primary-accent); box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.3); }
-        #playlist { list-style-type: none; padding: 0; margin: 0; flex-grow: 1; overflow-y: auto; }
-        #playlist::-webkit-scrollbar { width: 8px; }
-        #playlist::-webkit-scrollbar-track { background: var(--surface-color); border-radius: 4px; }
-        #playlist::-webkit-scrollbar-thumb { background-color: var(--border-color); border-radius: 4px; border: 2px solid var(--surface-color); }
-        #playlist::-webkit-scrollbar-thumb:hover { background-color: var(--text-secondary); }
-        #playlist li {
-            display: flex; justify-content: space-between; align-items: center; cursor: default;
-            padding: var(--spacing-s); margin-bottom: var(--spacing-s); background-color: transparent;
-            border-radius: var(--border-radius); transition: background-color 0.15s ease-in-out;
-            border: 1px solid transparent;
-        }
-        #playlist li:hover { background-color: var(--surface-hover-color); }
-        #playlist li.active { background-color: rgba(74, 144, 226, 0.15); border: 1px solid var(--primary-accent); }
-        #playlist li.active .channel-title { color: var(--primary-accent); font-weight: 600; }
-        #playlist li.active .channel-desc { color: var(--text-secondary); }
-        .channel-button {
-            background: none; border: none; padding: 0; margin: 0; color: inherit; font-family: inherit;
-            font-size: inherit; text-align: left; cursor: pointer; display: block; flex-grow: 1;
-            margin-right: var(--spacing-s); border-radius: var(--border-radius); overflow: hidden;
-        }
-        .channel-info { display: flex; align-items: center; gap: var(--spacing-s); overflow: hidden; }
-        .status-dot {
-            display: inline-block; width: 8px; height: 8px; border-radius: 50%;
-            background-color: var(--unknown-color); margin-right: var(--spacing-s); flex-shrink: 0;
-            transition: background-color 0.3s ease;
-        }
-        .status-dot.online { background-color: var(--success-color); }
-        .status-dot.offline { background-color: var(--error-color); }
-        .channel-info img {
-            width: 32px; height: 32px; border-radius: 50%; flex-shrink: 0; object-fit: cover;
-            border: 1px solid var(--border-color); background-color: var(--border-color);
-        }
-        .channel-details { overflow: hidden; display: flex; flex-direction: column; }
-        .channel-title {
-            font-size: 0.9em; font-weight: 500; color: var(--text-primary); display: block;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.4;
-            transition: color 0.15s ease-in-out;
-        }
-        .channel-desc {
-            font-size: 0.8em; color: var(--text-secondary); margin: 2px 0 0 0; white-space: nowrap;
-            overflow: hidden; text-overflow: ellipsis; transition: color 0.15s ease-in-out;
-        }
-        #playlist li:has(.channel-button:focus-visible) { box-shadow: 0 0 0 2px var(--primary-accent); background-color: var(--surface-hover-color); }
-        .star {
-            cursor: pointer; color: var(--text-secondary); transition: color 0.2s ease, transform 0.2s ease;
-            font-size: 1em; flex-shrink: 0; padding: var(--spacing-xs); line-height: 1;
-            margin-right: var(--spacing-xs);
-        }
-        .star:hover { transform: scale(1.15); color: var(--text-primary); }
-        .star.favorite { color: var(--favorite-color); }
-        .star.favorite:hover { filter: brightness(1.1); }
-        .loading-indicator {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 1em;
-            color: var(--text-secondary); display: none; flex-direction: column; align-items: center;
-            gap: var(--spacing-s); z-index: 5;
-        }
-        .loading-indicator.show { display: flex; }
-        .spinner {
-            border: 4px solid var(--surface-hover-color); border-top: 4px solid var(--loading-color);
-            border-radius: 50%; width: 30px; height: 30px; animation: spin 1s linear infinite;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* M3U8 Mobile Styles */
-        @media (max-width: 768px) {
-            .m3u8-container {
-                flex-direction: column; height: auto;
-                min-height: calc(100vh - var(--header-height-mobile) - var(--tab-nav-height) - var(--spacing-s) * 2);
-                gap: 0;
-            }
-            #player-container { flex: none; height: 40vh; width: 100%; margin: 0; border-radius: 0; border: none; border-bottom: 1px solid var(--border-color); }
-            #my-video { border-radius: 0; }
-            #playlist-container {
-                flex-grow: 1; width: 100%; border-radius: 0; padding: var(--spacing-m); border: none;
-                min-height: calc(60vh - var(--tab-nav-height));
-                max-height: none; overflow-y: auto; min-width: unset;
-            }
-            .playlist-title-container { padding-bottom: var(--spacing-s); margin-bottom: var(--spacing-m); }
-            #playlist-container h2 { font-size: 1.1em; }
-            #channel-count-container { height: 24px; padding: 0 6px; border-radius: 12px; }
-            #channel-count-number { font-size: 0.75em; }
-            #search { padding: 10px; font-size: 1em; }
-            #playlist li { padding: 10px; margin-bottom: 6px; }
-            .status-dot { width: 7px; height: 7px; margin-right: 6px; }
-            .channel-info img { width: 30px; height: 30px; }
-            .channel-title { font-size: 0.9em; }
-            .channel-desc { font-size: 0.75em; }
-            .star { font-size: 1em; margin-right: var(--spacing-xs); }
-        }
-
-        /* --- Series Section Styles --- */
-        .series-list-item {
-            display: flex; align-items: center; padding: var(--spacing-m); margin-bottom: var(--spacing-s);
-            border-radius: var(--border-radius); background-color: var(--surface-color);
-            border: 1px solid var(--border-color); cursor: pointer; transition: all 0.2s ease;
-        }
-        .series-list-item:hover {
-            background-color: var(--surface-hover-color); border-color: var(--text-secondary);
-            transform: translateY(-2px); box-shadow: 0 3px 6px rgba(0,0,0,0.1);
-        }
-        .series-list-item img {
-            width: 50px; height: 70px; object-fit: cover; border-radius: calc(var(--border-radius) / 2);
-            margin-right: var(--spacing-m); background-color: var(--border-color);
-        }
-        .series-list-item .text-content { flex-grow: 1; overflow: hidden; }
-        .series-list-item h3 {
-            font-weight: 600; color: var(--text-primary); margin-bottom: var(--spacing-xs);
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
-        .series-list-item p {
-            font-size: 0.875em; color: var(--text-secondary); line-height: 1.4;
-             display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-        }
-        #seriesDetailContainer h3 { font-size: 1.5em; font-weight: 700; color: var(--text-primary); margin-bottom: var(--spacing-s); }
-        #seriesDetailContainer .description { color: var(--text-secondary); margin-bottom: var(--spacing-l); font-size: 0.95em; }
-
-        /* --- NEW: Season Selector Styles --- */
-        #seasonSelector {
-            margin-bottom: var(--spacing-l);
-            display: flex;
-            flex-wrap: wrap; /* Allow buttons to wrap on smaller screens */
-            gap: var(--spacing-s);
-            justify-content: center; /* Center buttons */
-        }
-        .season-button {
-            padding: var(--spacing-xs) var(--spacing-m);
+            padding: 8px 18px;
+            margin: 0 5px;
             border-radius: var(--border-radius);
-            border: 1px solid var(--border-color);
-            background-color: var(--surface-color);
-            color: var(--text-secondary);
+            border: 1px solid transparent;
+            background-color: transparent;
+            color: var(--text-secondary-color);
             font-weight: 500;
             cursor: pointer;
             transition: all 0.2s ease-in-out;
-            font-size: 0.9em;
+            font-size: 1em;
         }
-        .season-button:hover {
-            background-color: var(--surface-hover-color);
-            border-color: var(--text-secondary);
-            color: var(--text-primary);
+        .tab-button:hover {
+            background-color: var(--tertiary-bg);
+            color: var(--text-color);
         }
-        .season-button.active {
-            background-color: var(--primary-accent);
-            color: var(--text-on-accent);
-            border-color: var(--primary-accent);
-            font-weight: 600;
+        .tab-button.active {
+            background-color: var(--accent-color);
+            color: white;
+            border-color: var(--accent-hover-color);
         }
-        /* --- End Season Selector Styles --- */
-
-        .episode-list-item {
-            padding: var(--spacing-s) var(--spacing-m); margin-bottom: var(--spacing-s);
-            border-radius: var(--border-radius); background-color: var(--surface-hover-color);
-            cursor: pointer; transition: background-color 0.2s ease, color 0.2s ease;
-            font-size: 0.95em; color: var(--text-secondary); border: 1px solid var(--border-color);
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
-        .episode-list-item:hover { background-color: var(--surface-color); color: var(--text-primary); }
-        .episode-list-item.playing {
-            background-color: var(--primary-accent); color: var(--text-on-accent);
-            font-weight: 600; border-color: var(--primary-accent-hover);
-        }
-        .back-button {
-            background-color: var(--text-secondary); color: var(--bg-color);
-            padding: var(--spacing-s) var(--spacing-m); border: none; border-radius: var(--border-radius);
-            cursor: pointer; margin-bottom: var(--spacing-l); transition: background-color 0.2s ease;
-            font-weight: 600; display: inline-block;
-        }
-        .back-button:hover { background-color: var(--text-primary); }
-        .video-container {
-            position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;
-            max-width: 100%; background: #000; border-radius: var(--border-radius);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-            border: 1px solid var(--border-color);
-        }
-        .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: 0; }
-        .video-container .message {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            color: var(--text-secondary); text-align: center; padding: var(--spacing-m);
-        }
-         #episodeList {
-             flex-grow: 1;
-             overflow-y: auto; padding-right: var(--spacing-xs);
-        }
-        #episodeList::-webkit-scrollbar { width: 6px; }
-        #episodeList::-webkit-scrollbar-track { background: var(--surface-color); border-radius: 3px; }
-        #episodeList::-webkit-scrollbar-thumb { background-color: var(--border-color); border-radius: 3px; }
-        #episodeList::-webkit-scrollbar-thumb:hover { background-color: var(--text-secondary); }
-
-        /* --- Desktop Layout for Series Detail --- */
-        .series-detail-grid {
-            display: block;
-        }
-        .video-area { margin-bottom: var(--spacing-l); }
-        .episode-area {}
-
-        @media (min-width: 769px) {
-            .series-detail-grid {
-                display: flex;
-                flex-direction: row;
-                gap: var(--spacing-l);
-                align-items: flex-start;
-            }
-            .video-area {
-                flex: 2;
-                margin-bottom: 0;
-                min-width: 0;
-            }
-            .episode-area {
-                flex: 1;
-                min-width: 0;
-                max-height: 65vh; /* Limit height on desktop */
-                display: flex;
-                flex-direction: column;
-                background-color: var(--surface-color);
-                padding: var(--spacing-m);
-                border-radius: var(--border-radius);
-                border: 1px solid var(--border-color);
-            }
-            #episodeList {
-                flex-grow: 1;
-            }
-            .episode-area h4 { /* Keep heading with list */
-                 margin-bottom: var(--spacing-m);
-                 flex-shrink: 0;
-            }
+        /* Custom focus for tabs */
+        .tab-button:focus-visible {
+             outline: 2px solid var(--focus-outline-color) !important;
+             outline-offset: 1px;
+             box-shadow: none; /* Override general focus */
         }
 
-        /* --- Error Overlay Styles --- */
-        .error-overlay {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background-color: rgba(0, 0, 0, 0.9); display: flex; flex-direction: column;
-            justify-content: center; align-items: center; z-index: 2000;
-            color: var(--text-primary); text-align: center; padding: var(--spacing-l);
-            display: none;
+        /* --- Main Content Area --- */
+        .main-content {
+            flex-grow: 1; /* Take remaining vertical space */
+            overflow: hidden; /* Prevent content overflow */
+            position: relative; /* For absolute positioning inside */
         }
-        .error-message { font-size: 1.2em; margin-bottom: var(--spacing-l); color: var(--error-color); }
-        .error-buttons { display: flex; gap: var(--spacing-m); }
-        .error-button {
-            padding: var(--spacing-s) var(--spacing-l); background-color: var(--primary-accent);
-            border: none; border-radius: var(--border-radius); color: var(--text-on-accent);
-            cursor: pointer; transition: background-color 0.2s ease; font-size: 0.95em; font-weight: 600;
+        .content-section {
+            display: none; /* Hidden by default */
+            height: 100%;
+            width: 100%;
+            overflow: hidden; /* Prevent scrolling within sections */
+            position: absolute; /* Allow sections to overlap */
+            top: 0;
+            left: 0;
         }
-        .error-button:hover { background-color: var(--primary-accent-hover); }
-        .error-button:focus-visible { outline: 2px solid var(--text-on-accent); outline-offset: 2px; }
+        .content-section.active {
+            display: flex; /* Use flex for sections that need it */
+            z-index: 1; /* Bring active section to front */
+        }
 
-        /* Series Mobile Styles Adjustment */
+        /* --- TV Section (#tvSection is .content-section) --- */
+        #tvSection .player-container { /* Target specifically */
+            display: flex; height: 100%; width: 100%; position: relative; overflow: hidden;
+        }
+        #sidebar { /* Styles from original M3U player */
+            width: var(--sidebar-width); min-width: var(--sidebar-width); background-color: var(--secondary-bg);
+            height: 100%; overflow: hidden; transition: transform var(--transition-speed) var(--timing-function), width var(--transition-speed) var(--timing-function), min-width var(--transition-speed) var(--timing-function), padding var(--transition-speed) var(--timing-function), border var(--transition-speed) var(--timing-function);
+            z-index: 10; border-right: 1px solid var(--tertiary-bg); display: flex; flex-direction: column; flex-shrink: 0;
+        }
+        #sidebar.hidden { transform: translateX(-100%); width: 0; min-width: 0; padding: 0; border: none; overflow: hidden; }
+        #sidebar .sidebar-header { padding: 10px 15px; border-bottom: 1px solid var(--tertiary-bg); transition: padding var(--transition-speed) var(--timing-function), border var(--transition-speed) var(--timing-function), height var(--transition-speed) var(--timing-function), opacity var(--transition-speed) var(--timing-function); display: flex; align-items: center; justify-content: center; gap: 10px; height: 50px; opacity: 1; flex-shrink: 0; }
+        #sidebar.hidden .sidebar-header { padding: 0; border: none; height: 0; opacity: 0; overflow: hidden; }
+        #sidebar .channel-count { background-color: var(--tertiary-bg); color: var(--text-color); font-size: 0.75em; font-weight: bold; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; line-height: 1; flex-shrink: 0; transition: opacity var(--transition-speed) var(--timing-function); }
+        #sidebar.hidden .channel-count { opacity: 0; }
+        #sidebar .channel-list-container { flex-grow: 1; overflow-y: auto; transition: opacity var(--transition-speed) var(--timing-function); }
+        #sidebar.hidden .channel-list-container { opacity: 0; }
+        #sidebar .channel-list-container::-webkit-scrollbar { width: 10px; }
+        #sidebar .channel-list-container::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 5px; }
+        #sidebar .channel-list-container::-webkit-scrollbar-thumb { background-color: var(--tertiary-bg); border-radius: 5px; border: 2px solid var(--secondary-bg); }
+        #sidebar .channel-list-container::-webkit-scrollbar-thumb:hover { background-color: #555; }
+        #sidebar .channel-list { list-style: none; padding: 0; }
+        #sidebar .channel-item { display: flex; align-items: center; padding: 8px 12px; cursor: pointer; border-bottom: 1px solid var(--tertiary-bg); transition: background-color 0.15s ease-out, color 0.15s ease-out; font-size: 0.9em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--text-secondary-color); position: relative; }
+        #sidebar .channel-item:last-child { border-bottom: none; }
+        #sidebar .channel-logo { width: 28px; height: 28px; margin-right: 10px; object-fit: contain; flex-shrink: 0; background-color: rgba(255, 255, 255, 0.1); border-radius: var(--border-radius); vertical-align: middle; }
+        #sidebar .channel-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex-grow: 1; margin-right: 25px; }
+        #sidebar .channel-item:hover, #sidebar .channel-item:focus { background-color: var(--tertiary-bg); color: var(--text-color); outline: none; }
+        #sidebar .channel-item.selected { background-color: var(--highlight-color); font-weight: bold; color: var(--primary-bg); }
+        #sidebar .channel-item.selected .channel-name { color: var(--primary-bg); }
+        #sidebar .channel-item.selected:hover { background-color: var(--highlight-darker-color); }
+        #sidebar .favorite-btn { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; padding: 4px; display: flex; align-items: center; justify-content: center; opacity: 0.6; transition: opacity 0.2s ease; }
+        #sidebar .favorite-btn svg { width: 16px; height: 16px; }
+        #sidebar .favorite-btn svg path { fill: var(--text-secondary-color); transition: fill 0.2s ease; }
+        #sidebar .channel-item:hover .favorite-btn, #sidebar .channel-item:focus .favorite-btn, #sidebar .channel-item .favorite-btn.is-favorite { opacity: 1; }
+        #sidebar .favorite-btn.is-favorite svg path { fill: var(--favorite-color); }
+        #sidebar .channel-item.selected .favorite-btn svg path { fill: var(--primary-bg); opacity: 0.8; }
+        #sidebar .channel-item.selected .favorite-btn.is-favorite svg path { fill: var(--favorite-color); opacity: 1; }
+
+        #tvSection .player-content { flex-grow: 1; height: 100%; display: flex; flex-direction: column; position: relative; background-color: #000; background-image: repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.02) 1px, transparent 1px, transparent 10px); outline: none !important; border: none; }
+        #tvSection #videoPlayer { width: 100%; height: 100%; flex-grow: 1; background-color: transparent; display: block; object-fit: contain; outline: none; }
+        #tvSection .channel-info { position: absolute; top: 15px; left: 15px; background-color: rgba(0, 0, 0, 0.7); color: white; padding: 8px 12px; border-radius: var(--border-radius); font-size: 1em; z-index: 5; opacity: 0; transition: opacity 0.5s ease; pointer-events: none; max-width: 80%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        #tvSection .channel-info.visible { opacity: 1; }
+        #tvSection .loader { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); border: 4px solid var(--tertiary-bg); border-top: 4px solid var(--highlight-color); border-radius: 50%; width: 45px; height: 45px; animation: spin 0.8s linear infinite; z-index: 1; display: none; }
+        @keyframes spin { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
+
+        /* --- Series Section (#seriesSection is .content-section) --- */
+        #seriesSection {
+            flex-direction: column; background-color: var(--primary-bg); padding: 15px; overflow-y: auto;
+        }
+        #seriesListContainer, #seriesDetailContainer { width: 100%; }
+        #seriesDetailContainer { display: none; height: 100%; flex-direction: column; }
+
+        /* Series List Styles */
+        .series-list-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 15px; max-height: calc(100vh - 150px); overflow-y: auto; padding: 5px; }
+        .series-list-item-card { background-color: var(--secondary-bg); border-radius: var(--border-radius); overflow: hidden; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease; border: 1px solid var(--tertiary-bg); }
+        .series-list-item-card:hover, .series-list-item-card:focus-visible { transform: scale(1.03); box-shadow: 0 4px 15px rgba(0,0,0,0.3); border-color: var(--highlight-color); }
+        .series-list-item-card img { width: 100%; height: 180px; object-fit: cover; display: block; background-color: var(--tertiary-bg); }
+        .series-list-item-card .text-content { padding: 10px; }
+        .series-list-item-card h3 { font-size: 0.9em; font-weight: 500; color: var(--text-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 3px; }
+        .series-list-item-card p { font-size: 0.75em; color: var(--text-secondary-color); line-height: 1.3; height: 2.6em; overflow: hidden; }
+
+        /* Series Detail Styles */
+        .series-detail-header { display: flex; gap: 15px; margin-bottom: 15px; align-items: flex-start; flex-shrink: 0; }
+        .series-detail-header img { width: 100px; height: 150px; object-fit: cover; border-radius: var(--border-radius); flex-shrink: 0; background-color: var(--tertiary-bg); }
+        .series-detail-info { flex-grow: 1; }
+        .series-detail-info h3 { font-size: 1.6em; font-weight: 600; margin-bottom: 5px; }
+        .series-detail-info p { font-size: 0.9em; color: var(--text-secondary-color); max-height: 100px; overflow-y: auto; }
+        #seasonSelectorContainer { margin-bottom: 10px; flex-shrink: 0; border-bottom: 1px solid var(--tertiary-bg); padding-bottom: 10px; }
+        #seasonSelectorContainer h4 { font-size: 1em; font-weight: 500; margin-bottom: 8px; color: var(--text-secondary-color); }
+        #seasonSelector { display: flex; flex-wrap: wrap; gap: 8px; }
+        .season-button { padding: 6px 12px; border-radius: var(--border-radius); border: 1px solid var(--tertiary-bg); background-color: var(--tertiary-bg); color: var(--text-secondary-color); font-weight: 500; cursor: pointer; transition: all 0.2s ease; font-size: 0.85em; }
+        .season-button:hover { background-color: #4a4a4a; color: var(--text-color); }
+        .season-button.active { background-color: var(--accent-color); color: white; border-color: var(--accent-hover-color); }
+        .season-button:focus-visible { outline: 2px solid var(--focus-outline-color) !important; outline-offset: 1px; box-shadow: none; }
+        .series-detail-main { display: flex; flex-grow: 1; gap: 15px; overflow: hidden; }
+        .series-video-area { flex: 3; min-width: 0; background-color: #000; border-radius: var(--border-radius); overflow: hidden; position: relative; }
+        .series-video-area iframe { display: block; width: 100%; height: 100%; border: none; }
+        .series-video-area iframe:focus-visible { outline: none !important; box-shadow: none !important; }
+        .series-video-area .message { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: var(--text-secondary-color); text-align: center; padding: 10px; }
+        .series-episode-area { flex: 1; min-width: 200px; display: flex; flex-direction: column; background-color: var(--secondary-bg); border-radius: var(--border-radius); padding: 10px; overflow: hidden; }
+        .series-episode-area h4 { font-size: 1em; font-weight: 500; margin-bottom: 5px; flex-shrink: 0; }
+        #episodeSearchInputSeries { font-size: 0.85em; padding: 4px 8px; margin-bottom: 10px; flex-shrink: 0; background-color: var(--tertiary-bg); border: 1px solid var(--secondary-bg); color: var(--text-color); border-radius: var(--border-radius); }
+        #episodeSearchInputSeries:focus { outline: none; border-color: var(--focus-outline-color); box-shadow: 0 0 0 1px var(--focus-outline-color);}
+        #episodeList { list-style: none; padding: 0; margin: 0; flex-grow: 1; overflow-y: auto; }
+        #episodeList li { padding: 8px 10px; margin-bottom: 5px; border-radius: var(--border-radius); background-color: var(--tertiary-bg); color: var(--text-secondary-color); cursor: pointer; transition: background-color 0.2s, color 0.2s; font-size: 0.85em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        #episodeList li:hover { background-color: #4a4a4a; color: var(--text-color); }
+        #episodeList li.playing { background-color: var(--highlight-color); color: var(--primary-bg); font-weight: 500; }
+        #episodeList li:focus-visible { outline: 2px solid var(--focus-outline-color) !important; outline-offset: 1px; box-shadow: none; background-color: #4a4a4a; color: var(--text-color); }
+        #episodeList li.playing:focus-visible { background-color: var(--highlight-darker-color); }
+        .back-button-series { background: none; border: none; color: var(--text-secondary-color); font-size: 1.5em; cursor: pointer; padding: 5px; margin-right: 10px; position: absolute; top: 10px; left: 10px; z-index: 5; background-color: rgba(0,0,0,0.5); border-radius: 50%; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; }
+        .back-button-series:hover { color: var(--text-color); background-color: rgba(0,0,0,0.7); }
+
+        /* Responsive Adjustments */
         @media (max-width: 768px) {
-             #seriesDetailContainer { padding-left: var(--spacing-xs); padding-right: var(--spacing-xs); }
-             .series-list-item img { width: 40px; height: 56px; margin-right: var(--spacing-s);}
-             .series-list-item h3 { font-size: 0.95em; }
-             .series-list-item p { font-size: 0.8em; }
-             #seriesDetailContainer h3 { font-size: 1.3em; }
-             #seriesDetailContainer .description { font-size: 0.9em; margin-bottom: var(--spacing-m); }
-             #seasonSelector { margin-bottom: var(--spacing-m); } /* Adjust spacing */
-             .season-button { font-size: 0.85em; padding: var(--spacing-xs) var(--spacing-s); }
-             .episode-list-item { font-size: 0.9em; padding: var(--spacing-s); }
-             .back-button { padding: var(--spacing-s) var(--spacing-m); margin-bottom: var(--spacing-m); }
-             .episode-area { max-height: none; padding: 0; border: none; background: none; }
-             #episodeList { max-height: 250px; flex-grow: 0;}
+            .main-header { height: 50px; padding: 0 10px; }
+            .app-logo-header { max-height: 30px; }
+            #current-media-title { font-size: 1em; margin-left: 10px; }
+            .tab-navigation { padding: 5px 10px; }
+            .tab-button { padding: 6px 12px; font-size: 0.9em; }
+            #tvSection .player-container { flex-direction: column; }
+            #sidebar { width: 100%; height: 40%; border-right: none; border-bottom: 1px solid var(--tertiary-bg); }
+            #sidebar.hidden { transform: translateY(-100%); height: 0; }
+            #tvSection .player-content { height: 60%; }
+            #sidebar .sidebar-header { height: 45px; }
+            #sidebar .channel-list-container { padding-right: 5px; }
+            #seriesSection { padding: 10px; }
+            .series-list-grid { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 10px; max-height: none; }
+            .series-list-item-card img { height: 150px; }
+            .series-list-item-card .text-content { padding: 8px; }
+            .series-list-item-card h3 { font-size: 0.8em; }
+            .series-list-item-card p { font-size: 0.7em; height: 2.6em; }
+            #seriesDetailContainer { position: absolute; top:0; left:0; right:0; bottom:0; background: var(--primary-bg); z-index: 10; padding: 10px; overflow-y: auto; }
+            .series-detail-header { flex-direction: column; align-items: center; text-align: center; }
+            .series-detail-header img { width: 80px; height: 120px; margin-bottom: 10px; }
+            .series-detail-info h3 { font-size: 1.3em; }
+            .series-detail-info p { font-size: 0.85em; max-height: 80px; }
+            .series-detail-main { flex-direction: column; gap: 10px; height: auto; flex-grow: 0; }
+            .series-video-area { flex: none; height: 40vh; }
+            .series-episode-area { flex: none; height: auto; max-height: 45vh; }
+            .back-button-series { top: 5px; left: 5px; width: 32px; height: 32px; font-size: 1.2em; }
         }
-
     </style>
 </head>
 <body>
-    <header class="main-header">
-        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgVIFxWI-sdOR2bVfpbgCotXquColWskv4u4I9HXZhYdsRewDVRNcJ7iLvtKO2xYucvqOv0DKY2MArMnHGF8IvZBI7NYjg0dkjHUN0N8VXwZ73vKjYOajWC6JTze5n1Hcj19V2COVFkN-TtJA7uR_ALIYyIcvUBOwQN1EmURskiBCI_lJK3hFphdSBuCaQ/s320/logo%20(%20JORGEDEZ%20)%20ROJO%20Y%20BLANCO%20PARA%20VIDEO.jpeg" alt="JORGEDEZ Logo">
-        <span id="current-channel-title">Cargando...</span>
-    </header>
+    <div class="app-container">
+        <header class="main-header">
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjtH1eFwNcBk9FvfM8ozeG6zjDtvJR2j2CdfNtfn8rj0JP9PRWR7zeL_ayD_dwmmuqOe8-sTp-TcOGCVsg5yhUNBO_PqRVI9gCMu3B1x2MQ1ZsitAg-1NKxQ70x3H-O9eehSCsQO6DzLPxcB_uZpfGmfziYNcXQ0JylvrGY1PE-sc9nJ76l2c62PG3Kcvs/w457-h136/JORGEDEZ-19-3-2025.png" alt="Logo" class="app-logo-header" onerror="this.style.display='none'">
+            <span id="current-media-title">TV en Vivo</span> </header>
 
-    <div class="tab-navigation">
-        <button id="tvButton" class="tab-button active">TV en Vivo</button>
-        <button id="seriesButton" class="tab-button">Series</button>
-    </div>
-
-    <div id="main-content-area">
-        <section id="tvSection" class="content-section active">
-            <div class="m3u8-container">
-                <div id="player-container">
-                    <video id="my-video" controls playsinline webkit-playsinline crossorigin="anonymous">
-                        Tu navegador no soporta el elemento de video.
-                    </video>
-                </div>
-                <div id="playlist-container">
-                    <div class="loading-indicator" id="loading-indicator">
-                        <div class="spinner"></div>
-                        <span>Cargando canales...</span>
-                    </div>
-                    <div class="playlist-title-container">
-                        <h2>Canales</h2>
-                        <div id="channel-count-container" aria-live="polite" aria-atomic="true">
-                            <span id="channel-count-number">0</span>
-                        </div>
-                    </div>
-                    <input type="text" id="search" placeholder="Buscar canal..." aria-label="Buscar canal" disabled>
-                    <ul id="playlist" aria-label="Lista de canales">
-                        </ul>
-                </div>
-            </div>
-        </section>
-
-        <section id="seriesSection" class="content-section">
-            <div id="seriesListContainer">
-                <h2 class="text-xl sm:text-2xl font-semibold mb-4 text-center" style="color: var(--text-primary);">Catálogo de Series</h2>
-                <div id="seriesList" class="space-y-3">
-                    <p class="text-center" style="color: var(--text-secondary);">Cargando series...</p>
-                    </div>
-            </div>
-
-            <div id="seriesDetailContainer" style="display: none;">
-                <button id="backButton" class="back-button">&larr; Volver a Series</button>
-                <h3 id="seriesDetailTitle" class="text-center mb-2"></h3>
-                <p id="seriesDetailDescription" class="description text-center text-sm mb-6"></p>
-
-                <div id="seasonSelector" class="mb-4">
-                    </div>
-
-                <div class="series-detail-grid">
-                    <div class="video-area">
-                        <div class="video-container">
-                            <iframe id="drivePlayer" src="" allow="autoplay; fullscreen" allowfullscreen></iframe>
-                            <div id="drivePlayerMessage" class="message" style="display: none;">Selecciona un episodio</div>
-                        </div>
-                    </div>
-                    <div class="episode-area">
-                        <h4 class="text-lg font-semibold mb-3" style="color: var(--text-secondary);">Episodios:</h4>
-                        <div id="episodeList">
-                            </div>
-                    </div>
-                </div> </div> </section>
-    </div> <div class="error-overlay" id="error-overlay" role="alertdialog" aria-labelledby="error-message" aria-modal="true">
-        <div class="error-message" id="error-message">No se pudo cargar el canal. Intente con otro.</div>
-        <div class="error-buttons">
-            <button class="error-button" id="try-again-button">Intentar nuevamente</button>
-            <button class="error-button" id="try-another-button">Probar otro canal</button>
-            <button class="error-button" id="reload-list-button">Recargar Lista M3U</button>
+        <div class="tab-navigation">
+            <button id="tvButton" class="tab-button active" tabindex="0">TV en Vivo</button>
+            <button id="seriesButton" class="tab-button" tabindex="0">Series</button>
         </div>
+
+        <main class="main-content">
+            <section id="tvSection" class="content-section active">
+                <div class="player-container">
+                    <div id="sidebar">
+                        <div class="sidebar-header">
+                            <span id="channelCount" class="channel-count">0</span>
+                        </div>
+                        <div class="channel-list-container">
+                            <ul id="channelList" class="channel-list" tabindex="-1"></ul>
+                        </div>
+                    </div>
+                    <div id="playerContent" class="player-content" tabindex="-1">
+                        <div id="channelInfo" class="channel-info"></div>
+                        <div id="loader" class="loader"></div>
+                        <video id="videoPlayer" controlslist="nodownload nofullscreen noremoteplayback" disablepictureinpicture playsinline></video>
+                    </div>
+                </div>
+            </section>
+
+            <section id="seriesSection" class="content-section">
+                <div id="seriesListContainer" style="display: block; height: 100%; overflow-y: auto;">
+                    <h2 class="text-xl font-semibold mb-4 text-center">Catálogo de Series</h2>
+                    <div id="seriesListGrid" class="series-list-grid" tabindex="-1">
+                        <p class="text-gray-400 text-center p-4 col-span-full">Cargando series...</p>
+                    </div>
+                </div>
+                <div id="seriesDetailContainer" style="display: none; height: 100%; flex-direction: column;">
+                     <button id="seriesBackButton" class="back-button-series" title="Volver a Series" tabindex="0">
+                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 16 16">
+                           <path fill-rule="evenodd" d="M15 8a.5.5 0 0 0-.5-.5H2.707l3.147-3.146a.5.5 0 1 0-.708-.708l-4 4a.5.5 0 0 0 0 .708l4 4a.5.5 0 0 0 .708-.708L2.707 8.5H14.5A.5.5 0 0 0 15 8z"/>
+                         </svg>
+                     </button>
+                     <div class="series-detail-header">
+                         <img id="detailImageSeries" src="" alt="Portada Serie">
+                         <div class="series-detail-info">
+                             <h3 id="detailTitleSeries"></h3>
+                             <p id="detailDescriptionSeries"></p>
+                         </div>
+                     </div>
+                     <div id="seasonSelectorContainer">
+                         <h4>Temporadas:</h4>
+                         <div id="seasonSelector"></div>
+                     </div>
+                     <div class="series-detail-main">
+                         <div class="series-video-area">
+                             <iframe id="seriesPlayerFrame" src="" allow="autoplay; fullscreen" allowfullscreen tabindex="0"></iframe>
+                             <div id="drivePlayerMessage" class="message">Selecciona un episodio</div>
+                         </div>
+                         <div class="series-episode-area">
+                             <h4 id="episodeListTitleSeries">Episodios</h4>
+                              <div class="mb-2 flex-shrink-0">
+                                  <input type="search" id="episodeSearchInputSeries" class="search-input text-xs py-1" placeholder="Buscar episodio...">
+                              </div>
+                             <ul id="episodeList" tabindex="-1"></ul>
+                         </div>
+                     </div>
+                </div>
+            </section>
+        </main>
     </div>
 
     <script>
+        // Wrap entire script in DOMContentLoaded
         document.addEventListener('DOMContentLoaded', () => {
+            console.log("LOG: DOM fully loaded and parsed");
 
-            // --- DOM Element References (Global Scope) ---
+            // --- DOM References ---
+            const headerTitle = document.getElementById('current-media-title');
             const tvButton = document.getElementById('tvButton');
             const seriesButton = document.getElementById('seriesButton');
             const tvSection = document.getElementById('tvSection');
             const seriesSection = document.getElementById('seriesSection');
             const contentSections = document.querySelectorAll('.content-section');
+            const tabNavigation = document.querySelector('.tab-navigation');
             const tabButtons = document.querySelectorAll('.tab-button');
-            const m3u8VideoPlayer = document.getElementById('my-video'); // M3U8 <video> element
-            const driveIframePlayer = document.getElementById('drivePlayer'); // Drive <iframe> element
-            const headerTitle = document.getElementById('current-channel-title'); // Header title span
+            const videoTV = document.getElementById('videoPlayer');
+            const sidebar = document.getElementById('sidebar');
+            const channelListElement = document.getElementById('channelList');
+            const channelInfoElement = document.getElementById('channelInfo');
+            const loaderElement = document.getElementById('loader');
+            const playerContent = document.getElementById('playerContent');
+            const channelCountElement = document.getElementById('channelCount');
+            const channelListContainer = document.querySelector('#tvSection .channel-list-container');
+            const seriesListContainer = document.getElementById('seriesListContainer');
+            const seriesListGrid = document.getElementById('seriesListGrid');
+            const seriesDetailContainer = document.getElementById('seriesDetailContainer');
+            const seriesBackButton = document.getElementById('seriesBackButton');
+            const detailImageSeries = document.getElementById('detailImageSeries');
+            const detailTitleSeries = document.getElementById('detailTitleSeries');
+            const detailDescriptionSeries = document.getElementById('detailDescriptionSeries');
+            const seasonSelectorDiv = document.getElementById('seasonSelector');
+            const episodeListTitleSeries = document.getElementById('episodeListTitleSeries');
+            const episodeListUl = document.getElementById('episodeList');
+            const seriesPlayerIframe = document.getElementById('seriesPlayerFrame');
+            const drivePlayerMessage = document.getElementById('drivePlayerMessage');
+            const episodeSearchInputSeries = document.getElementById('episodeSearchInputSeries');
+
+            // --- URLs ---
+            const m3uUrl = 'https://raw.githubusercontent.com/sejo48/chanejorgedez/refs/heads/main/listaoficial.m3u';
+            const seriesJsonUrl = "https://raw.githubusercontent.com/sejo48/jorgedrive/refs/heads/main/playlist.json";
+
+            // --- State ---
+            let activeSectionId = 'tvSection';
+            let seriesDataCache = null;
+            let isSeriesDataLoading = false;
+            let currentSeriesDetailData = null;
+            let currentSeriesSelectedSeasonIndex = 0;
+            let currentPlayingEpisodeElement = null;
+            let currentSelectedSeasonButton = null;
+
+            // --- Constants ---
+            const placeholderImageSeries = "https://placehold.co/130x180/1e1e1e/A0A0A0?text=Serie";
 
             // --- Tab Navigation Logic ---
-            function showSection(sectionIdToShow) {
-                let isSwitchingToSeries = sectionIdToShow === 'seriesSection';
-                let isSwitchingToTv = sectionIdToShow === 'tvSection';
-
-                // Pause videos before switching sections
-                if (isSwitchingToSeries && m3u8VideoPlayer && !m3u8VideoPlayer.paused) {
-                    console.log("Pausing M3U8 player due to tab switch");
-                    m3u8Logic.pauseVideo();
-                } else if (isSwitchingToTv && driveIframePlayer) {
-                    console.log("Resetting Drive player due to tab switch");
-                    driveIframePlayer.src = 'about:blank';
-                    seriesLogic.showSeriesListView(); // Go back to list view when switching away
-                }
-
-                // Update active classes for sections and buttons
-                contentSections.forEach(section => section.classList.remove('active'));
-                tabButtons.forEach(button => button.classList.remove('active'));
-
-                const sectionToShowElement = document.getElementById(sectionIdToShow);
-                const buttonToActivate = document.getElementById(sectionIdToShow.replace('Section', 'Button'));
-
-                if (sectionToShowElement) sectionToShowElement.classList.add('active');
-                if (buttonToActivate) buttonToActivate.classList.add('active');
-
-                // Update header title
-                if (headerTitle) {
-                    if (isSwitchingToTv) {
-                        headerTitle.textContent = m3u8Logic.getCurrentChannelTitle() || 'Canales de TV';
-                    } else if (isSwitchingToSeries) {
-                        headerTitle.textContent = 'Series';
-                    }
-                }
-
-                // Fetch series data if switching to Series tab and data isn't loaded
-                if (isSwitchingToSeries && seriesLogic.allSeriesData.length === 0) {
-                    seriesLogic.fetchSeriesData();
-                }
+            function showSection(sectionIdToShow) { /* ... (logic unchanged) ... */
+                console.log(`LOG: Switching section from ${activeSectionId} to ${sectionIdToShow}`);
+                if (activeSectionId === sectionIdToShow) return;
+                const previousSectionId = activeSectionId; activeSectionId = sectionIdToShow;
+                if (previousSectionId === 'tvSection') m3u8Logic?.pauseVideo(); else if (previousSectionId === 'seriesSection') seriesLogic?.pauseVideo();
+                contentSections.forEach(section => section.classList.toggle('active', section.id === activeSectionId)); tabButtons.forEach(button => button.classList.toggle('active', button.id === `${activeSectionId.replace('Section', '')}Button`));
+                updateHeaderTitle();
+                if (activeSectionId === 'seriesSection' && !seriesDataCache && !isSeriesDataLoading) { seriesLogic.fetchSeriesData(); }
+                setTimeout(() => { console.log(`LOG: Setting focus for section: ${activeSectionId}`); if (activeSectionId === 'tvSection') m3u8Logic?.focusInitialElement(); else if (activeSectionId === 'seriesSection') seriesLogic?.focusInitialElement(); }, 150);
             }
-
             tvButton.addEventListener('click', () => showSection('tvSection'));
             seriesButton.addEventListener('click', () => showSection('seriesSection'));
 
-            // --- M3U8 Player Logic (Namespace) ---
-            const m3u8Logic = (() => {
-                const m3uUrl = 'https://raw.githubusercontent.com/sejo48/chanejorgedez/refs/heads/main/listaoficial.m3u';
-                let channels = [];
-                const STATUS_STORAGE_KEY = 'channelStatusesTvPlayer';
-                let channelStatuses = JSON.parse(localStorage.getItem(STATUS_STORAGE_KEY)) || {};
-                const videoPlayer = document.getElementById('my-video');
-                const playlist = document.getElementById('playlist');
-                const searchInput = document.getElementById('search');
-                const playerContainer = document.getElementById('player-container');
-                const playlistContainer = document.getElementById('playlist-container');
-                const errorOverlay = document.getElementById('error-overlay');
-                const errorMessage = document.getElementById('error-message');
-                const tryAgainButton = document.getElementById('try-again-button');
-                const tryAnotherButton = document.getElementById('try-another-button');
-                const reloadListButton = document.getElementById('reload-list-button');
-                const currentChannelTitleElement = document.getElementById('current-channel-title');
-                const countContainer = document.getElementById('channel-count-container');
-                const countSpan = document.getElementById('channel-count-number');
-                const loadingIndicator = document.getElementById('loading-indicator');
-                let favorites = JSON.parse(localStorage.getItem('favoritesTvChannels')) || [];
-                let lastAttemptedChannel = null;
-                let hls = null;
-                let currentChannelIndex = null;
-                let videoPlayingListener = null;
+            // --- Header Title Logic ---
+            function updateHeaderTitle() { /* ... (logic unchanged) ... */
+                 let title = ''; try { if (activeSectionId === 'tvSection') { title = m3u8Logic?.getCurrentChannelTitle() || 'TV en Vivo'; } else if (activeSectionId === 'seriesSection') { if (seriesDetailContainer.style.display === 'flex') { title = currentSeriesDetailData?.tituloSerie || 'Detalle de Serie'; } else { title = 'Series'; } } headerTitle.textContent = title; headerTitle.title = title; } catch (e) { console.error("Error updating header title:", e); headerTitle.textContent = "Reproductor"; }
+             }
 
-                function showLoading(message = "Cargando canales...") { /* ... (logic unchanged) ... */
-                    if (loadingIndicator) {
-                        loadingIndicator.querySelector('span').textContent = message;
-                        loadingIndicator.classList.add('show');
-                    }
-                    if(searchInput) searchInput.disabled = true;
-                    if(playlist) playlist.innerHTML = '';
-                    if (countSpan) countSpan.textContent = '...';
-                }
-                function hideLoading() { /* ... (logic unchanged) ... */
-                    if (loadingIndicator) {
-                        loadingIndicator.classList.remove('show');
-                    }
-                     if(searchInput) searchInput.disabled = false;
-                }
-                async function fetchAndParseM3U(url) { /* ... (logic unchanged) ... */
-                    showLoading();
-                    console.log(`Fetching M3U from: ${url}`);
-                    try {
-                        const response = await fetch(url, { cache: "no-store" });
-                        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                        const m3uText = await response.text();
-                        console.log("M3U content fetched successfully.");
-                        const lines = m3uText.split(/[\r\n]+/);
-                        const parsedChannels = [];
-                        let currentChannelInfo = null;
-                        const extinfRegex = /#EXTINF:(-?\d+)(.*)/;
-                        const attributeRegex = /(\S+?)=(?:"([^"]*)"|([^ ]*))/g;
-                        const titleCommaRegex = /,(?!")(.*)/;
-                        for (const line of lines) {
-                            const trimmedLine = line.trim();
-                            if (!trimmedLine || trimmedLine === '#EXTM3U') continue;
-                            if (trimmedLine.startsWith('#EXTINF:')) {
-                                const match = trimmedLine.match(extinfRegex);
-                                if (match) {
-                                    currentChannelInfo = { duration: match[1], attributes: {}, title: '', logo: '', url: '', descripcion: '' };
-                                    const restOfLine = match[2] || '';
-                                    let attrMatch;
-                                    while ((attrMatch = attributeRegex.exec(restOfLine)) !== null) {
-                                        const key = attrMatch[1].toLowerCase();
-                                        const value = attrMatch[2] !== undefined ? attrMatch[2] : attrMatch[3];
-                                        currentChannelInfo.attributes[key] = value;
-                                    }
-                                    currentChannelInfo.title = (currentChannelInfo.attributes['tvg-name'] || '').trim();
-                                    if (!currentChannelInfo.title) {
-                                        const titleMatch = restOfLine.match(titleCommaRegex);
-                                        if (titleMatch && titleMatch[1]) {
-                                            currentChannelInfo.title = titleMatch[1].trim();
-                                        }
-                                    }
-                                    if (!currentChannelInfo.title) { currentChannelInfo.title = 'Sin Título'; }
-                                    currentChannelInfo.logo = currentChannelInfo.attributes['tvg-logo'] || '';
-                                    currentChannelInfo.descripcion = `Canal: ${currentChannelInfo.title}`;
-                                } else {
-                                    console.warn("Línea #EXTINF no reconocida:", trimmedLine);
-                                    currentChannelInfo = null;
-                                }
-                            } else if (currentChannelInfo && !trimmedLine.startsWith('#')) {
-                                currentChannelInfo.url = trimmedLine;
-                                if (currentChannelInfo.url) {
-                                    parsedChannels.push(currentChannelInfo);
-                                } else {
-                                    console.warn("Skipping channel entry with missing URL:", currentChannelInfo.title);
-                                }
-                                currentChannelInfo = null;
-                            }
-                        }
-                        console.log(`Parsed ${parsedChannels.length} channels.`);
-                        if (parsedChannels.length === 0 && lines.length > 1) {
-                            showM3UError("No se encontraron canales válidos en el archivo M3U.");
-                            return [];
-                        }
-                        return parsedChannels;
-                    } catch (error) {
-                        console.error('Error fetching or parsing M3U:', error);
-                        showM3UError(`Error al cargar la lista M3U: ${error.message}. Verifica la URL e inténtalo de nuevo.`);
-                        return [];
-                    } finally {
-                        hideLoading();
-                    }
-                 }
-                function showM3UError(message) { /* ... (logic unchanged) ... */
-                    if(errorMessage) errorMessage.textContent = message;
-                    if(errorOverlay) errorOverlay.style.display = 'flex';
-                    if(tryAgainButton) tryAgainButton.style.display = 'none';
-                    if(tryAnotherButton) tryAnotherButton.style.display = 'none';
-                    if(reloadListButton) reloadListButton.style.display = 'inline-block';
-                }
-                function updateChannelStatus(index, status) { /* ... (logic unchanged) ... */
-                    if (index === null || index < 0 || index >= channels.length) return;
-                    channelStatuses[index] = status;
-                    localStorage.setItem(STATUS_STORAGE_KEY, JSON.stringify(channelStatuses));
-                    const listItem = playlist?.querySelector(`li[data-original-index="${index}"]`);
-                    if (listItem) {
-                        const dot = listItem.querySelector('.status-dot');
-                        if (dot) {
-                            dot.className = 'status-dot';
-                            let statusTitle = 'Desconocido';
-                            if (status === 'online') { dot.classList.add('online'); statusTitle = 'En línea'; }
-                            else if (status === 'offline') { dot.classList.add('offline'); statusTitle = 'Fuera de línea'; }
-                            dot.title = `Estado: ${statusTitle}`;
-                        }
-                    }
-                 }
-                function showError(message, channelIndex) { /* ... (logic unchanged) ... */
-                    console.error("Playback Error:", message, "Channel Index:", channelIndex);
-                    lastAttemptedChannel = channelIndex;
-                    if(errorMessage) errorMessage.textContent = message;
-                    if(errorOverlay) errorOverlay.style.display = 'flex';
-                    if(tryAgainButton) tryAgainButton.style.display = 'inline-block';
-                    if(tryAnotherButton) tryAnotherButton.style.display = 'inline-block';
-                    if(reloadListButton) reloadListButton.style.display = 'none';
-                    if (hls) { hls.destroy(); hls = null; }
-                    if(videoPlayer) {
-                        videoPlayer.pause();
-                        videoPlayer.removeAttribute('src');
-                        videoPlayer.load();
-                    }
-                    if (tvSection.classList.contains('active') && currentChannelTitleElement) {
-                        currentChannelTitleElement.textContent = 'Error al cargar';
-                    }
-                    if (channelIndex !== null && channelIndex < channels.length) {
-                        updateChannelStatus(channelIndex, 'offline');
-                    }
-                }
-                function hideError() { /* ... (logic unchanged) ... */
-                     if(errorOverlay) errorOverlay.style.display = 'none';
-                }
-                if(tryAgainButton) tryAgainButton.addEventListener('click', () => { /* ... (logic unchanged) ... */
-                    hideError();
-                    if (lastAttemptedChannel !== null && lastAttemptedChannel >= 0 && lastAttemptedChannel < channels.length) {
-                        selectChannel(lastAttemptedChannel);
-                    }
-                });
-                if(tryAnotherButton) tryAnotherButton.addEventListener('click', hideError);
-                if(reloadListButton) reloadListButton.addEventListener('click', () => { /* ... (logic unchanged) ... */
-                     hideError();
-                     initializeApp();
-                 });
-                function renderPlaylist(channelsToRender = channels) { /* ... (logic unchanged) ... */
-                    if (!playlist) return;
-                    playlist.innerHTML = '';
-                    if (!channelsToRender || channelsToRender.length === 0) {
-                        if (countSpan) countSpan.textContent = '0';
-                        if (tvSection.classList.contains('active') && currentChannelTitleElement) {
-                            currentChannelTitleElement.textContent = 'No hay canales';
-                        }
-                        playlist.innerHTML = '<li style="color: var(--text-secondary); text-align: center; margin-top: var(--spacing-l);">No hay canales para mostrar.</li>';
-                        return;
-                    }
-                    if (countSpan) countSpan.textContent = channelsToRender.length;
-                    const sortedChannels = [...channelsToRender].sort((a, b) => {
-                        const aIndex = channels.findIndex(ch => ch.url === a.url);
-                        const bIndex = channels.findIndex(ch => ch.url === b.url);
-                        const aIsFavorite = favorites.includes(aIndex.toString());
-                        const bIsFavorite = favorites.includes(bIndex.toString());
-                        if (aIsFavorite && !bIsFavorite) return -1;
-                        if (!aIsFavorite && bIsFavorite) return 1;
-                        return (a.title || '').localeCompare(b.title || '');
-                    });
-                    sortedChannels.forEach((channel) => {
-                        const originalIndex = channels.findIndex(ch => ch.url === channel.url);
-                        if (originalIndex === -1) return;
-                        const li = document.createElement('li');
-                        li.dataset.originalIndex = originalIndex;
-                        const channelButton = document.createElement('button');
-                        channelButton.className = 'channel-button';
-                        channelButton.type = 'button';
-                        channelButton.setAttribute('aria-label', `Reproducir ${channel.title || 'Canal sin título'}`);
-                        const currentStatus = channelStatuses[originalIndex];
-                        const statusTitle = currentStatus === 'online' ? 'En línea' : currentStatus === 'offline' ? 'Fuera de línea' : 'Desconocido';
-                        const placeholderChar = encodeURIComponent((channel.title || '?').charAt(0).toUpperCase());
-                        const logoSrc = channel.logo || `https://placehold.co/32x32/383838/A0A0A0?text=${placeholderChar}`;
-                        const logoAlt = channel.logo ? '' : `${channel.title || 'Canal'} Placeholder`;
-                        channelButton.innerHTML = `
-                            <div class="channel-info">
-                                <span class="status-dot ${currentStatus || ''}" title="Estado: ${statusTitle}"></span>
-                                <img src="${logoSrc}" alt="${logoAlt}" onerror="this.onerror=null; this.src='https://placehold.co/32x32/383838/A0A0A0?text=${placeholderChar}'; this.alt='${channel.title || 'Canal'} Placeholder';" loading="lazy">
-                                <div class="channel-details">
-                                    <span class="channel-title">${channel.title || 'Canal sin título'}</span>
-                                    <p class="channel-desc">${channel.descripcion || 'Sin descripción'}</p>
-                                </div>
-                            </div>`;
-                        channelButton.addEventListener('click', () => selectChannel(originalIndex));
-                        li.appendChild(channelButton);
-                        const star = document.createElement('i');
-                        const isFavorite = favorites.includes(originalIndex.toString());
-                        star.className = `star fas fa-star ${isFavorite ? 'favorite' : ''}`;
-                        star.dataset.index = originalIndex;
-                        star.setAttribute('role', 'button');
-                        star.setAttribute('aria-pressed', isFavorite.toString());
-                        star.setAttribute('aria-label', isFavorite ? `Quitar ${channel.title || 'Canal'} de favoritos` : `Añadir ${channel.title || 'Canal'} a favoritos`);
-                        star.tabIndex = 0;
-                        star.addEventListener('click', (e) => { e.stopPropagation(); toggleFavorite(originalIndex.toString()); rerenderCurrentList(); });
-                        star.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); toggleFavorite(originalIndex.toString()); rerenderCurrentList(); } });
-                        li.appendChild(star);
-                        playlist.appendChild(li);
-                    });
-                    if (currentChannelIndex !== null && currentChannelIndex < channels.length) {
-                        setActiveChannelHighlight(currentChannelIndex);
-                    }
-                }
-                function rerenderCurrentList() { /* ... (logic unchanged) ... */
-                    const currentSearchTerm = searchInput ? searchInput.value.toLowerCase().trim() : '';
-                    renderPlaylist(currentSearchTerm ? filterChannels(currentSearchTerm) : channels);
-                 }
-                function filterChannels(searchTerm) { /* ... (logic unchanged) ... */
-                    if (!channels || channels.length === 0) return [];
-                    return channels.filter(ch =>
-                        (ch.title && ch.title.toLowerCase().includes(searchTerm)) ||
-                        (ch.descripcion && ch.descripcion.toLowerCase().includes(searchTerm))
-                    );
-                 }
-                function setActiveChannelHighlight(index) { /* ... (logic unchanged) ... */
-                     if (index === null || !playlist) return;
-                     document.querySelectorAll('#playlist li').forEach(item => item.classList.remove('active'));
-                     const activeListItem = playlist.querySelector(`li[data-original-index="${index}"]`);
-                     if (activeListItem) activeListItem.classList.add('active');
-                 }
-                function selectChannel(index) { /* ... (logic unchanged) ... */
-                    if (index === null || index < 0 || index >= channels.length) {
-                        showError("Índice de canal inválido.", index); return;
-                    }
-                    hideError();
-                    const channel = channels[index];
-                    console.log(`Selecting M3U8 channel ${index}: ${channel.title}`);
-                    if (tvSection.classList.contains('active') && currentChannelTitleElement) {
-                        currentChannelTitleElement.textContent = channel.title || 'Canal sin título';
-                        currentChannelTitleElement.title = channel.title || 'Canal sin título';
-                    }
-                    playVideo(channel.url, index);
-                    scrollToPlayer();
-                    localStorage.setItem('lastPlayedTvChannel', index.toString());
-                    currentChannelIndex = index;
-                    setActiveChannelHighlight(index);
-                 }
-                function playVideo(url, channelIndex) { /* ... (logic unchanged) ... */
-                    console.log(`Attempting M3U8 playback: ${url}`);
-                    lastAttemptedChannel = channelIndex;
-                    if (!url || typeof url !== 'string' || url.trim() === '') {
-                        showError("URL del canal inválida.", channelIndex); return;
-                    }
-                    if (hls) { hls.destroy(); hls = null; }
-                    if (!videoPlayer) { showError("Error interno: Reproductor no encontrado.", channelIndex); return; }
-                    videoPlayer.removeAttribute('src');
-                    videoPlayer.load();
-                    videoPlayer.removeEventListener('error', handleVideoElementError);
-                    if (videoPlayingListener) { videoPlayer.removeEventListener('playing', videoPlayingListener); videoPlayingListener = null; }
-                    const isM3U8 = url.includes('.m3u8') || url.includes('mpegurl');
-                    const handlePlaying = () => {
-                        if (lastAttemptedChannel === channelIndex) {
-                            updateChannelStatus(channelIndex, 'online');
-                        }
-                    };
-                    videoPlayingListener = handlePlaying;
-                    if (Hls.isSupported() && isM3U8) {
-                        console.log("Using HLS.js");
-                        hls = new Hls({ });
-                        hls.on(Hls.Events.ERROR, (event, data) => {
-                            console.error('HLS Error:', event, data);
-                            if (data.fatal && lastAttemptedChannel === channelIndex) {
-                                let errorMsg = `Error HLS (${data.details}).`;
-                                if (data.type === Hls.ErrorTypes.NETWORK_ERROR) errorMsg = `Error de red (${data.details}).`;
-                                else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) errorMsg = `Error en datos del video (${data.details}).`;
-                                showError(errorMsg, channelIndex);
-                            }
-                        });
-                        hls.loadSource(url);
-                        hls.attachMedia(videoPlayer);
-                        hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                            videoPlayer.play().catch(e => console.error("Error starting HLS playback:", e));
-                        });
-                        videoPlayer.addEventListener('playing', videoPlayingListener, { once: true });
-                    } else if (isM3U8 && videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
-                        console.log("Using native HLS");
-                        videoPlayer.src = url;
-                        videoPlayer.addEventListener('error', handleVideoElementError);
-                        videoPlayer.addEventListener('loadedmetadata', () => videoPlayer.play().catch(e => console.error("Error starting native HLS playback:", e)), { once: true });
-                        videoPlayer.addEventListener('playing', videoPlayingListener, { once: true });
-                    } else {
-                        if (!isM3U8) {
-                            console.log("Attempting direct playback");
-                            videoPlayer.src = url;
-                            videoPlayer.addEventListener('error', handleVideoElementError);
-                            videoPlayer.addEventListener('loadeddata', () => videoPlayer.play().catch(e => console.error("Error starting direct playback:", e)), { once: true });
-                            videoPlayer.addEventListener('playing', videoPlayingListener, { once: true });
-                        } else {
-                            showError("Formato M3U8 no soportado por este navegador.", channelIndex);
-                        }
-                    }
-                 }
-                function handleVideoElementError() { /* ... (logic unchanged) ... */
-                    const error = videoPlayer.error;
-                    if (!error || lastAttemptedChannel === null) return;
-                    console.error("Native <video> Error:", error);
-                    let message = "Error desconocido.";
-                    if (error) {
-                        switch (error.code) {
-                            case error.MEDIA_ERR_ABORTED: message = 'Carga abortada.'; break;
-                            case error.MEDIA_ERR_NETWORK: message = 'Error de red.'; break;
-                            case error.MEDIA_ERR_DECODE: message = 'Error de decodificación.'; break;
-                            case error.MEDIA_ERR_SRC_NOT_SUPPORTED: message = 'Formato no soportado o URL inválida.'; break;
-                            default: message = `Error ${error.code}.`; break;
-                        }
-                    }
-                    if (lastAttemptedChannel !== null) {
-                        showError(message, lastAttemptedChannel);
-                    }
-                    videoPlayer.removeEventListener('error', handleVideoElementError);
-                }
-                function scrollToPlayer() { /* ... (logic unchanged) ... */
-                     if (window.innerWidth <= 768 && playerContainer) {
-                         playerContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                     }
-                 }
-                function toggleFavorite(indexString) { /* ... (logic unchanged) ... */
-                    const index = parseInt(indexString);
-                    if (isNaN(index)) return;
-                    const indexInFavorites = favorites.indexOf(indexString);
-                    if (indexInFavorites > -1) favorites.splice(indexInFavorites, 1);
-                    else favorites.push(indexString);
-                    localStorage.setItem('favoritesTvChannels', JSON.stringify(favorites));
-                 }
-                if(searchInput) searchInput.addEventListener('input', () => { /* ... (logic unchanged) ... */
-                     const searchTerm = searchInput.value.toLowerCase().trim();
-                     renderPlaylist(filterChannels(searchTerm));
-                 });
-                async function initializeApp() { /* ... (logic unchanged) ... */
-                    channels = await fetchAndParseM3U(m3uUrl);
-                    renderPlaylist();
-                    if (channels.length > 0) {
-                        const lastPlayedIndexStr = localStorage.getItem('lastPlayedTvChannel');
-                        let initialChannelIndex = 0;
-                        if (lastPlayedIndexStr !== null) {
-                            const lastPlayedIndex = parseInt(lastPlayedIndexStr);
-                            if (!isNaN(lastPlayedIndex) && lastPlayedIndex >= 0 && lastPlayedIndex < channels.length) {
-                                initialChannelIndex = lastPlayedIndex;
-                            } else { localStorage.removeItem('lastPlayedTvChannel'); }
-                        }
-                        currentChannelIndex = initialChannelIndex;
-                        if (tvSection.classList.contains('active') && currentChannelTitleElement) {
-                            currentChannelTitleElement.textContent = channels[initialChannelIndex].title || 'Canal sin título';
-                            currentChannelTitleElement.title = channels[initialChannelIndex].title || 'Canal sin título';
-                        }
-                        setActiveChannelHighlight(initialChannelIndex);
-                    } else {
-                         if (tvSection.classList.contains('active') && currentChannelTitleElement) {
-                            currentChannelTitleElement.textContent = 'Error al cargar lista';
-                         }
-                    }
-                 }
-                return { // Public methods/properties
-                    initializeApp,
-                    getCurrentChannelTitle: () => {
-                        if (currentChannelIndex !== null && currentChannelIndex >= 0 && currentChannelIndex < channels.length) {
-                            return channels[currentChannelIndex].title || 'Canal sin título';
-                        }
-                        return document.getElementById('current-channel-title')?.textContent || 'Canales de TV';
-                    },
-                    pauseVideo: () => {
-                        if (videoPlayer && !videoPlayer.paused) videoPlayer.pause();
-                    },
-                    videoPlayer: videoPlayer,
-                    playlistContainer: playlistContainer,
-                    searchInput: searchInput,
-                    playerContainer: playerContainer
-                };
+            // --- M3U8 Player Logic (Namespace) ---
+            const m3u8Logic = (() => { /* ... (logic unchanged from previous version) ... */
+                let channels = []; let currentChannelIndex = -1; let hls = null; let channelInfoTimeout; let isSidebarFocused = false; let autoHideSidebarTimeoutId = null; let favoriteChannels = new Set();
+                const FAVORITES_STORAGE_KEY = 'm3uPlayer_favorites_v2'; const LAST_CHANNEL_STORAGE_KEY = 'm3uPlayer_lastChannelIndex'; const VOLUME_STORAGE_KEY = 'm3uPlayer_volume'; const MUTED_STORAGE_KEY = 'm3uPlayer_muted';
+                if (Hls.isSupported()) { hls = new Hls({}); hls.on(Hls.Events.ERROR, (event, data) => { const ch = channels.find(c => c.index === currentChannelIndex); handleError(ch, data); }); hls.attachMedia(videoTV); }
+                function saveToLocalStorage(k, v){ try { localStorage.setItem(k, JSON.stringify(v)); } catch(e){ console.error(`LS Save Error (${k}):`, e); }}
+                function loadFromLocalStorage(k, d=null){ try { const s=localStorage.getItem(k); return s !== null ? JSON.parse(s) : d; } catch(e){ console.error(`LS Load Error (${k}):`, e); return d; }}
+                function loadInitialState(){ const sf=loadFromLocalStorage(FAVORITES_STORAGE_KEY, []); favoriteChannels = new Set(sf); const si=loadFromLocalStorage(LAST_CHANNEL_STORAGE_KEY, -1); if(channels.some(c=>c.index===si)){ currentChannelIndex=si; } else { currentChannelIndex = channels.length>0?channels[0].index:-1; } const sv=loadFromLocalStorage(VOLUME_STORAGE_KEY,0.8); const sm=loadFromLocalStorage(MUTED_STORAGE_KEY,false); videoTV.volume=sv; videoTV.muted=sm; console.log(`M3U Initial State: Favs(${favoriteChannels.size}), Index(${currentChannelIndex}), Vol(${videoTV.volume}), Muted(${videoTV.muted})`); }
+                async function initializeApp() { console.log("M3U: initializeApp"); await fetchAndParseM3U(m3uUrl); }
+                async function fetchAndParseM3U(url) { console.log("M3U: fetchAndParseM3U"); showLoader(true); try { const r=await fetch(`${url}?t=${Date.now()}`); if(!r.ok) throw new Error(`HTTP ${r.status}`); const txt=await r.text(); channels=parseM3U(txt); if(channelCountElement) channelCountElement.textContent=channels.length; loadInitialState(); renderChannelList(); if(channels.length>0){ const iCh=channels.find(c=>c.index===currentChannelIndex); showChannelInfo(iCh?.name||"Select channel"); requestAnimationFrame(()=>focusChannel(currentChannelIndex,true)); } else { channelListElement.innerHTML=`<li style="padding:15px;">Lista vacía.</li>`; showChannelInfo("No channels"); } } catch(e){ console.error("M3U Fetch Error:",e); channelListElement.innerHTML=`<li style="padding:15px;color:var(--error-color);">Error: ${e.message}</li>`; showChannelInfo("Error loading"); if(channelCountElement)channelCountElement.textContent='X'; } finally { showLoader(false); } }
+                function parseM3U(t){ console.log("M3U: parseM3U"); const l=t.split('\n'); const pC=[]; let cC={}; let cI=0; for(const ln of l){ const tr=ln.trim(); if(!tr||tr.startsWith('#EXTM3U'))continue; if(tr.startsWith('#EXTINF:')){ cC={name:'?',url:'',logo:null,group:'',index:cI}; const iL=tr.substring(8); const ci=iL.lastIndexOf(','); if(ci===-1){cC={};continue;} const aP=iL.substring(0,ci); const nP=iL.substring(ci+1); cC.name=nP.trim()||'?'; const lM=aP.match(/tvg-logo="([^"]*)"/i); if(lM&&lM[1])cC.logo=lM[1]; const gM=aP.match(/group-title="([^"]*)"/i); if(gM&&gM[1])cC.group=gM[1]; } else if(tr&&!tr.startsWith('#')){ if(cC.name!=='?'){ cC.url=tr; if(cC.url&&(cC.url.startsWith('http://')||cC.url.startsWith('https://'))){ pC.push(cC); cI++; } else {console.warn(`Skipped ${cC.name}: Invalid URL`);} cC={};}}} return pC; }
+                function renderChannelList(){ console.log("M3U: renderChannelList"); const st=channelListContainer.scrollTop; channels.sort((a,b)=>{const af=favoriteChannels.has(a.url);const bf=favoriteChannels.has(b.url);if(af&&!bf)return -1;if(!af&&bf)return 1;return a.index-b.index;}); channelListElement.innerHTML=''; channels.forEach(ch=>{const idx=ch.index;const li=document.createElement('li');li.className='channel-item';li.dataset.index=idx;li.tabIndex=0;if(ch.logo){const lg=document.createElement('img');lg.src=ch.logo;lg.alt='';lg.className='channel-logo';lg.loading='lazy';lg.onerror=(e)=>{e.target.style.display='none';};li.appendChild(lg);} const ns=document.createElement('span');ns.className='channel-name';ns.textContent=ch.name||'?';li.appendChild(ns); const fb=document.createElement('button');fb.className='favorite-btn';fb.setAttribute('aria-label','Favorite');fb.dataset.channelUrl=ch.url;fb.innerHTML=`<svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>`; if(favoriteChannels.has(ch.url)){fb.classList.add('is-favorite');fb.setAttribute('aria-label','Unfavorite');} fb.addEventListener('click',(e)=>{e.stopPropagation();toggleFavorite(ch.url,fb);const fIdx=parseInt(li.dataset.index,10);renderChannelList();requestAnimationFrame(()=>{focusChannel(fIdx);});}); li.appendChild(fb); li.addEventListener('click',()=>selectAndPlayChannel(idx)); li.addEventListener('focus',()=>isSidebarFocused=true); li.addEventListener('blur',()=>isSidebarFocused=false); channelListElement.appendChild(li);}); channelListContainer.scrollTop=st; }
+                function toggleFavorite(url,btn){ const chN=channels.find(c=>c.url===url)?.name||'Ch'; let isFav; if(favoriteChannels.has(url)){favoriteChannels.delete(url);isFav=false;showChannelInfo(`"${chN}" Unfavorited`);}else{favoriteChannels.add(url);isFav=true;showChannelInfo(`"${chN}" Favorited`);} saveToLocalStorage(FAVORITES_STORAGE_KEY,Array.from(favoriteChannels));}
+                function playChannel(idx){ console.log(`M3U: playChannel ${idx}`); const ch=channels.find(c=>c.index===idx); if(!ch)return; currentChannelIndex=idx; saveToLocalStorage(LAST_CHANNEL_STORAGE_KEY,idx); showLoader(true); videoTV.style.opacity=0.5; showChannelInfo(ch.name); videoTV.pause(); clearAutoHideTimer(); const url=ch.url; const isHls=url.toLowerCase().endsWith('.m3u8'); try{if(isHls){if(hls){hls.stopLoad();hls.detachMedia();hls.loadSource(url);hls.attachMedia(videoTV);hls.once(Hls.Events.MANIFEST_PARSED,()=>{videoTV.play().catch(handlePlayError);});}else if(videoTV.canPlayType('application/vnd.apple.mpegurl')){videoTV.src=url;videoTV.addEventListener('loadedmetadata',()=>{videoTV.play().catch(handlePlayError);},{once:true});videoTV.addEventListener('error',(e)=>handleError(ch,{type:'Native HLS Error',details:videoTV.error?.message||'?'}),{once:true});}else{throw new Error('HLS not supported');}}else{if(hls){hls.stopLoad();hls.detachMedia();} videoTV.src=url;videoTV.play().catch(handlePlayError);videoTV.addEventListener('error',(e)=>handleError(ch,{type:'Direct Play Error',details:videoTV.error?.message||'?'}),{once:true});}}catch(e){handleError(ch,{type:'Setup Error',details:e.message,fatal:true});} videoTV.removeEventListener('playing',onPlaying);videoTV.addEventListener('playing',onPlaying,{once:true}); updateHeaderTitle(); }
+                function onPlaying(){ showLoader(false); videoTV.style.opacity=1; startAutoHideTimer(); }
+                function handlePlayError(e){ console.error("M3U Play Error:",e); showLoader(false); videoTV.style.opacity=1; showChannelInfo(`Playback Error: ${e.name}`); clearAutoHideTimer(); }
+                function handleError(ch,eData){ const chN=ch?ch.name:'stream'; console.error(`M3U Error on ${chN}:`,eData); showLoader(false); videoTV.style.opacity=1; let msg=`Error ${chN}`; if(eData){if(eData.type===Hls.ErrorTypes.NETWORK_ERROR)msg+=` (Net Error: ${eData.details})`; else if(eData.type===Hls.ErrorTypes.MEDIA_ERROR)msg+=` (Media Error: ${eData.details})`; else if(eData.details)msg+=` (${eData.details})`; else if(typeof eData==='string')msg+=` (${eData})`;} if(eData?.fatal){msg+=" - Unavailable";if(hls&&hls.media===videoTV&&ch&&hls.url===ch.url)hls.stopLoad();} showChannelInfo(msg+". Try another."); clearAutoHideTimer(); }
+                function selectAndPlayChannel(idx){ focusChannel(idx); playChannel(idx); }
+                function showLoader(s){ loaderElement.style.display=s?'block':'none'; }
+                function clearAutoHideTimer(){ if(autoHideSidebarTimeoutId){clearTimeout(autoHideSidebarTimeoutId);autoHideSidebarTimeoutId=null;} }
+                function startAutoHideTimer(){ clearAutoHideTimer(); autoHideSidebarTimeoutId=setTimeout(()=>{if(!sidebar.classList.contains('hidden')&&!videoTV.paused)hideSidebar();autoHideSidebarTimeoutId=null;},2500); }
+                function toggleSidebar(){ clearAutoHideTimer(); if(sidebar.classList.contains('hidden'))showSidebar(); else hideSidebar(); }
+                function hideSidebar(){ if(!sidebar.classList.contains('hidden')){sidebar.classList.add('hidden');videoTV.focus({preventScroll:true});} }
+                function showSidebar(){ clearAutoHideTimer(); if(sidebar.classList.contains('hidden')){sidebar.classList.remove('hidden');requestAnimationFrame(()=>focusChannel(currentChannelIndex));}else{focusChannel(currentChannelIndex);} }
+                function highlightChannel(idx){ channelListElement.querySelectorAll('.channel-item').forEach(i=>{const iIdx=parseInt(i.dataset.index,10);i.classList.toggle('selected',iIdx===idx);}); }
+                function focusChannel(idx,inst=false){ if(sidebar.classList.contains('hidden')){showSidebar();return;} const itf=channelListElement.querySelector(`.channel-item[data-index="${idx}"]`); if(itf){itf.focus({preventScroll:true});highlightChannel(idx);itf.scrollIntoView({behavior:inst?'instant':'smooth',block:'center',inline:'nearest'});}else{const fI=channelListElement.querySelector('.channel-item');if(fI)fI.focus();else channelListElement.focus();} }
+                function showChannelInfo(t){ clearTimeout(channelInfoTimeout);channelInfoElement.textContent=t;channelInfoElement.classList.add('visible');channelInfoTimeout=setTimeout(()=>{channelInfoElement.classList.remove('visible');},4000); }
+                function navigateList(dir){ if(channels.length===0)return;const items=Array.from(channelListElement.querySelectorAll('.channel-item'));if(items.length===0)return;const cFE=document.activeElement;let cVI=-1;if(cFE&&cFE.classList.contains('channel-item')){cVI=items.indexOf(cFE);}else{const lIIV=items.findIndex(i=>parseInt(i.dataset.index,10)===currentChannelIndex);cVI=(lIIV!==-1)?lIIV:0;} let nVI=cVI+dir;nVI=Math.max(0,Math.min(nVI,items.length-1)); if(nVI!==cVI&&items[nVI]){const nE=items[nVI];const nLI=parseInt(nE.dataset.index,10);currentChannelIndex=nLI;focusChannel(currentChannelIndex);}else if(items[cVI]){focusChannel(parseInt(items[cVI].dataset.index,10));}}
+                function adjustVolume(chg){ let nV=videoTV.volume+chg;nV=Math.max(0,Math.min(1,nV));videoTV.volume=nV;videoTV.muted=false;showChannelInfo(`Volume: ${Math.round(nV*100)}%`); }
+                function toggleFullScreen(){ if(!document.fullscreenElement){(playerContent||document.documentElement).requestFullscreen().catch(e=>{showChannelInfo("Fullscreen error");});}else{if(document.exitFullscreen)document.exitFullscreen();} }
+                videoTV.addEventListener('pause',()=>{console.log("LOG: TV Paused");clearAutoHideTimer();}); videoTV.addEventListener('ended',()=>{console.log("LOG: TV Ended");clearAutoHideTimer();const endCh=channels.find(c=>c.index===currentChannelIndex);showChannelInfo(`"${endCh?.name||'Stream'}" ended.`);}); videoTV.addEventListener('volumechange',()=>{saveToLocalStorage(VOLUME_STORAGE_KEY,videoTV.volume);saveToLocalStorage(MUTED_STORAGE_KEY,videoTV.muted);});
+                function handleKeydown(event) { let preventDefault = true; const isSidebarHidden = sidebar.classList.contains('hidden'); isSidebarFocused = !isSidebarHidden && sidebar.contains(document.activeElement) && document.activeElement.classList.contains('channel-item'); if(isSidebarHidden){if(!['Backspace','Escape','b','B','f','F','m','M',' ','MediaPlayPause'].includes(event.key)){showSidebar();}else{switch(event.key){case' ':case'MediaPlayPause':if(videoTV.src||(hls&&hls.url)){if(videoTV.paused)videoTV.play().catch(handlePlayError);else videoTV.pause();}break;case'm':case'M':videoTV.muted=!videoTV.muted;showChannelInfo(videoTV.muted?"Muted":"Unmuted");break;case'f':case'F':toggleFullScreen();break;case'Backspace':case'Escape':case'b':case'B':preventDefault=false;break;default:preventDefault=false;break;}}}else if(isSidebarFocused){const focusedElement=document.activeElement;const focusedIndex=focusedElement?.classList.contains('channel-item')?parseInt(focusedElement.dataset.index,10):-1;switch(event.key){case'ArrowUp':if(focusedElement===channelListElement.querySelector('.channel-item')){focusActiveTab();}else{navigateList(-1);}break;case'ArrowDown':navigateList(1);break;case'Enter':case'Ok':if(focusedIndex!==-1)selectAndPlayChannel(focusedIndex);break;case'ArrowRight':if(focusedElement?.classList.contains('channel-item')){const favButton=focusedElement.querySelector('.favorite-btn');const channelUrl=favButton?.dataset.channelUrl;if(favButton&&channelUrl&&focusedIndex!==-1){toggleFavorite(channelUrl,favButton);renderChannelList();requestAnimationFrame(()=>focusChannel(focusedIndex));}}break;case'Backspace':case'Escape':case'b':case'B':hideSidebar();break;case'ArrowLeft':break;default:preventDefault=false;break;}}else{switch(event.key){case'ArrowUp':case'ArrowDown':focusChannel(currentChannelIndex);break;case'Backspace':case'Escape':case'b':case'B':hideSidebar();break;case' ':case'MediaPlayPause':if(videoTV.src||(hls&&hls.url)){if(videoTV.paused)videoTV.play().catch(handlePlayError);else videoTV.pause();}break;case'm':case'M':videoTV.muted=!videoTV.muted;showChannelInfo(videoTV.muted?"Muted":"Unmuted");break;case'f':case'F':toggleFullScreen();break;default:preventDefault=false;break;}} if(preventDefault)event.preventDefault(); }
+                return { initializeApp, pauseVideo:()=>{if(videoTV&&!videoTV.paused)videoTV.pause();}, getCurrentChannelTitle:()=>channels.find(c=>c.index===currentChannelIndex)?.name, focusInitialElement:()=>{if(!sidebar.classList.contains('hidden'))focusChannel(currentChannelIndex,true);else videoTV.focus({preventScroll:true});}, handleKeydown, focusActiveTab };
             })(); // End m3u8Logic IIFE
 
-            // --- Series Player Logic (Namespace - MODIFIED FOR SEASONS) ---
-            const seriesLogic = (() => {
-                // --- DOM Elements ---
-                const listContainer = document.getElementById('seriesListContainer');
-                const detailContainer = document.getElementById('seriesDetailContainer');
-                const listDiv = document.getElementById('seriesList');
-                const detailTitle = document.getElementById('seriesDetailTitle');
-                const detailDescription = document.getElementById('seriesDetailDescription');
-                const seasonSelectorDiv = document.getElementById('seasonSelector'); // *** NEW ***
-                const episodeListDiv = document.getElementById('episodeList');
-                const iframePlayer = document.getElementById('drivePlayer');
-                const playerMessage = document.getElementById('drivePlayerMessage');
-                const backBtn = document.getElementById('backButton');
-
-                // --- State ---
-                let allSeriesData = []; // Holds all series data fetched from JSON
-                let currentSeriesData = null; // Holds the data for the currently viewed series
-                let currentPlayingEpisodeElement = null; // Holds the currently playing episode LI element
-
-                const placeholderImage = "https://placehold.co/50x70/1e1e1e/A0A0A0?text=Serie";
-
-                // --- Event Listener ---
-                if(backBtn) backBtn.addEventListener('click', showSeriesListView);
-
-                // --- View Switching ---
-                function showSeriesListView() {
-                    if(listContainer) listContainer.style.display = 'block';
-                    if(detailContainer) detailContainer.style.display = 'none';
-                    if(iframePlayer) iframePlayer.src = 'about:blank'; // Stop video
-                    currentSeriesData = null; // Clear current series data
-                    currentPlayingEpisodeElement = null; // Clear playing state
-                }
-                function showSeriesDetailView() {
-                    if(listContainer) listContainer.style.display = 'none';
-                    if(detailContainer) detailContainer.style.display = 'block';
-                }
-
-                // --- Data Fetching (Checks for 'temporadas') ---
-                async function fetchSeriesData() {
-                    const playlistUrl = "https://raw.githubusercontent.com/sejo48/jorgedrive/refs/heads/main/playlist.json";
-                    if (!listDiv) {
-                        console.error("DEBUG: No se encontró listDiv. Abortando fetch.");
-                        return;
-                     }
-                    console.log("DEBUG: Iniciando fetchSeriesData...");
-                    if (seriesLogic.allSeriesData.length === 0) {
-                        listDiv.innerHTML = `<p class="text-center" style="color: var(--text-secondary);">Cargando series...</p>`;
-                    }
-                    try {
-                        console.log(`DEBUG: Haciendo fetch a ${playlistUrl}`);
-                        const response = await fetch(playlistUrl, { cache: "no-store", headers: { 'Accept': 'application/json' } });
-                        console.log(`DEBUG: Fetch completado. Status: ${response.status}`);
-                        if (!response.ok) {
-                            console.error(`DEBUG: Error HTTP detectado: ${response.status}`);
-                            throw new Error(`Error HTTP ${response.status}`);
-                        }
-                        console.log("DEBUG: Respuesta OK. Intentando response.json()...");
-                        const data = await response.json();
-                        console.log("DEBUG: response.json() exitoso.");
-
-                        // *** VALIDATION FOR 'temporadas' STRUCTURE ***
-                        if (!Array.isArray(data)) {
-                             console.error("DEBUG: ¡El JSON parseado NO es un array!");
-                             throw new Error("El JSON no es un array.");
-                        }
-                        console.log("DEBUG: El JSON parseado SÍ es un array.");
-
-                        if (data.length > 0) {
-                             console.log("DEBUG: Verificando estructura del primer elemento (buscando 'temporadas')...");
-                             const firstItem = data[0];
-                             if (typeof firstItem !== 'object' || firstItem === null || Array.isArray(firstItem)) {
-                                 console.error("DEBUG: ¡El primer elemento del array NO es un objeto!");
-                                 throw new Error("Formato JSON inválido: El primer elemento no es un objeto.");
-                             }
-                             if (typeof firstItem.tituloSerie === 'undefined' || typeof firstItem.temporadas === 'undefined') { // Check for temporadas
-                                console.error("DEBUG: ¡Faltan claves 'tituloSerie' o 'temporadas' en el primer elemento!");
-                                console.log("DEBUG: Primer elemento recibido:", JSON.stringify(firstItem));
-                                throw new Error("Formato JSON de series incorrecto (falta tituloSerie o temporadas).");
-                             }
-                             if (!Array.isArray(firstItem.temporadas)) { // Check if temporadas is array
-                                 console.error("DEBUG: ¡La clave 'temporadas' NO es un array en el primer elemento!");
-                                 console.log("DEBUG: Primer elemento recibido:", JSON.stringify(firstItem));
-                                throw new Error("Formato JSON de series incorrecto (temporadas no es array).");
-                             }
-                             // Optional: Check structure within the first season/episode (as warning)
-                             if (firstItem.temporadas.length > 0) {
-                                 const firstSeason = firstItem.temporadas[0];
-                                 if (typeof firstSeason !== 'object' || firstSeason === null || Array.isArray(firstSeason)) {
-                                     console.warn("Advertencia: La primera temporada no es un objeto.");
-                                 } else if (typeof firstSeason.numeroTemporada === 'undefined' || typeof firstSeason.episodios === 'undefined') {
-                                      console.warn("Advertencia: A la primera temporada le falta 'numeroTemporada' o 'episodios'.");
-                                 } else if (!Array.isArray(firstSeason.episodios)) {
-                                      console.warn("Advertencia: La clave 'episodios' en la primera temporada no es un array.");
-                                 }
-                             }
-                             console.log("DEBUG: Estructura del primer elemento (con temporadas) parece correcta.");
-                        } else {
-                            console.log("DEBUG: El array JSON está vacío.");
-                        }
-                        // *** END VALIDATION ***
-
-                        console.log("DEBUG: Asignando datos y mostrando lista...");
-                        seriesLogic.allSeriesData = data; // Store data
-                        displaySeriesList(seriesLogic.allSeriesData);
-                        console.log("DEBUG: fetchSeriesData completado exitosamente.");
-
-                    } catch (error) {
-                        console.error("DEBUG: Error capturado en fetchSeriesData:", error);
-                        if(listDiv && (listDiv.children.length === 0 || listDiv.textContent.includes('Cargando'))) {
-                            listDiv.innerHTML = `<p class="text-center" style="color: var(--error-color);">Error al cargar series: ${error.message}</p>`;
-                        }
-                    }
-                }
-
-                // --- Display Series List ---
-                function displaySeriesList(seriesArray) {
-                   if (!listDiv) return;
-                   listDiv.innerHTML = '';
-                   if (seriesArray.length === 0) {
-                       listDiv.innerHTML = `<p class="text-center" style="color: var(--text-secondary);">No hay series disponibles.</p>`;
-                       return;
-                   }
-                   seriesArray.forEach((serie, index) => {
-                       const item = document.createElement('div');
-                       item.className = 'series-list-item';
-                       // Store index directly for click handler
-                       item.onclick = () => displaySeriesDetail(index);
-
-                       const img = document.createElement('img');
-                       img.src = serie.imagen || placeholderImage;
-                       img.alt = `Portada de ${serie.tituloSerie || 'Serie'}`;
-                       img.onerror = () => { img.src = placeholderImage; };
-
-                       const textDiv = document.createElement('div');
-                       textDiv.className = 'text-content';
-                       const title = document.createElement('h3');
-                       title.textContent = serie.tituloSerie || 'Serie sin título';
-                       const desc = document.createElement('p');
-                       const shortDesc = serie.descripcion ? (serie.descripcion.length > 100 ? serie.descripcion.substring(0, 97) + '...' : serie.descripcion) : 'Sin descripción.';
-                       desc.textContent = shortDesc;
-
-                       textDiv.appendChild(title);
-                       textDiv.appendChild(desc);
-                       item.appendChild(img);
-                       item.appendChild(textDiv);
-                       listDiv.appendChild(item);
-                   });
-                }
-
-                // --- Display Series Detail (Handles Seasons) ---
-                function displaySeriesDetail(seriesIndex) {
-                    if (seriesIndex < 0 || seriesIndex >= seriesLogic.allSeriesData.length) return;
-
-                    currentSeriesData = seriesLogic.allSeriesData[seriesIndex]; // Store current series data
-
-                    if (!detailTitle || !detailDescription || !seasonSelectorDiv || !episodeListDiv) return; // Check elements
-
-                    detailTitle.textContent = currentSeriesData.tituloSerie || 'Serie sin título';
-                    detailDescription.textContent = currentSeriesData.descripcion || '';
-
-                    // --- Season Selector Logic ---
-                    seasonSelectorDiv.innerHTML = ''; // Clear previous season buttons
-                    episodeListDiv.innerHTML = ''; // Clear previous episode list
-                    currentPlayingEpisodeElement = null; // Reset playing episode element
-
-                    if (!currentSeriesData.temporadas || !Array.isArray(currentSeriesData.temporadas) || currentSeriesData.temporadas.length === 0) {
-                        seasonSelectorDiv.innerHTML = '<p style="color: var(--text-secondary); text-align: center;">No hay temporadas disponibles.</p>';
-                        if(iframePlayer) iframePlayer.src = 'about:blank';
-                        showMessageInPlayer("No hay temporadas ni episodios disponibles.");
-                    } else {
-                        // Sort seasons by numeroTemporada if available
-                        currentSeriesData.temporadas.sort((a, b) => (a.numeroTemporada || 0) - (b.numeroTemporada || 0));
-
-                        currentSeriesData.temporadas.forEach((season, seasonIndex) => {
-                            const seasonBtn = document.createElement('button');
-                            seasonBtn.className = 'season-button';
-                            // Use numeroTemporada for button text, fallback to index
-                            seasonBtn.textContent = `T${season.numeroTemporada !== undefined ? season.numeroTemporada : seasonIndex + 1}`;
-                            seasonBtn.dataset.seasonIndex = seasonIndex; // Store index to retrieve episodes
-
-                            seasonBtn.addEventListener('click', (event) => {
-                                // Remove active class from all season buttons
-                                document.querySelectorAll('#seasonSelector .season-button').forEach(btn => btn.classList.remove('active'));
-                                // Add active class to the clicked button
-                                event.currentTarget.classList.add('active');
-                                // Display episodes for the selected season
-                                displayEpisodesForSeason(currentSeriesData.temporadas[seasonIndex].episodios || []);
-                            });
-                            seasonSelectorDiv.appendChild(seasonBtn);
-                        });
-
-                        // Automatically select and display the first season's episodes
-                        const firstSeasonButton = seasonSelectorDiv.querySelector('.season-button');
-                        if (firstSeasonButton) {
-                            firstSeasonButton.classList.add('active'); // Highlight first season button
-                            displayEpisodesForSeason(currentSeriesData.temporadas[0].episodios || []); // Display first season episodes
-                        } else {
-                             // Handle case where seasons exist but maybe are empty/invalid
-                             episodeListDiv.innerHTML = `<p style="color: var(--text-secondary);">Selecciona una temporada.</p>`;
-                             if(iframePlayer) iframePlayer.src = 'about:blank';
-                             showMessageInPlayer("No se encontraron episodios en la primera temporada.");
-                        }
-                    }
-                    showSeriesDetailView(); // Show the detail view container
-                }
-
-                 // --- NEW: Display Episodes for a Specific Season ---
-                function displayEpisodesForSeason(episodesArray) {
-                    if (!episodeListDiv) return;
-                    episodeListDiv.innerHTML = ''; // Clear previous episodes
-                    currentPlayingEpisodeElement = null; // Reset playing highlight when changing season
-
-                    if (!episodesArray || !Array.isArray(episodesArray) || episodesArray.length === 0) {
-                        episodeListDiv.innerHTML = `<p style="color: var(--text-secondary);">No hay episodios en esta temporada.</p>`;
-                        if(iframePlayer) iframePlayer.src = 'about:blank';
-                        showMessageInPlayer("No hay episodios en esta temporada.");
-                        return;
-                    }
-
-                    // Populate episode list
-                    episodesArray.forEach((episodio, index) => {
-                        const epItem = document.createElement('div');
-                        epItem.className = 'episode-list-item';
-                        // *** IMPORTANT: Check for inconsistent title keys in your JSON ***
-                        // This code assumes the key is "tituloEpisodio".
-                        // If you have keys like "Dos en una balsa", they won't be used as titles here.
-                        epItem.textContent = episodio.tituloEpisodio || `Episodio ${index + 1}`;
-
-                        // Validate episode URL
-                        if (typeof episodio.urlDrive === 'string' && episodio.urlDrive.includes('/preview')) {
-                            epItem.dataset.url = episodio.urlDrive; // Store URL in dataset
-                            epItem.onclick = () => {
-                                loadVideo(episodio.urlDrive);
-                                updatePlayingEpisodeUI(epItem); // Highlight this episode
-                            };
-                        } else {
-                            console.warn(`URL inválida o faltante para episodio: ${epItem.textContent}`, episodio.urlDrive);
-                            epItem.style.cursor = 'not-allowed';
-                            epItem.style.opacity = '0.6';
-                            epItem.title = 'URL de video inválida o faltante';
-                        }
-                        episodeListDiv.appendChild(epItem);
-                    });
-
-                    // Reset player message if episodes were found
-                     if(iframePlayer) iframePlayer.src = 'about:blank';
-                     showMessageInPlayer("Selecciona un episodio.");
-                }
-
-
-                // --- Load Video into Iframe ---
-                function loadVideo(driveUrl) {
-                    if (!iframePlayer) return;
-                    if (typeof driveUrl === 'string' && driveUrl.includes('/preview')) {
-                        iframePlayer.src = driveUrl;
-                        hideMessageInPlayer();
-                    } else {
-                        console.error("URL de episodio Drive inválida:", driveUrl);
-                        showMessageInPlayer("Error: URL inválida.");
-                        iframePlayer.src = 'about:blank';
-                    }
-                }
-
-                // --- Show/Hide Message in Iframe Container ---
-                function showMessageInPlayer(text) {
-                    if(playerMessage) {
-                        playerMessage.textContent = text;
-                        playerMessage.style.display = 'block';
-                    }
-                    if(iframePlayer) iframePlayer.style.display = 'none';
-                }
-                function hideMessageInPlayer() {
-                    if(playerMessage) playerMessage.style.display = 'none';
-                    if(iframePlayer) iframePlayer.style.display = 'block';
-                }
-
-                // --- Update Playing Episode UI Highlight ---
-                function updatePlayingEpisodeUI(playingElement) {
-                    // Remove highlight from the previously playing item (if any)
-                    if (currentPlayingEpisodeElement) {
-                         currentPlayingEpisodeElement.classList.remove('playing');
-                    }
-                    // Add highlight to the new playing item
-                    if (playingElement) {
-                        playingElement.classList.add('playing');
-                        currentPlayingEpisodeElement = playingElement; // Store reference
-                    } else {
-                         currentPlayingEpisodeElement = null; // Clear reference if null passed
-                    }
-                }
-
-                // --- Public Methods/Properties ---
-                return {
-                    fetchSeriesData,
-                    showSeriesListView,
-                    // Expose allSeriesData so it can be checked in the tab switching logic
-                    allSeriesData // Make the data array accessible
-                };
+            // --- Series Player Logic (Namespace) ---
+            const seriesLogic = (() => { /* ... (Copy logic from previous version, including handleKeydown and focusActiveTab) ... */
+                 let currentPlayingEpisodeElement = null; let currentSelectedSeasonButton = null;
+                 function showSeriesListView() { console.log("SERIES: showSeriesListView"); seriesListContainer.style.display = 'block'; seriesDetailContainer.style.display = 'none'; if(seriesPlayerIframe) seriesPlayerIframe.src = 'about:blank'; currentSeriesDetailData = null; currentSeriesSelectedSeasonIndex = 0; currentPlayingEpisodeElement = null; updateHeaderTitle(); setTimeout(() => { const fc=seriesListGrid.querySelector('.series-list-item-card'); if (fc) fc.focus(); else seriesListGrid.focus(); }, 150); }
+                 function showSeriesDetailView(seriesIndex) { console.log(`SERIES: showSeriesDetailView for index ${seriesIndex}`); currentSeriesDetailData = seriesDataCache[seriesIndex]; if (!currentSeriesDetailData) return; currentSelectedSeasonIndex = 0; currentPlayingEpisodeElement = null; seriesListContainer.style.display = 'none'; seriesDetailContainer.style.display = 'flex'; renderSelectedSeriesDetails(); updateHeaderTitle(); setTimeout(() => seriesBackButton.focus(), 150); }
+                 async function fetchSeriesData() { if (seriesDataCache || isSeriesDataLoading) return; isSeriesDataLoading = true; seriesListGrid.innerHTML = '<p>Cargando...</p>'; console.log("SERIES: Iniciando fetchSeriesData..."); try { const r=await fetch(`${seriesJsonUrl}?t=${Date.now()}`, { cache: "no-store", headers: { 'Accept': 'application/json' } }); if (!r.ok) throw new Error(`HTTP ${r.status}`); const d=await r.json(); if (!Array.isArray(d)) throw new Error("JSON no array."); if (d.length > 0) { const fI=d[0]; if (typeof fI!=='object'||fI===null||Array.isArray(fI)) throw new Error("JSON invalid: 1st item not object."); if (typeof fI.tituloSerie==='undefined'||typeof fI.temporadas==='undefined') throw new Error("JSON incorrecto (falta tituloSerie/temporadas)."); if (!Array.isArray(fI.temporadas)) throw new Error("JSON incorrecto (temporadas no array)."); } console.log(`SERIES: Fetch ok, ${d.length} series.`); seriesDataCache = d; displaySeriesList(); } catch (e) { console.error("SERIES: Error fetch:", e); seriesListGrid.innerHTML = `<p style="color:var(--error-color)">Error: ${e.message}</p>`; } finally { isSeriesDataLoading = false; } }
+                 function displaySeriesList() { if (!seriesDataCache) { seriesListGrid.innerHTML = '<p>...</p>'; return; }; if (seriesDataCache.length === 0) { seriesListGrid.innerHTML = '<p>No hay series.</p>'; return; } seriesListGrid.innerHTML = ''; seriesDataCache.forEach((serie, index) => { const card = document.createElement('div'); card.className = 'series-list-item-card'; card.tabIndex = 0; card.dataset.index = index; const img = document.createElement('img'); img.src = serie.imagen || placeholderImageSeries; img.alt = `P ${serie.tituloSerie||'S'}`; img.onerror = () => { img.src = placeholderImageSeries; }; const textDiv = document.createElement('div'); textDiv.className = 'text-content'; const title = document.createElement('h3'); title.textContent = serie.tituloSerie || 'S/T'; const desc = document.createElement('p'); desc.textContent = serie.descripcion?(serie.descripcion.length>60?serie.descripcion.substring(0,57)+'...':serie.descripcion):'S/D'; textDiv.appendChild(title); textDiv.appendChild(desc); card.appendChild(img); card.appendChild(textDiv); card.addEventListener('click', () => showSeriesDetailView(index)); card.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === 'Ok') { e.preventDefault(); showSeriesDetailView(index); } }); seriesListGrid.appendChild(card); }); }
+                 function renderSelectedSeriesDetails() { if (!currentSeriesDetailData) return; detailImageSeries.src = currentSeriesDetailData.imagen || placeholderImageSeries; detailImageSeries.onerror = () => { detailImageSeries.src = placeholderImageSeries; }; detailTitleSeries.textContent = currentSeriesDetailData.tituloSerie || 'S/T'; detailDescriptionSeries.textContent = currentSeriesDetailData.descripcion || 'S/D'; seasonSelectorDiv.innerHTML = ''; episodeListUl.innerHTML = ''; currentPlayingEpisodeElement = null; if (!currentSeriesDetailData.temporadas || !Array.isArray(currentSeriesDetailData.temporadas) || currentSeriesDetailData.temporadas.length === 0) { seasonSelectorDiv.innerHTML = '<span>No hay temporadas.</span>'; episodeListTitleSeries.textContent = "Episodios"; episodeListUl.innerHTML = '<li>No hay episodios.</li>'; showMessageInPlayer("No hay temporadas."); } else { currentSeriesDetailData.temporadas.sort((a, b) => (a.numeroTemporada || 0) - (b.numeroTemporada || 0)); if (currentSelectedSeasonIndex === null || currentSelectedSeasonIndex >= currentSeriesDetailData.temporadas.length) { currentSelectedSeasonIndex = 0; } currentSeriesDetailData.temporadas.forEach((season, index) => { const tab = document.createElement('button'); tab.className = 'season-button'; tab.textContent = `T${season.numeroTemporada !== undefined ? season.numeroTemporada : index + 1}`; tab.dataset.seasonIndex = index; tab.tabIndex = 0; if (index === currentSelectedSeasonIndex) { tab.classList.add('active'); currentSelectedSeasonButton = tab; } tab.addEventListener('click', () => { currentSelectedSeasonIndex = index; episodeSearchInputSeries.value = ''; renderSelectedSeriesDetails(); setTimeout(() => focusFirstEpisodeInDetail(), 100); }); tab.addEventListener('keydown', handleSeasonTabKeydown); seasonSelectorDiv.appendChild(tab); }); displayEpisodesForSeason(currentSeriesDetailData.temporadas[currentSelectedSeasonIndex]?.episodios || []); } }
+                 function displayEpisodesForSeason(episodesArray) { const searchTerm=episodeSearchInputSeries.value.toLowerCase().trim(); episodeListUl.innerHTML=''; currentPlayingEpisodeElement=null; const cs=currentSeriesDetailData?.temporadas?.[currentSelectedSeasonIndex]; const snt=cs?.numeroTemporada!==undefined?cs.numeroTemporada:(currentSelectedSeasonIndex!==null?currentSelectedSeasonIndex+1:'?'); episodeListTitleSeries.textContent=`Episodios (T${snt})`; if(!episodesArray||!Array.isArray(episodesArray)){episodeListUl.innerHTML='<li>Error eps.</li>';return;} const fEps=episodesArray.map((ep,idx)=>({...ep,originalIndex:idx})).filter(ep=>(ep.tituloEpisodio||'').toLowerCase().includes(searchTerm)); if(fEps.length===0){episodeListUl.innerHTML=`<li class="italic">${searchTerm?'No coincide.':'No hay eps.'}</li>`;showMessageInPlayer("No hay eps.");return;} fEps.forEach(ep=>{const li=document.createElement('li');li.tabIndex=0;li.dataset.originalIndex=ep.originalIndex;li.textContent=ep.tituloEpisodio||`Ep ${ep.originalIndex+1}`;li.title=ep.tituloEpisodio||`Ep ${ep.originalIndex+1}`;if(typeof ep.urlDrive==='string'&&(ep.urlDrive.startsWith('http://')||ep.urlDrive.startsWith('https://'))){li.addEventListener('click',()=>{loadVideo(ep.urlDrive);updatePlayingEpisodeUI(li);});li.addEventListener('keydown',(e)=>{if(e.key==='Enter'||e.key==='Ok'){e.preventDefault();loadVideo(ep.urlDrive);updatePlayingEpisodeUI(li);}});}else{li.style.cursor='not-allowed';li.style.opacity='0.6';li.title='URL inválida';} episodeListUl.appendChild(li);}); showMessageInPlayer("Selecciona episodio."); }
+                 function loadVideo(url){ if(!seriesPlayerIframe)return; console.log("SERIES: Loading video:",url); if(typeof url==='string'&&(url.startsWith('http://')||url.startsWith('https://'))){ seriesPlayerIframe.src=url; drivePlayerMessage.style.display='none'; seriesPlayerIframe.style.display='block'; console.log("SERIES: Attempting to focus iframe..."); setTimeout(() => seriesPlayerIframe.focus(), 200); }else{console.error("SERIES: URL inválida:",url);showMessageInPlayer("Error: URL inválida.");}}
+                 function showMessageInPlayer(t){ if(drivePlayerMessage){drivePlayerMessage.textContent=t;drivePlayerMessage.style.display='block';} if(seriesPlayerIframe)seriesPlayerIframe.style.display='none'; }
+                 function updatePlayingEpisodeUI(pE){ if(currentPlayingEpisodeElement){currentPlayingEpisodeElement.classList.remove('playing');} if(pE){pE.classList.add('playing');currentPlayingEpisodeElement=pE;}else{currentPlayingEpisodeElement=null;} }
+                 function focusFirstEpisodeInDetail(){ const fE=episodeListUl.querySelector('li');if(fE)fE.focus(); }
+                 function focusSeasonTab(idx){ const btn=seasonSelectorDiv.querySelector(`.season-button[data-season-index="${idx}"]`);if(btn)btn.focus(); }
+                 function handleSeasonTabKeydown(e){ const btn=e.target;const idx=parseInt(btn.dataset.seasonIndex,10);const allBtns=Array.from(seasonSelectorDiv.querySelectorAll('.season-button'));let nextIdx=-1;if(e.key==='ArrowRight'){nextIdx=Math.min(idx+1,allBtns.length-1);}else if(e.key==='ArrowLeft'){nextIdx=Math.max(idx-1,0);}else if(e.key==='ArrowDown'){e.preventDefault();focusFirstEpisodeInDetail();return;}else if(e.key==='Enter'||e.key==='Ok'){e.preventDefault();return;} if(nextIdx!==-1&&nextIdx!==idx&&allBtns[nextIdx]){e.preventDefault();allBtns[nextIdx].focus();} }
+                 episodeListUl.addEventListener('keydown',(e)=>{ if(e.key==='ArrowUp'||e.key==='ArrowDown'){e.preventDefault();const ci=document.activeElement;if(ci&&ci.parentElement===episodeListUl){const ni=e.key==='ArrowUp'?ci.previousElementSibling:ci.nextElementSibling;if(ni)ni.focus();else if(e.key==='ArrowUp'&&currentSelectedSeasonButton)currentSelectedSeasonButton.focus();}}else if(e.key==='ArrowLeft'){e.preventDefault();if(currentSelectedSeasonButton)currentSelectedSeasonButton.focus();} });
+                 seriesBackButton.addEventListener('click', showSeriesListView);
+                 episodeSearchInputSeries.addEventListener('input', () => { if (selectedSeriesIndex!==null && selectedSeasonIndex!==null) { const eps = seriesDataCache[selectedSeriesIndex]?.temporadas?.[selectedSeasonIndex]?.episodios || []; displayEpisodesForSeason(eps); } });
+                 function handleKeydown(event) { let preventDefault = true; const isDetailView = seriesDetailContainer.style.display === 'flex'; if(isDetailView){const focusedElement=document.activeElement;if(event.key==='Backspace'||event.key==='Escape'||event.key==='b'||event.key==='B'){if(!this.handleBackKey()){preventDefault=false;}}else if(focusedElement){preventDefault=false;if(episodeListUl.contains(focusedElement)){if(event.key==='ArrowLeft'){if(currentSelectedSeasonButton)currentSelectedSeasonButton.focus();preventDefault=true;}else if(event.key==='ArrowUp'&&focusedElement===episodeListUl.firstElementChild&&currentSelectedSeasonButton){currentSelectedSeasonButton.focus();preventDefault=true;}else if(['ArrowUp','ArrowDown','Enter','Ok'].includes(event.key)){preventDefault=false;}}else if(seasonSelectorDiv.contains(focusedElement)){if(event.key==='ArrowDown'){this.focusFirstEpisodeInDetail();preventDefault=true;}else if(['ArrowLeft','ArrowRight','Enter','Ok'].includes(event.key)){preventDefault=false;}}else if(focusedElement===seriesBackButton){if(event.key==='Enter'||event.key==='Ok')preventDefault=false;else if(event.key==='ArrowUp'){focusActiveTab(); preventDefault = true;} else if(event.key==='ArrowDown'||event.key==='ArrowRight'){if(currentSelectedSeasonButton)currentSelectedSeasonButton.focus();else this.focusFirstEpisodeInDetail();preventDefault=true;}else preventDefault=false;} else if (focusedElement === seriesPlayerIframe) { /* Handle keys when iframe focused? Difficult */ preventDefault = false;} else{preventDefault=false;}}else{preventDefault=false;}}else{const focusedCard=document.activeElement;if(focusedCard&&focusedCard.classList.contains('series-list-item-card')){const allCards=Array.from(seriesListGrid.querySelectorAll('.series-list-item-card'));const currentIndex=allCards.indexOf(focusedCard);const itemsPerRow=Math.floor(seriesListGrid.offsetWidth/(focusedCard.offsetWidth+15))||1;let nextIndex=-1;if(event.key==='ArrowRight')nextIndex=Math.min(currentIndex+1,allCards.length-1);else if(event.key==='ArrowLeft')nextIndex=Math.max(currentIndex-1,0);else if(event.key==='ArrowDown')nextIndex=Math.min(currentIndex+itemsPerRow,allCards.length-1);else if(event.key==='ArrowUp'){if(currentIndex<itemsPerRow){focusActiveTab();}else{nextIndex=Math.max(currentIndex-itemsPerRow,0);}}else if(event.key==='Enter'||event.key==='Ok'){focusedCard.click();}else{preventDefault=false;} if(nextIndex!==-1&&nextIndex!==currentIndex&&allCards[nextIndex]){allCards[nextIndex].focus();}}else{if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(event.key)){const fc=seriesListGrid.querySelector('.series-list-item-card');if(fc)fc.focus();}else if(event.key==='ArrowUp'){focusActiveTab();}else{preventDefault=false;}}} if(preventDefault)event.preventDefault(); }
+                 return { fetchSeriesData, pauseVideo:()=>{if(seriesPlayerIframe)seriesPlayerIframe.src='about:blank';showMessageInPlayer("Selecciona episodio");}, focusInitialElement:()=>{if(seriesDetailContainer.style.display==='flex')seriesBackButton.focus();else{const fc=seriesListGrid.querySelector('.series-list-item-card');if(fc)fc.focus();else seriesListGrid.focus();}}, showSeriesListView, handleBackKey:()=>{if(seriesDetailContainer.style.display==='flex'){showSeriesListView();return true;}return false;}, handleKeydown, focusActiveTab };
             })(); // End seriesLogic IIFE
 
-
-            // --- Global Keyboard Controls ---
+            // --- Global Keyboard/Remote Control Handling ---
             document.addEventListener('keydown', (event) => {
-                // Ignore key presses if focus is on an input field or editable content
-                const searchInput = document.getElementById('search');
-                if (event.target === searchInput || event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA' || event.target.isContentEditable) return;
+                console.log(`LOG: Keydown: ${event.key}, Active Section: ${activeSectionId}, Target: ${event.target.tagName}, ActiveElement: ${document.activeElement?.tagName}#${document.activeElement?.id}`);
 
-                let activeSection = document.querySelector('.content-section.active');
-                let preventDefault = true;
-
-                // --- TV Section Keyboard Controls ---
-                if (activeSection && activeSection.id === 'tvSection') { /* ... (logic unchanged) ... */
-                    const videoPlayer = m3u8Logic.videoPlayer;
-                    const playlistContainer = m3u8Logic.playlistContainer;
-                    if (!videoPlayer) return;
-                    if (playlistContainer?.contains(document.activeElement) && ['ArrowUp', 'ArrowDown', 'Tab', 'ArrowLeft', 'ArrowRight'].includes(event.key)) preventDefault = false;
-                    if (document.activeElement?.classList.contains('star') && ['Enter', ' '].includes(event.key)) preventDefault = false;
-                    switch (event.key) {
-                        case ' ': case 'k': case 'MediaPlayPause': if (videoPlayer.paused) videoPlayer.play().catch(e => console.error("Error playing:", e)); else videoPlayer.pause(); break;
-                        case 'Enter': case 'Ok':
-                            if (document.activeElement && document.activeElement.classList.contains('channel-button')) { document.activeElement.click(); }
-                            else if (document.activeElement && document.activeElement.tagName === 'BUTTON') { preventDefault = false; }
-                            else { if (videoPlayer.paused) videoPlayer.play().catch(e => console.error("Error playing:", e)); else videoPlayer.pause(); }
-                            break;
-                        case 'ArrowUp':
-                            if (!playlistContainer?.contains(document.activeElement)) { const v = Math.min(1, parseFloat((videoPlayer.volume + 0.1).toFixed(1))); videoPlayer.volume = v; videoPlayer.muted = false; }
-                            else { preventDefault = false; }
-                            break;
-                        case 'ArrowDown':
-                             if (!playlistContainer?.contains(document.activeElement)) { const v = Math.max(0, parseFloat((videoPlayer.volume - 0.1).toFixed(1))); videoPlayer.volume = v; videoPlayer.muted = false; }
-                             else { preventDefault = false; }
-                            break;
-                        case 'ArrowRight': videoPlayer.currentTime += 5; break;
-                        case 'ArrowLeft': videoPlayer.currentTime -= 5; break;
-                        case 'm': case 'M': case 'MediaMute': videoPlayer.muted = !videoPlayer.muted; break;
-                        case 'f': case 'F':
-                            const playerContainer = m3u8Logic.playerContainer;
-                            if (playerContainer) {
-                                if (!document.fullscreenElement) { if (playerContainer.requestFullscreen) playerContainer.requestFullscreen().catch(err => console.error("FS error:", err)); else if (playerContainer.webkitRequestFullscreen) playerContainer.webkitRequestFullscreen(); }
-                                else { if (document.exitFullscreen) document.exitFullscreen(); else if (document.webkitExitFullscreen) document.webkitExitFullscreen(); }
-                            }
-                            break;
-                        case 'MediaStop': videoPlayer.pause(); videoPlayer.currentTime = 0; break;
-                        case 'Escape': if (document.fullscreenElement) { if (document.exitFullscreen) document.exitFullscreen(); else if (document.webkitExitFullscreen) document.webkitExitFullscreen(); } else preventDefault = false; break;
-                        default: preventDefault = false; break;
+                // Ignore if focus is on an input/textarea (search fields)
+                if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') {
+                    if (event.key === 'Escape') event.target.blur();
+                    // Allow specific keys needed for navigation *out* of search?
+                    else if (!['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Enter', 'Ok'].includes(event.key)) { // Allow arrows/enter in search
+                         return; // Ignore most other keys in inputs
                     }
                 }
-                // --- Series Section Keyboard Controls ---
-                else if (activeSection && activeSection.id === 'seriesSection') { /* ... (logic unchanged) ... */
-                     switch (event.key) {
-                        case 'f': case 'F':
-                            const driveContainer = document.querySelector('#seriesDetailContainer .video-container');
-                            if (driveContainer) {
-                                if (!document.fullscreenElement) { if (driveContainer.requestFullscreen) driveContainer.requestFullscreen().catch(err => console.error("FS error:", err)); else if (driveContainer.webkitRequestFullscreen) driveContainer.webkitRequestFullscreen(); }
-                                else { if (document.exitFullscreen) document.exitFullscreen(); else if (document.webkitExitFullscreen) document.webkitExitFullscreen(); }
-                            }
-                            break;
-                        case 'Escape':
-                            if (document.fullscreenElement) {
-                                if (document.exitFullscreen) document.exitFullscreen(); else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-                            } else if (document.getElementById('seriesDetailContainer').style.display === 'block') {
-                                seriesLogic.showSeriesListView();
-                            } else {
-                                preventDefault = false;
-                            }
-                            break;
-                        default: preventDefault = false; break;
+
+                // --- Tab Navigation Logic ---
+                const focusedElement = document.activeElement;
+                const isTabFocused = focusedElement && focusedElement.classList.contains('tab-button');
+
+                if (isTabFocused) {
+                    const currentTabIndex = Array.from(tabButtons).indexOf(focusedElement);
+                    let nextTabIndex = -1;
+                    if (event.key === 'ArrowLeft') {
+                        nextTabIndex = Math.max(0, currentTabIndex - 1);
+                    } else if (event.key === 'ArrowRight') {
+                        nextTabIndex = Math.min(tabButtons.length - 1, currentTabIndex + 1);
+                    } else if (event.key === 'ArrowDown') {
+                        event.preventDefault();
+                        console.log("LOG: ArrowDown from Tab");
+                        if (activeSectionId === 'tvSection') m3u8Logic?.focusInitialElement();
+                        else if (activeSectionId === 'seriesSection') seriesLogic?.focusInitialElement();
+                        return;
+                    } else if (event.key === 'Enter' || event.key === 'Ok') {
+                        event.preventDefault();
+                        console.log("LOG: Enter/OK on Tab");
+                        focusedElement.click(); // Activates showSection via listener
+                        return;
+                    } else {
+                         // Prevent default for other keys when tab focused
+                         event.preventDefault();
+                         return;
                     }
-                }
-                else {
-                    preventDefault = false;
+
+                    if (nextTabIndex !== -1 && nextTabIndex !== currentTabIndex) {
+                        event.preventDefault();
+                        tabButtons[nextTabIndex].focus();
+                    }
+                     return; // Stop processing if we handled tab navigation
                 }
 
-                if (preventDefault) { event.preventDefault(); }
+                // --- Delegate to Section Logic ---
+                if (activeSectionId === 'tvSection') {
+                    m3u8Logic.handleKeydown(event);
+                } else if (activeSectionId === 'seriesSection') {
+                    seriesLogic.handleKeydown(event);
+                }
             });
 
-            // --- Mouse Wheel Volume Control (Only for M3U8 player) ---
-            const m3u8PlayerContainer = document.getElementById('player-container');
-            if(m3u8PlayerContainer) m3u8PlayerContainer.addEventListener('wheel', (event) => { /* ... (logic unchanged) ... */
-                 if (!tvSection.classList.contains('active')) return;
-                 const videoPlayer = m3u8Logic.videoPlayer;
-                 if (videoPlayer && (event.target === videoPlayer || m3u8PlayerContainer.contains(event.target))) {
-                    event.preventDefault();
-                    const volumeStep = 0.05;
-                    let newVolume = event.deltaY < 0 ? Math.min(1, parseFloat((videoPlayer.volume + volumeStep).toFixed(2))) : Math.max(0, parseFloat((videoPlayer.volume - volumeStep).toFixed(2)));
-                    videoPlayer.volume = newVolume;
-                    videoPlayer.muted = false;
-                }
-            }, { passive: false });
+             // --- Helper to focus the active tab ---
+             function focusActiveTab() {
+                 console.log("LOG: Focusing active tab");
+                 const activeTab = tabNavigation.querySelector('.tab-button.active');
+                 if (activeTab) {
+                     activeTab.focus();
+                 } else { tabButtons[0]?.focus(); }
+             }
+
+             // Add focusActiveTab to the logic modules
+             m3u8Logic.focusActiveTab = focusActiveTab;
+             seriesLogic.focusActiveTab = focusActiveTab;
 
 
-            // --- Initial Application Setup ---
-            showSection('tvSection'); // Show TV section by default
-            m3u8Logic.initializeApp(); // Initialize M3U8 player
-            // Series data fetch is triggered when switching to the Series tab if not already loaded
+            // --- Initial Setup ---
+            m3u8Logic.initializeApp(); // Load TV channels first
+            updateHeaderTitle(); // Set initial header title
 
         }); // End DOMContentLoaded
     </script>
