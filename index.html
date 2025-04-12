@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reproductor de TV y Series</title>
+    <title>Reproductor de TV y Series (con Temporadas)</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.5.8/dist/hls.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -101,8 +101,7 @@
         /* --- M3U8 Player Section Styles --- */
         .m3u8-container {
             display: flex; flex-direction: row; max-width: 1600px; margin: 0 auto;
-            /* Adjust height calculation based on header and tab nav */
-            height: calc(100vh - var(--header-height) - 60px - var(--spacing-m) * 2); /* Approx tab nav height */
+            height: calc(100vh - var(--header-height) - 80px - var(--spacing-m) * 2); /* Adjust if needed */
             overflow: hidden; gap: var(--spacing-l);
         }
         #player-container { /* M3U8 Video Player */
@@ -202,19 +201,13 @@
         /* M3U8 Mobile Styles */
         @media (max-width: 768px) {
             .m3u8-container {
-                 flex-direction: column;
-                 /* Adjust height calculation for mobile */
-                 height: auto; /* Allow content to determine height */
-                 min-height: calc(100vh - var(--header-height-mobile) - 50px); /* Approx tab nav height */
-                 gap: 0;
+                flex-direction: column; height: auto; min-height: calc(100vh - var(--header-height-mobile) - 70px); gap: 0;
             }
             #player-container { flex: none; height: 40vh; width: 100%; margin: 0; border-radius: 0; border: none; border-bottom: 1px solid var(--border-color); }
             #my-video { border-radius: 0; }
             #playlist-container {
                 flex-grow: 1; width: 100%; border-radius: 0; padding: var(--spacing-m); border: none;
-                /* Adjust height for mobile playlist */
-                min-height: calc(60vh - 50px); /* Approx tab nav height */
-                max-height: none; overflow-y: auto; min-width: unset;
+                min-height: calc(60vh - 70px); max-height: none; overflow-y: auto; min-width: unset;
             }
             .playlist-title-container { padding-bottom: var(--spacing-s); margin-bottom: var(--spacing-m); }
             #playlist-container h2 { font-size: 1.1em; }
@@ -245,21 +238,31 @@
         }
         .series-list-item .text-content { flex-grow: 1; overflow: hidden; }
         .series-list-item h3 {
-            font-weight: 600; color: var(--text-primary); margin-bottom: var(--spacing-xs);
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            font-weight: 600; color: var(--text-primary); margin: 0 0 var(--spacing-xs) 0; /* Adjusted margin */
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 1em; /* Adjusted font size */
         }
         .series-list-item p {
-            font-size: 0.875em; color: var(--text-secondary); line-height: 1.4;
+            font-size: 0.875em; color: var(--text-secondary); line-height: 1.4; margin: 0; /* Adjusted margin */
              display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
         }
         #seriesDetailContainer h3 { font-size: 1.5em; font-weight: 700; color: var(--text-primary); margin-bottom: var(--spacing-s); }
         #seriesDetailContainer .description { color: var(--text-secondary); margin-bottom: var(--spacing-l); font-size: 0.95em; }
+        .season-header { /* NEW: Style for season headers */
+            font-size: 1.1em;
+            font-weight: 600;
+            color: var(--primary-accent);
+            margin-top: var(--spacing-l);
+            margin-bottom: var(--spacing-m);
+            padding-bottom: var(--spacing-xs);
+            border-bottom: 1px solid var(--border-color);
+        }
         .episode-list-item {
             padding: var(--spacing-s) var(--spacing-m); margin-bottom: var(--spacing-s);
             border-radius: var(--border-radius); background-color: var(--surface-hover-color);
             cursor: pointer; transition: background-color 0.2s ease, color 0.2s ease;
             font-size: 0.95em; color: var(--text-secondary); border: 1px solid var(--border-color);
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            display: block; /* Ensure it takes full width */
         }
         .episode-list-item:hover { background-color: var(--surface-color); color: var(--text-primary); }
         .episode-list-item.playing {
@@ -285,15 +288,17 @@
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             color: var(--text-secondary); text-align: center; padding: var(--spacing-m);
         }
-         #episodeList { /* Episode list UL */
+         #episodeListContainer { /* NEW: Container for headers and list */
              flex-grow: 1; /* Allow list to take height in flex container */
              overflow-y: auto; padding-right: var(--spacing-xs);
-        }
-        /* Custom Scrollbar for Episode List */
-         #episodeList::-webkit-scrollbar { width: 6px; }
-         #episodeList::-webkit-scrollbar-track { background: var(--surface-color); border-radius: 3px; }
-         #episodeList::-webkit-scrollbar-thumb { background-color: var(--border-color); border-radius: 3px; }
-         #episodeList::-webkit-scrollbar-thumb:hover { background-color: var(--text-secondary); }
+             display: flex; /* Use flex for vertical layout */
+             flex-direction: column;
+         }
+         /* Custom Scrollbar for Episode List Container*/
+         #episodeListContainer::-webkit-scrollbar { width: 6px; }
+         #episodeListContainer::-webkit-scrollbar-track { background: var(--surface-color); border-radius: 3px; }
+         #episodeListContainer::-webkit-scrollbar-thumb { background-color: var(--border-color); border-radius: 3px; }
+         #episodeListContainer::-webkit-scrollbar-thumb:hover { background-color: var(--text-secondary); }
 
         /* --- NEW: Desktop Layout for Series Detail --- */
         .series-detail-grid {
@@ -327,14 +332,17 @@
                 border-radius: var(--border-radius);
                 border: 1px solid var(--border-color);
             }
-            #episodeList {
-                flex-grow: 1; /* Allow list to fill the episode-area */
-                /* max-height: none; /* Remove fixed max-height if previously set */
+            #episodeListContainer { /* Adjust episode list container */
+                 flex-grow: 1; /* Allow list to fill the episode-area */
+                 /* max-height: none; /* Remove fixed max-height if previously set */
             }
             /* Ensure episode list heading stays with the list */
-            .episode-area h4 {
+            .episode-area h4 { /* This targets the "Episodios:" title */
                  margin-bottom: var(--spacing-m);
                  flex-shrink: 0; /* Don't shrink heading */
+            }
+            .season-header { /* Ensure season headers don't shrink */
+                flex-shrink: 0;
             }
         }
 
@@ -368,15 +376,16 @@
              .back-button { padding: var(--spacing-s) var(--spacing-m); margin-bottom: var(--spacing-m); }
              /* .video-container { margin-bottom: var(--spacing-m); } /* Already handled by .video-area */
              .episode-area { max-height: none; padding: 0; border: none; background: none; } /* Reset desktop styles */
-             #episodeList { max-height: 250px; flex-grow: 0;} /* Restore mobile max-height */
+             #episodeListContainer { max-height: 35vh; flex-grow: 0;} /* Adjust mobile max-height for episodes */
         }
 
     </style>
 </head>
 <body>
     <header class="main-header">
-        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgVIFxWI-sdOR2bVfpbgCotXquColWskv4u4I9HXZhYdsRewDVRNcJ7iLvtKO2xYucvqOv0DKY2MArMnHGF8IvZBI7NYjg0dkjHUN0N8VXwZ73vKjYOajWC6JTze5n1Hcj19V2COVFkN-TtJA7uR_ALIYyIcvUBOwQN1EmURskiBCI_lJK3hFphdSBuCaQ/s320/logo%20(%20JORGEDEZ%20)%20ROJO%20Y%20BLANCO%20PARA%20VIDEO.jpeg" alt="JORGEDEZ Logo" onerror="this.style.display='none'">
-        <span id="current-channel-title">Cargando...</span>
+        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgVIFxWI-sdOR2bVfpbgCotXquColWskv4u4I9HXZhYdsRewDVRNcJ7iLvtKO2xYucvqOv0DKY2MArMnHGF8IvZBI7NYjg0dkjHUN0N8VXwZ73vKjYOajWC6JTze5n1Hcj19V2COVFkN-TtJA7uR_ALIYyIcvUBOwQN1EmURskiBCI_lJK3hFphdSBuCaQ/s320/logo%20(%20JORGEDEZ%20)%20ROJO%20Y%20BLANCO%20PARA%20VIDEO.jpeg"
+             alt="JORGEDEZ Logo"
+             onerror="this.onerror=null; this.style.display='none';"> <span id="current-channel-title">Cargando...</span>
     </header>
 
     <div class="tab-navigation">
@@ -415,7 +424,7 @@
                 <h2 class="text-xl sm:text-2xl font-semibold mb-4 text-center" style="color: var(--text-primary);">Catálogo de Series</h2>
                 <div id="seriesList" class="space-y-3">
                     <p class="text-center" style="color: var(--text-secondary);">Cargando series...</p>
-                    </div>
+                </div>
             </div>
 
             <div id="seriesDetailContainer" style="display: none;">
@@ -432,11 +441,11 @@
                     </div>
                     <div class="episode-area">
                         <h4 class="text-lg font-semibold mb-3" style="color: var(--text-secondary);">Episodios:</h4>
-                        <div id="episodeList">
+                        <div id="episodeListContainer">
                             </div>
                     </div>
                 </div>
-             </div>
+            </div>
         </section>
     </div>
 
@@ -461,7 +470,6 @@
             const tabButtons = document.querySelectorAll('.tab-button');
             const m3u8VideoPlayer = document.getElementById('my-video'); // M3U8 <video> element
             const driveIframePlayer = document.getElementById('drivePlayer'); // Drive <iframe> element
-            const headerTitleElement = document.getElementById('current-channel-title'); // Header title element
 
             function showSection(sectionIdToShow) {
                 let isSwitchingToSeries = sectionIdToShow === 'seriesSection';
@@ -469,10 +477,10 @@
 
                  // Pause videos before switching
                  if (isSwitchingToSeries && m3u8VideoPlayer && !m3u8VideoPlayer.paused) {
-                     console.log("Pausing M3U8 player");
+                     console.log("Pausando reproductor M3U8");
                      m3u8Logic.pauseVideo(); // Use namespaced pause function
                  } else if (isSwitchingToTv && driveIframePlayer) {
-                     console.log("Resetting Drive player");
+                     console.log("Reiniciando reproductor Drive");
                      driveIframePlayer.src = 'about:blank'; // Reset iframe src to stop playback
                      // Also reset series detail view if visible
                      seriesLogic.showSeriesListView();
@@ -489,12 +497,13 @@
                 if (buttonToActivate) buttonToActivate.classList.add('active');
 
                 // Update header title based on active section
-                 if (headerTitleElement) {
+                 const headerTitle = document.getElementById('current-channel-title');
+                 if (headerTitle) {
                      if (isSwitchingToTv) {
                          // Restore M3U8 title
-                         headerTitleElement.textContent = m3u8Logic.getCurrentChannelTitle() || 'Canales de TV';
+                         headerTitle.textContent = m3u8Logic.getCurrentChannelTitle() || 'Canales de TV';
                      } else if (isSwitchingToSeries) {
-                         headerTitleElement.textContent = 'Series'; // Set a generic title for Series section
+                         headerTitle.textContent = 'Series'; // Set a generic title for Series section
                      }
                  }
 
@@ -508,7 +517,7 @@
             tvButton.addEventListener('click', () => showSection('tvSection'));
             seriesButton.addEventListener('click', () => showSection('seriesSection'));
 
-             // --- M3U8 Player Logic (Wrapped in an Object/Namespace) ---
+             // --- M3U8 Player Logic (From Jorge's Code, Wrapped in an Object/Namespace) ---
              const m3u8Logic = (() => {
                  // --- !!! IMPORTANTE: URL de tu archivo M3U !!! ---
                  const m3uUrl = 'https://raw.githubusercontent.com/sejo48/chanejorgedez/refs/heads/main/listaoficial.m3u';
@@ -529,7 +538,7 @@
                  const tryAgainButton = document.getElementById('try-again-button');
                  const tryAnotherButton = document.getElementById('try-another-button');
                  const reloadListButton = document.getElementById('reload-list-button');
-                 // Use the globally scoped headerTitleElement defined earlier
+                 const currentChannelTitleElement = document.getElementById('current-channel-title'); // Header title
                  const countContainer = document.getElementById('channel-count-container');
                  const countSpan = document.getElementById('channel-count-number');
                  const loadingIndicator = document.getElementById('loading-indicator');
@@ -600,8 +609,7 @@
                                      }
                                      if (!currentChannelInfo.title) { currentChannelInfo.title = 'Sin Título'; }
                                      currentChannelInfo.logo = currentChannelInfo.attributes['tvg-logo'] || '';
-                                     // Use group-title as description if available, otherwise default
-                                     currentChannelInfo.descripcion = currentChannelInfo.attributes['group-title'] || `Canal: ${currentChannelInfo.title}`;
+                                     currentChannelInfo.descripcion = `Canal: ${currentChannelInfo.title}`;
                                  } else {
                                      console.warn("Línea #EXTINF no reconocida:", trimmedLine);
                                      currentChannelInfo = null;
@@ -675,8 +683,8 @@
                          videoPlayer.load();
                      }
                      // Update header title only if TV section is active when error occurs
-                     if (tvSection.classList.contains('active') && headerTitleElement) {
-                         headerTitleElement.textContent = 'Error al cargar';
+                     if (tvSection.classList.contains('active') && currentChannelTitleElement) {
+                         currentChannelTitleElement.textContent = 'Error al cargar';
                      }
                      if (channelIndex !== null && channelIndex < channels.length) {
                          updateChannelStatus(channelIndex, 'offline');
@@ -707,8 +715,8 @@
                      if (!channelsToRender || channelsToRender.length === 0) {
                          if (countSpan) countSpan.textContent = '0';
                          // Update header title only if TV section is active
-                         if (tvSection.classList.contains('active') && headerTitleElement) {
-                             headerTitleElement.textContent = 'No hay canales';
+                         if (tvSection.classList.contains('active') && currentChannelTitleElement) {
+                             currentChannelTitleElement.textContent = 'No hay canales';
                          }
                          playlist.innerHTML = '<li style="color: var(--text-secondary); text-align: center; margin-top: var(--spacing-l);">No hay canales para mostrar.</li>';
                          return;
@@ -727,7 +735,7 @@
 
                      sortedChannels.forEach((channel) => {
                          const originalIndex = channels.findIndex(ch => ch.url === channel.url);
-                         if (originalIndex === -1) return; // Should not happen if channelsToRender is derived from channels
+                         if (originalIndex === -1) return;
                          const li = document.createElement('li');
                          li.dataset.originalIndex = originalIndex;
                          const channelButton = document.createElement('button');
@@ -758,7 +766,7 @@
                          star.setAttribute('role', 'button');
                          star.setAttribute('aria-pressed', isFavorite.toString());
                          star.setAttribute('aria-label', isFavorite ? `Quitar ${channel.title || 'Canal'} de favoritos` : `Añadir ${channel.title || 'Canal'} a favoritos`);
-                         star.tabIndex = 0; // Make star focusable
+                         star.tabIndex = 0;
                          star.addEventListener('click', (e) => { e.stopPropagation(); toggleFavorite(originalIndex.toString()); rerenderCurrentList(); });
                          star.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); e.stopPropagation(); toggleFavorite(originalIndex.toString()); rerenderCurrentList(); } });
                          li.appendChild(star);
@@ -800,11 +808,11 @@
                      }
                      hideError();
                      const channel = channels[index];
-                     console.log(`Selecting M3U8 channel ${index}: ${channel.title}`);
+                     console.log(`Seleccionando canal M3U8 ${index}: ${channel.title}`);
                      // Update header title ONLY if TV section is active
-                     if (tvSection.classList.contains('active') && headerTitleElement) {
-                         headerTitleElement.textContent = channel.title || 'Canal sin título';
-                         headerTitleElement.title = channel.title || 'Canal sin título'; // Add tooltip
+                     if (tvSection.classList.contains('active') && currentChannelTitleElement) {
+                         currentChannelTitleElement.textContent = channel.title || 'Canal sin título';
+                         currentChannelTitleElement.title = channel.title || 'Canal sin título';
                      }
                      playVideo(channel.url, index);
                      scrollToPlayer();
@@ -815,148 +823,88 @@
 
                  // --- Play Video (HLS Handling) ---
                  function playVideo(url, channelIndex) {
-                     console.log(`Attempting M3U8 playback: ${url}`);
-                     lastAttemptedChannel = channelIndex; // Track the channel we are trying to play
+                     console.log(`Intentando reproducción M3U8: ${url}`);
+                     lastAttemptedChannel = channelIndex;
                      if (!url || typeof url !== 'string' || url.trim() === '') {
                          showError("URL del canal inválida.", channelIndex); return;
                      }
                      if (hls) { hls.destroy(); hls = null; }
                      if (!videoPlayer) { showError("Error interno: Reproductor no encontrado.", channelIndex); return; }
 
-                     // Reset player state thoroughly before loading new source
-                     videoPlayer.pause();
-                     videoPlayer.removeAttribute('src'); // Remove src attribute
-                     videoPlayer.load(); // Reset media element
-                     videoPlayer.removeEventListener('error', handleVideoElementError); // Remove previous specific error listener
-                     if (videoPlayingListener) { videoPlayer.removeEventListener('playing', videoPlayingListener); videoPlayingListener = null; } // Remove previous playing listener
+                     videoPlayer.removeAttribute('src');
+                     videoPlayer.load(); // Reset player state
+                     videoPlayer.removeEventListener('error', handleVideoElementError);
+                     if (videoPlayingListener) { videoPlayer.removeEventListener('playing', videoPlayingListener); videoPlayingListener = null; }
 
-                     // Define the handler for when video starts playing successfully
+                     const isM3U8 = url.includes('.m3u8') || url.includes('mpegurl');
                      const handlePlaying = () => {
-                         // Only update status if this handler corresponds to the channel we are trying to play
                          if (lastAttemptedChannel === channelIndex) {
                              updateChannelStatus(channelIndex, 'online');
-                             console.log(`Channel ${channelIndex} status updated to online.`);
                          }
                      };
                      videoPlayingListener = handlePlaying; // Store reference to remove later
 
-                     const isM3U8 = url.includes('.m3u8') || url.includes('mpegurl');
-
-                     // Check if HLS.js is loaded and needed
-                     if (typeof Hls !== 'undefined' && Hls.isSupported() && isM3U8) {
-                         console.log("Using HLS.js");
-                         hls = new Hls({
-                             // Example configuration: Increase initial load timeout
-                             manifestLoadingTimeOut: 10000, // 10 seconds
-                             levelLoadingTimeOut: 10000,  // 10 seconds
-                         });
+                     if (Hls.isSupported() && isM3U8) {
+                         console.log("Usando HLS.js");
+                         hls = new Hls({ /* HLS config if needed */ });
                          hls.on(Hls.Events.ERROR, (event, data) => {
-                             console.error('HLS Error Event:', event, 'Data:', data);
-                             // Only trigger error display if it's fatal and for the currently attempted channel
-                             if (data.fatal && lastAttemptedChannel === channelIndex) {
+                             console.error('HLS Error:', event, data);
+                             if (data.fatal && lastAttemptedChannel === channelIndex) { // Check if error belongs to current attempt
                                  let errorMsg = `Error HLS (${data.details}).`;
-                                 if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
-                                     errorMsg = `Error de red (${data.details}). Verifica la conexión o la URL del canal.`;
-                                 } else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) {
-                                     errorMsg = `Error en datos del video (${data.details}). El formato podría no ser compatible.`;
-                                 } else if (data.details === Hls.ErrorDetails.MANIFEST_LOAD_ERROR || data.details === Hls.ErrorDetails.MANIFEST_LOAD_TIMEOUT) {
-                                     errorMsg = `Error al cargar el manifiesto M3U8 (${data.response?.code || 'timeout'}). La URL podría ser incorrecta o el servidor no responde.`;
-                                 } else if (data.details === Hls.ErrorDetails.LEVEL_LOAD_ERROR || data.details === Hls.ErrorDetails.LEVEL_LOAD_TIMEOUT) {
-                                     errorMsg = `Error al cargar segmento del video (${data.response?.code || 'timeout'}). Problema de red o del stream.`;
-                                 }
+                                 if (data.type === Hls.ErrorTypes.NETWORK_ERROR) errorMsg = `Error de red (${data.details}).`;
+                                 else if (data.type === Hls.ErrorTypes.MEDIA_ERROR) errorMsg = `Error en datos del video (${data.details}).`;
                                  showError(errorMsg, channelIndex);
-                                 // Clean up HLS instance on fatal error
-                                 if (hls) { hls.destroy(); hls = null; }
-                             } else if (!data.fatal) {
-                                 console.warn("Non-fatal HLS error:", data.details);
-                                 // Optionally try to recover from non-fatal errors
-                                 // if (hls) { hls.startLoad(); } // Example: try restarting load
                              }
                          });
                          hls.loadSource(url);
                          hls.attachMedia(videoPlayer);
                          hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                             console.log("HLS Manifest parsed, attempting play...");
-                             videoPlayer.play().catch(e => {
-                                 console.error("Error calling videoPlayer.play() after HLS manifest parsed:", e);
-                                 // Sometimes browsers block autoplay, might need user interaction
-                                 if (e.name === 'NotAllowedError') {
-                                     showError("El navegador bloqueó la reproducción automática. Haz clic en el video para iniciar.", channelIndex);
-                                 } else {
-                                     showError(`Error al iniciar reproducción HLS: ${e.message}`, channelIndex);
-                                 }
-                             });
+                             videoPlayer.play().catch(e => console.error("Error iniciando reproducción HLS:", e));
                          });
-                         // Add the 'playing' listener *after* attaching HLS
                          videoPlayer.addEventListener('playing', videoPlayingListener, { once: true });
-
                      } else if (isM3U8 && videoPlayer.canPlayType('application/vnd.apple.mpegurl')) {
-                         // Use native HLS support (Safari, iOS)
-                         console.log("Using native HLS support");
+                         console.log("Usando HLS nativo");
                          videoPlayer.src = url;
-                         // Add error listener *before* setting src or calling play
                          videoPlayer.addEventListener('error', handleVideoElementError);
-                         // Play is often called after setting src for native HLS
-                         videoPlayer.play().catch(e => {
-                             console.error("Error calling videoPlayer.play() for native HLS:", e);
-                              if (e.name === 'NotAllowedError') {
-                                 showError("El navegador bloqueó la reproducción automática. Haz clic en el video para iniciar.", channelIndex);
-                             } else {
-                                 showError(`Error al iniciar reproducción nativa HLS: ${e.message}`, channelIndex);
-                             }
-                         });
+                         videoPlayer.addEventListener('loadedmetadata', () => videoPlayer.play().catch(e => console.error("Error iniciando reproducción HLS nativa:", e)), { once: true });
                          videoPlayer.addEventListener('playing', videoPlayingListener, { once: true });
-
                      } else {
-                         // Handle non-M3U8 or unsupported M3U8
                          if (!isM3U8) {
-                             console.log("Attempting direct playback (non-M3U8)");
+                             console.log("Intentando reproducción directa");
                              videoPlayer.src = url;
                              videoPlayer.addEventListener('error', handleVideoElementError);
-                             videoPlayer.play().catch(e => {
-                                 console.error("Error calling videoPlayer.play() for direct source:", e);
-                                  if (e.name === 'NotAllowedError') {
-                                     showError("El navegador bloqueó la reproducción automática. Haz clic en el video para iniciar.", channelIndex);
-                                 } else {
-                                     showError(`Error al iniciar reproducción directa: ${e.message}`, channelIndex);
-                                 }
-                             });
+                             videoPlayer.addEventListener('loadeddata', () => videoPlayer.play().catch(e => console.error("Error iniciando reproducción directa:", e)), { once: true });
                              videoPlayer.addEventListener('playing', videoPlayingListener, { once: true });
                          } else {
-                             // M3U8 format, but HLS.js not loaded or not supported natively
-                             console.error("HLS.js not loaded or HLS not supported natively.");
-                             showError("Formato M3U8 no soportado por este navegador o HLS.js no se cargó.", channelIndex);
+                             showError("Formato M3U8 no soportado por este navegador.", channelIndex);
                          }
                      }
                  }
 
-
                  // --- Native Video Element Error Handler ---
                  function handleVideoElementError() {
-                     // Ensure videoPlayer and error exist, and we have a channel context
-                     if (!videoPlayer || !videoPlayer.error || lastAttemptedChannel === null) return;
-
                      const error = videoPlayer.error;
-                     console.error("Native <video> Error Code:", error.code, "Message:", error.message);
-
-                     let message = "Error desconocido al reproducir el video.";
-                     switch (error.code) {
-                         case error.MEDIA_ERR_ABORTED: message = 'Carga de video abortada.'; break;
-                         case error.MEDIA_ERR_NETWORK: message = 'Error de red al cargar el video.'; break;
-                         case error.MEDIA_ERR_DECODE: message = 'Error de decodificación de video. Formato corrupto o no soportado.'; break;
-                         case error.MEDIA_ERR_SRC_NOT_SUPPORTED: message = 'Formato de video no soportado o URL inválida.'; break;
-                         default: message = `Error de video (${error.code}).`; break;
+                     if (!error || lastAttemptedChannel === null) return; // Don't show error if no channel was attempted
+                     console.error("Error nativo <video>:", error);
+                     let message = "Error desconocido.";
+                     if (error) {
+                         switch (error.code) {
+                             case error.MEDIA_ERR_ABORTED: message = 'Carga abortada.'; break;
+                             case error.MEDIA_ERR_NETWORK: message = 'Error de red.'; break;
+                             case error.MEDIA_ERR_DECODE: message = 'Error de decodificación.'; break;
+                             case error.MEDIA_ERR_SRC_NOT_SUPPORTED: message = 'Formato no soportado o URL inválida.'; break;
+                             default: message = `Error ${error.code}.`; break;
+                         }
                      }
-                     // Display the error only if it corresponds to the last channel we tried to play
-                     showError(message, lastAttemptedChannel);
-                     // Important: Remove the listener to prevent it from firing again for subsequent unrelated errors
-                     videoPlayer.removeEventListener('error', handleVideoElementError);
+                     // Only show error if it corresponds to the last channel attempt
+                     if (lastAttemptedChannel !== null) {
+                         showError(message, lastAttemptedChannel);
+                     }
+                     videoPlayer.removeEventListener('error', handleVideoElementError); // Remove listener after firing
                  }
-
 
                  // --- Scroll To Player ---
                  function scrollToPlayer() {
-                     // Scroll only on mobile devices when a channel is selected
                      if (window.innerWidth <= 768 && playerContainer) {
                          playerContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
                      }
@@ -967,13 +915,8 @@
                      const index = parseInt(indexString);
                      if (isNaN(index)) return;
                      const indexInFavorites = favorites.indexOf(indexString);
-                     if (indexInFavorites > -1) {
-                         favorites.splice(indexInFavorites, 1);
-                         console.log(`Channel ${index} removed from favorites.`);
-                     } else {
-                         favorites.push(indexString);
-                         console.log(`Channel ${index} added to favorites.`);
-                     }
+                     if (indexInFavorites > -1) favorites.splice(indexInFavorites, 1);
+                     else favorites.push(indexString);
                      localStorage.setItem('favoritesTvChannels', JSON.stringify(favorites));
                      // Re-rendering is handled by the caller (renderPlaylist or rerenderCurrentList)
                  }
@@ -986,48 +929,29 @@
 
                  // --- Initialization ---
                  async function initializeApp() {
-                     // Check if Hls object exists (script loaded?)
-                     if (typeof Hls === 'undefined') {
-                         console.error("HLS.js library not loaded!");
-                         // Optionally show an error to the user indicating a core component is missing
-                         showM3UError("Error crítico: La librería de reproducción (HLS.js) no se cargó correctamente. Intenta recargar la página.");
-                         // Prevent further initialization steps that depend on Hls
-                         return;
-                     } else {
-                         console.log("HLS.js library loaded successfully.");
-                     }
-
                      channels = await fetchAndParseM3U(m3uUrl);
-                     renderPlaylist(); // Render the initial list
+                     renderPlaylist();
                      if (channels.length > 0) {
                          const lastPlayedIndexStr = localStorage.getItem('lastPlayedTvChannel');
-                         let initialChannelIndex = 0; // Default to the first channel
+                         let initialChannelIndex = 0;
                          if (lastPlayedIndexStr !== null) {
                              const lastPlayedIndex = parseInt(lastPlayedIndexStr);
-                             // Validate the stored index
                              if (!isNaN(lastPlayedIndex) && lastPlayedIndex >= 0 && lastPlayedIndex < channels.length) {
                                  initialChannelIndex = lastPlayedIndex;
-                             } else {
-                                 console.warn("Invalid last played index found in localStorage. Resetting.");
-                                 localStorage.removeItem('lastPlayedTvChannel'); // Clean up invalid entry
-                             }
+                             } else { localStorage.removeItem('lastPlayedTvChannel'); }
                          }
-                         currentChannelIndex = initialChannelIndex; // Set the current index state
-
-                         // Set initial header title ONLY if TV section is active on load
-                         if (tvSection.classList.contains('active') && headerTitleElement) {
-                             headerTitleElement.textContent = channels[initialChannelIndex].title || 'Canal sin título';
-                             headerTitleElement.title = channels[initialChannelIndex].title || 'Canal sin título';
+                         currentChannelIndex = initialChannelIndex; // Set initial index
+                         // Set initial header title ONLY if TV section is active
+                         if (tvSection.classList.contains('active') && currentChannelTitleElement) {
+                             currentChannelTitleElement.textContent = channels[initialChannelIndex].title || 'Canal sin título';
+                             currentChannelTitleElement.title = channels[initialChannelIndex].title || 'Canal sin título';
                          }
-                         setActiveChannelHighlight(initialChannelIndex); // Highlight the channel in the list
-                         // Do NOT auto-play on load, wait for user selection
-                         // selectChannel(initialChannelIndex); // Avoid auto-playing on init
+                         setActiveChannelHighlight(initialChannelIndex); // Highlight but don't auto-play
                      } else {
-                         // Handle case where no channels were loaded
-                          if (tvSection.classList.contains('active') && headerTitleElement) {
-                             headerTitleElement.textContent = 'Lista Vacía';
-                         }
-                         console.log("Initialization complete, but no channels were loaded.");
+                          // Update header title only if TV section is active
+                          if (tvSection.classList.contains('active') && currentChannelTitleElement) {
+                              currentChannelTitleElement.textContent = 'Error al cargar lista';
+                          }
                      }
                  }
 
@@ -1039,13 +963,10 @@
                              return channels[currentChannelIndex].title || 'Canal sin título';
                          }
                          // Return a default or the last known good title if needed
-                         return headerTitleElement?.textContent || 'Canales de TV';
+                         return document.getElementById('current-channel-title')?.textContent || 'Canales de TV';
                      },
                      pauseVideo: () => {
-                         if (videoPlayer && !videoPlayer.paused) {
-                             videoPlayer.pause();
-                             console.log("M3U8 video paused via pauseVideo()");
-                         }
+                         if (videoPlayer && !videoPlayer.paused) videoPlayer.pause();
                          // Optionally destroy HLS instance here if desired on tab switch
                          // if (hls) { hls.destroy(); hls = null; }
                      },
@@ -1057,7 +978,7 @@
                  };
              })(); // End m3u8Logic IIFE
 
-             // --- Series Player Logic (Adapted from Immersive, Wrapped in Namespace) ---
+             // --- Series Player Logic (MODIFIED FOR SEASONS) ---
              const seriesLogic = (() => {
                  // --- DOM Elements (Scoped to Series section) ---
                  const listContainer = document.getElementById('seriesListContainer');
@@ -1065,13 +986,14 @@
                  const listDiv = document.getElementById('seriesList');
                  const detailTitle = document.getElementById('seriesDetailTitle');
                  const detailDescription = document.getElementById('seriesDetailDescription');
-                 const episodeListDiv = document.getElementById('episodeList');
+                 // MODIFICADO: Target the scrollable container, not the old list div
+                 const episodeListContainer = document.getElementById('episodeListContainer');
                  const iframePlayer = document.getElementById('drivePlayer'); // Reference the iframe
                  const playerMessage = document.getElementById('drivePlayerMessage'); // Reference the message div for iframe
                  const backBtn = document.getElementById('backButton');
 
                  // --- State ---
-                 let allSeriesDataInternal = []; // Keep internal data store
+                 let allSeriesData = []; // Keep internal
                  let currentSeriesIndex = -1;
                  const placeholderImage = "https://placehold.co/50x70/1e1e1e/A0A0A0?text=Serie"; // Dark theme placeholder
 
@@ -1083,52 +1005,47 @@
                      if(listContainer) listContainer.style.display = 'block';
                      if(detailContainer) detailContainer.style.display = 'none';
                      if(iframePlayer) iframePlayer.src = 'about:blank'; // Stop video when going back
-                     // Update header title when going back to series list
-                     if (seriesSection.classList.contains('active') && headerTitleElement) {
-                         headerTitleElement.textContent = 'Series';
-                     }
                  }
                  function showSeriesDetailView() {
                      if(listContainer) listContainer.style.display = 'none';
                      if(detailContainer) detailContainer.style.display = 'block';
-                     // Update header title when showing series detail (optional, could keep 'Series')
-                     // if (seriesSection.classList.contains('active') && headerTitleElement && currentSeriesIndex !== -1) {
-                     //     headerTitleElement.textContent = allSeriesDataInternal[currentSeriesIndex]?.tituloSerie || 'Detalle Serie';
-                     // }
                  }
 
                  // --- Data Fetching ---
                  async function fetchSeriesData() {
                      const playlistUrl = "https://raw.githubusercontent.com/sejo48/jorgedrive/refs/heads/main/playlist.json"; // Your JSON URL
                      if (!listDiv) return; // Don't fetch if the element doesn't exist
-
-                     // Avoid showing loading message if data already exists (e.g., tab switch back)
-                     if (allSeriesDataInternal.length === 0) {
+                     // Avoid showing loading message if data already exists (e.g., tab switch)
+                     if (seriesLogic.allSeriesData.length === 0) {
                          listDiv.innerHTML = `<p class="text-center" style="color: var(--text-secondary);">Cargando series...</p>`;
-                     } else {
-                         // If data exists, just ensure the list view is displayed correctly
-                         displaySeriesList(allSeriesDataInternal);
-                         return; // Don't re-fetch if we already have data
                      }
-
                      try {
                          const response = await fetch(playlistUrl, { cache: "no-store", headers: { 'Accept': 'application/json' } });
                          if (!response.ok) throw new Error(`Error HTTP ${response.status}`);
                          const data = await response.json();
+
+                         // --- MODIFICADO: Validación para estructura con temporadas ---
                          if (!Array.isArray(data)) throw new Error("El JSON no es un array.");
-
-                         // Basic validation of structure (check first item if array is not empty)
-                         if (data.length > 0 && (typeof data[0].tituloSerie === 'undefined' || typeof data[0].episodios === 'undefined')) {
-                             console.warn("JSON structure might be incorrect. Expected 'tituloSerie' and 'episodios'.", data[0]);
-                             throw new Error("Formato JSON de series incorrecto.");
+                         // Check if the first series has 'tituloSerie' and 'temporadas' (as an array)
+                         if (data.length > 0 && (
+                             typeof data[0].tituloSerie === 'undefined' ||
+                             typeof data[0].temporadas === 'undefined' ||
+                             !Array.isArray(data[0].temporadas)
+                             // Optional stricter check: Ensure first season has episodes array if it exists
+                             // || (data[0].temporadas.length > 0 && (typeof data[0].temporadas[0].episodios === 'undefined' || !Array.isArray(data[0].temporadas[0].episodios)))
+                            )) {
+                             console.warn("Estructura JSON podría ser incorrecta. Se esperaba 'tituloSerie' y 'temporadas' (array).");
+                             // Update error message to be more specific
+                             throw new Error("Formato JSON de series incorrecto (se esperaba 'tituloSerie' y 'temporadas').");
                          }
+                         // --- Fin de Validación Modificada ---
 
-                         allSeriesDataInternal = data; // Store data internally
-                         displaySeriesList(allSeriesDataInternal); // Display the fetched data
+                         seriesLogic.allSeriesData = data; // Store data in the namespace
+                         displaySeriesList(seriesLogic.allSeriesData);
                      } catch (error) {
                          console.error("Error fetching/processing Series playlist:", error);
-                         // Display error only if the list is currently showing "Loading..."
-                         if(listDiv.textContent.includes('Cargando')) {
+                         // Display error only if the list is currently empty
+                         if(listDiv.children.length === 0 || listDiv.textContent.includes('Cargando')) {
                              listDiv.innerHTML = `<p class="text-center" style="color: var(--error-color);">Error al cargar series: ${error.message}</p>`;
                          }
                      }
@@ -1137,7 +1054,7 @@
                  // --- Display Series List ---
                  function displaySeriesList(seriesArray) {
                      if (!listDiv) return;
-                     listDiv.innerHTML = ''; // Clear previous content
+                     listDiv.innerHTML = '';
                      if (seriesArray.length === 0) {
                          listDiv.innerHTML = `<p class="text-center" style="color: var(--text-secondary);">No hay series disponibles.</p>`;
                          return;
@@ -1146,27 +1063,23 @@
                          const item = document.createElement('div');
                          item.className = 'series-list-item';
                          item.onclick = () => displaySeriesDetail(index);
-                         item.setAttribute('role', 'button'); // Make it accessible
-                         item.tabIndex = 0; // Make it focusable
-                         item.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); displaySeriesDetail(index); } });
-
+                         item.setAttribute('role', 'button'); // Accessibility
+                         item.tabIndex = 0; // Accessibility
+                         item.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); displaySeriesDetail(index); } }); // Accessibility
 
                          const img = document.createElement('img');
                          img.src = serie.imagen || placeholderImage;
                          img.alt = `Portada de ${serie.tituloSerie || 'Serie'}`;
+                         img.onerror = () => { img.src = placeholderImage; };
                          img.loading = 'lazy'; // Lazy load images
-                         img.onerror = () => { img.src = placeholderImage; img.alt = `Placeholder para ${serie.tituloSerie || 'Serie'}`; }; // Handle image loading errors
 
                          const textDiv = document.createElement('div');
                          textDiv.className = 'text-content';
-
                          const title = document.createElement('h3');
                          title.textContent = serie.tituloSerie || 'Serie sin título';
-
                          const desc = document.createElement('p');
-                         // Use full description if available, let CSS handle truncation
-                         desc.textContent = serie.descripcion || 'Sin descripción.';
-                         desc.title = serie.descripcion || ''; // Add full description as tooltip
+                         const shortDesc = serie.descripcion ? (serie.descripcion.length > 100 ? serie.descripcion.substring(0, 97) + '...' : serie.descripcion) : 'Sin descripción.';
+                         desc.textContent = shortDesc;
 
                          textDiv.appendChild(title);
                          textDiv.appendChild(desc);
@@ -1176,71 +1089,89 @@
                      });
                  }
 
-                 // --- Display Series Detail ---
+                 // --- MODIFICADO: Display Series Detail (Handles Seasons) ---
                  function displaySeriesDetail(seriesIndex) {
-                     if (seriesIndex < 0 || seriesIndex >= allSeriesDataInternal.length || !detailTitle || !detailDescription || !episodeListDiv) {
-                         console.error("Invalid index or missing detail elements for series detail view.");
-                         return;
-                     }
+                     if (seriesIndex < 0 || seriesIndex >= seriesLogic.allSeriesData.length || !detailTitle || !detailDescription || !episodeListContainer) return;
                      currentSeriesIndex = seriesIndex;
-                     const serie = allSeriesDataInternal[seriesIndex];
-
+                     const serie = seriesLogic.allSeriesData[seriesIndex];
                      detailTitle.textContent = serie.tituloSerie || 'Serie sin título';
                      detailDescription.textContent = serie.descripcion || '';
-                     episodeListDiv.innerHTML = ''; // Clear previous episodes
+                     episodeListContainer.innerHTML = ''; // Clear previous episodes/seasons
 
-                     if (!serie.episodios || !Array.isArray(serie.episodios) || serie.episodios.length === 0) {
-                         episodeListDiv.innerHTML = `<p style="color: var(--text-secondary);">No hay episodios disponibles para esta serie.</p>`;
+                     if (!serie.temporadas || serie.temporadas.length === 0) {
+                         // Handle series with no seasons defined
+                         episodeListContainer.innerHTML = `<p style="color: var(--text-secondary); margin-top: var(--spacing-m);">No hay temporadas o episodios definidos para esta serie.</p>`;
                          if(iframePlayer) iframePlayer.src = 'about:blank';
                          showMessageInPlayer("No hay episodios disponibles.");
-                         updatePlayingEpisodeUI(null); // Ensure no episode is marked as playing
+                         updatePlayingEpisodeUI(null); // Clear playing highlight
                      } else {
-                         serie.episodios.forEach((episodio, index) => {
-                             const epItem = document.createElement('div');
-                             epItem.className = 'episode-list-item';
-                             epItem.textContent = episodio.tituloEpisodio || `Episodio ${index + 1}`;
-                             epItem.tabIndex = 0; // Make focusable
-                             epItem.setAttribute('role', 'button');
+                         // Iterate through seasons
+                         serie.temporadas.forEach(temporada => {
+                             // Create and append season header
+                             const seasonHeader = document.createElement('h5'); // Using h5 for semantic structure
+                             seasonHeader.className = 'season-header';
+                             seasonHeader.textContent = `Temporada ${temporada.numeroTemporada || 'Desconocida'}`;
+                             episodeListContainer.appendChild(seasonHeader);
 
-                             // Validate episode URL before enabling click/keydown
-                             if (typeof episodio.urlDrive === 'string' && episodio.urlDrive.includes('/preview')) {
-                                 epItem.dataset.url = episodio.urlDrive; // Store URL for easy access
-                                 epItem.onclick = () => {
-                                     loadVideo(episodio.urlDrive);
-                                     updatePlayingEpisodeUI(epItem);
-                                 };
-                                 epItem.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); loadVideo(episodio.urlDrive); updatePlayingEpisodeUI(epItem); } });
+                             // Check if the season has episodes and is an array
+                             if (temporada.episodios && Array.isArray(temporada.episodios) && temporada.episodios.length > 0) {
+                                 // Iterate through episodes within the season
+                                 temporada.episodios.forEach((episodio, index) => {
+                                     const epItem = document.createElement('div');
+                                     epItem.className = 'episode-list-item'; // Keep this class for styling and selection
+                                     epItem.textContent = episodio.tituloEpisodio || `Episodio ${index + 1}`;
+                                     epItem.dataset.season = temporada.numeroTemporada; // Store season info if needed
+                                     epItem.dataset.episode = index; // Store episode index if needed
 
+                                     // Validate episode URL before setting dataset and click handler
+                                     if (typeof episodio.urlDrive === 'string' && episodio.urlDrive.includes('/preview')) {
+                                         epItem.dataset.url = episodio.urlDrive;
+                                         epItem.onclick = () => {
+                                             loadVideo(episodio.urlDrive);
+                                             updatePlayingEpisodeUI(epItem); // Highlight this item
+                                         };
+                                         epItem.setAttribute('role', 'button'); // Accessibility
+                                         epItem.tabIndex = 0; // Accessibility
+                                         epItem.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); epItem.click(); } }); // Accessibility
+
+                                     } else {
+                                         console.warn(`URL inválida para episodio: ${episodio.tituloEpisodio || index + 1}`, episodio.urlDrive);
+                                         epItem.style.cursor = 'not-allowed';
+                                         epItem.style.opacity = '0.6';
+                                         epItem.title = 'URL de video inválida';
+                                     }
+                                     episodeListContainer.appendChild(epItem); // Append episode to the main container
+                                 });
                              } else {
-                                 console.warn(`URL inválida o faltante para episodio: ${episodio.tituloEpisodio || index + 1}`, episodio.urlDrive);
-                                 epItem.style.cursor = 'not-allowed';
-                                 epItem.style.opacity = '0.6';
-                                 epItem.title = 'URL de video inválida o no disponible';
-                                 epItem.removeAttribute('role'); // Not interactive
-                                 epItem.tabIndex = -1; // Not focusable
+                                 // Handle season with no episodes
+                                 const noEpisodesMsg = document.createElement('p');
+                                 noEpisodesMsg.textContent = 'No hay episodios en esta temporada.';
+                                 noEpisodesMsg.style.color = 'var(--text-secondary)';
+                                 noEpisodesMsg.style.paddingLeft = 'var(--spacing-m)';
+                                 noEpisodesMsg.style.fontSize = '0.9em';
+                                 episodeListContainer.appendChild(noEpisodesMsg);
                              }
-                             episodeListDiv.appendChild(epItem);
                          });
+                         // Set initial state for the player
                          if(iframePlayer) iframePlayer.src = 'about:blank'; // Clear player initially
-                         showMessageInPlayer("Selecciona un episodio de la lista.");
-                         updatePlayingEpisodeUI(null); // Clear playing state
+                         showMessageInPlayer("Selecciona un episodio.");
+                         updatePlayingEpisodeUI(null); // Clear playing highlight initially
                      }
-                     showSeriesDetailView(); // Switch to the detail view
+                     showSeriesDetailView(); // Switch to detail view
                  }
+                 // --- Fin de Display Series Detail Modificado ---
+
 
                  // --- Load Video into Iframe ---
                  function loadVideo(driveUrl) {
                      if (!iframePlayer) return;
                      if (typeof driveUrl === 'string' && driveUrl.includes('/preview')) {
-                         // Ensure the URL uses HTTPS and is properly formatted
-                         const cleanUrl = driveUrl.startsWith('http:') ? driveUrl.replace('http:', 'https:') : driveUrl;
-                         console.log("Loading Drive URL:", cleanUrl);
-                         iframePlayer.src = cleanUrl;
-                         hideMessageInPlayer(); // Show iframe, hide message
+                         iframePlayer.src = driveUrl;
+                         hideMessageInPlayer();
                      } else {
-                         console.error("Intento de cargar URL de episodio Drive inválida:", driveUrl);
-                         showMessageInPlayer("Error: URL de episodio inválida.");
-                         iframePlayer.src = 'about:blank'; // Clear iframe on error
+                         console.error("URL de episodio Drive inválida:", driveUrl);
+                         showMessageInPlayer("Error: URL inválida.");
+                         iframePlayer.src = 'about:blank';
                      }
                  }
 
@@ -1250,17 +1181,19 @@
                          playerMessage.textContent = text;
                          playerMessage.style.display = 'block';
                      }
-                     if(iframePlayer) iframePlayer.style.display = 'none'; // Hide iframe when message is shown
+                     if(iframePlayer) iframePlayer.style.display = 'none';
                  }
                  function hideMessageInPlayer() {
                      if(playerMessage) playerMessage.style.display = 'none';
-                     if(iframePlayer) iframePlayer.style.display = 'block'; // Show iframe when message is hidden
+                     if(iframePlayer) iframePlayer.style.display = 'block';
                  }
 
                  // --- Update Playing Episode UI ---
+                 // NOTE: This function should still work as it targets '.episode-list-item'
                  function updatePlayingEpisodeUI(playingElement) {
-                     if (!episodeListDiv) return;
-                     const allEpisodeItems = episodeListDiv.querySelectorAll('.episode-list-item');
+                     // The container to search within is now episodeListContainer
+                     if (!episodeListContainer) return;
+                     const allEpisodeItems = episodeListContainer.querySelectorAll('.episode-list-item');
                      allEpisodeItems.forEach(item => item.classList.remove('playing'));
                      if (playingElement) {
                          playingElement.classList.add('playing');
@@ -1270,191 +1203,133 @@
                  // --- Public Methods/Properties ---
                  return {
                      fetchSeriesData,
-                     showSeriesListView, // Expose for tab switching logic and back button
-                     // Expose data array read-only (getter function)
-                     get allSeriesData() { return [...allSeriesDataInternal]; } // Return a copy
+                     showSeriesListView, // Expose for tab switching logic
+                     allSeriesData // Expose data array (read-only recommended)
                  };
              })(); // End seriesLogic IIFE
 
 
-            // --- Global Keyboard Controls ---
+            // --- Global Keyboard Controls (From M3U8 Logic - Needs review/adaptation) ---
+            // This might need adjustment depending on which section is active
             document.addEventListener('keydown', (event) => {
-                // Ignore key presses if focus is on an input field or editable content
-                const activeElement = document.activeElement;
-                if (activeElement) {
-                    const tagName = activeElement.tagName.toUpperCase();
-                    const isEditable = activeElement.isContentEditable || tagName === 'INPUT' || tagName === 'TEXTAREA' || tagName === 'SELECT';
-                    if (isEditable) return; // Don't interfere with form inputs
+                // Ignore key presses if focus is on an input field or button that handles Enter/Space
+                const activeEl = document.activeElement;
+                if (activeEl) {
+                    const tagName = activeEl.tagName;
+                    const isEditable = activeEl.isContentEditable;
+                    const isInput = tagName === 'INPUT' || tagName === 'TEXTAREA';
+                    const isButtonHandlingKeys = tagName === 'BUTTON' && (event.key === 'Enter' || event.key === ' ');
+                    const isListItemHandlingKeys = activeEl.classList.contains('episode-list-item') && (event.key === 'Enter' || event.key === ' ');
+                    const isSeriesItemHandlingKeys = activeEl.classList.contains('series-list-item') && (event.key === 'Enter' || event.key === ' ');
+                    const isStarHandlingKeys = activeEl.classList.contains('star') && (event.key === 'Enter' || event.key === ' ');
+
+                    if (isEditable || isInput || isButtonHandlingKeys || isListItemHandlingKeys || isSeriesItemHandlingKeys || isStarHandlingKeys) {
+                        return; // Let the element handle its own key events
+                    }
                 }
 
-                let activeSectionElement = document.querySelector('.content-section.active');
-                if (!activeSectionElement) return; // No active section, do nothing
 
-                let preventDefault = true; // Assume we handle the key unless specified otherwise
+                let activeSection = document.querySelector('.content-section.active');
+                let preventDefault = true;
 
-                if (activeSectionElement.id === 'tvSection') {
+                if (activeSection && activeSection.id === 'tvSection') {
                     // --- M3U8 Keyboard Controls ---
-                    const videoPlayer = m3u8Logic.videoPlayer;
-                    const playlistContainer = m3u8Logic.playlistContainer;
-                    const playerContainer = m3u8Logic.playerContainer;
-                    if (!videoPlayer) return; // Player element must exist
+                    const videoPlayer = m3u8Logic.videoPlayer; // Use scoped player
+                    const playlistContainer = m3u8Logic.playlistContainer; // Use scoped container
+                    if (!videoPlayer) return; // Exit if player not found
 
-                     // Allow default navigation within the playlist or for stars
-                     if (playlistContainer?.contains(activeElement) && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'Tab', 'Home', 'End', 'PageUp', 'PageDown'].includes(event.key)) preventDefault = false;
-                     if (activeElement?.classList.contains('star') && ['Enter', ' '].includes(event.key)) preventDefault = false; // Let star handler work
-                     if (activeElement?.classList.contains('channel-button') && ['Enter', ' '].includes(event.key)) preventDefault = false; // Let channel button handler work
-                     if (activeElement?.classList.contains('error-button') && ['Enter', ' '].includes(event.key)) preventDefault = false; // Let error button handler work
-
+                     // Allow playlist navigation default behavior
+                     if (playlistContainer?.contains(document.activeElement) && ['ArrowUp', 'ArrowDown', 'Tab', 'ArrowLeft', 'ArrowRight', 'Home', 'End', 'PageUp', 'PageDown'].includes(event.key)) preventDefault = false;
+                     // Allow star toggle default behavior handled above
 
                     switch (event.key) {
-                        case ' ': case 'k': case 'MediaPlayPause':
-                            if (videoPlayer.paused) videoPlayer.play().catch(e => console.error("Error playing via key:", e));
-                            else videoPlayer.pause();
-                            break;
-                        // Enter/OK should activate focused element OR toggle play/pause if video is focused
+                        case ' ': case 'k': case 'MediaPlayPause': if (videoPlayer.paused) videoPlayer.play().catch(e => console.error("Error playing:", e)); else videoPlayer.pause(); break;
                         case 'Enter': case 'Ok':
-                            if (activeElement === videoPlayer || playerContainer?.contains(activeElement)) {
-                                if (videoPlayer.paused) videoPlayer.play().catch(e => console.error("Error playing via key:", e));
-                                else videoPlayer.pause();
-                            } else {
-                                preventDefault = false; // Allow default activation for other focusable elements
-                            }
+                            if (document.activeElement && document.activeElement.classList.contains('channel-button')) { document.activeElement.click(); }
+                            else { if (videoPlayer.paused) videoPlayer.play().catch(e => console.error("Error playing:", e)); else videoPlayer.pause(); }
                             break;
                         case 'ArrowUp':
-                             if (playerContainer?.contains(activeElement) || activeElement === videoPlayer) { // Only adjust volume if focus is on player area
-                                const v = Math.min(1, parseFloat((videoPlayer.volume + 0.1).toFixed(1)));
-                                videoPlayer.volume = v;
-                                videoPlayer.muted = false;
-                             } else { preventDefault = false; } // Allow list navigation
+                            if (!playlistContainer?.contains(document.activeElement)) { const v = Math.min(1, parseFloat((videoPlayer.volume + 0.1).toFixed(1))); videoPlayer.volume = v; videoPlayer.muted = false; }
+                            else { preventDefault = false; } // Allow list navigation
                             break;
                         case 'ArrowDown':
-                            if (playerContainer?.contains(activeElement) || activeElement === videoPlayer) { // Only adjust volume if focus is on player area
-                                const v = Math.max(0, parseFloat((videoPlayer.volume - 0.1).toFixed(1)));
-                                videoPlayer.volume = v;
-                                videoPlayer.muted = false;
-                            } else { preventDefault = false; } // Allow list navigation
-                            break;
-                        case 'ArrowRight':
-                            if (playerContainer?.contains(activeElement) || activeElement === videoPlayer) { videoPlayer.currentTime += 5; }
-                            else { preventDefault = false; } // Allow list navigation (e.g., to star)
-                            break;
-                        case 'ArrowLeft':
-                             if (playerContainer?.contains(activeElement) || activeElement === videoPlayer) { videoPlayer.currentTime -= 5; }
+                             if (!playlistContainer?.contains(document.activeElement)) { const v = Math.max(0, parseFloat((videoPlayer.volume - 0.1).toFixed(1))); videoPlayer.volume = v; videoPlayer.muted = false; }
                              else { preventDefault = false; } // Allow list navigation
                             break;
-                        case 'm': case 'M': case 'MediaMute':
-                            videoPlayer.muted = !videoPlayer.muted;
-                            break;
+                        case 'ArrowRight': videoPlayer.currentTime += 5; break;
+                        case 'ArrowLeft': videoPlayer.currentTime -= 5; break;
+                        case 'm': case 'M': case 'MediaMute': videoPlayer.muted = !videoPlayer.muted; break;
                         case 'f': case 'F':
-                            if (playerContainer) { // Check if player container exists
-                                if (!document.fullscreenElement) {
-                                    if (playerContainer.requestFullscreen) playerContainer.requestFullscreen().catch(err => console.error("Fullscreen error:", err));
-                                    else if (playerContainer.webkitRequestFullscreen) playerContainer.webkitRequestFullscreen(); // Safari
-                                    else if (playerContainer.msRequestFullscreen) playerContainer.msRequestFullscreen(); // IE11
-                                } else {
-                                    if (document.exitFullscreen) document.exitFullscreen();
-                                    else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-                                    else if (document.msExitFullscreen) document.msExitFullscreen();
-                                }
+                            const playerContainer = m3u8Logic.playerContainer; // Use scoped container
+                            if (playerContainer) {
+                                if (!document.fullscreenElement) { if (playerContainer.requestFullscreen) playerContainer.requestFullscreen().catch(err => console.error("FS error:", err)); else if (playerContainer.webkitRequestFullscreen) playerContainer.webkitRequestFullscreen(); }
+                                else { if (document.exitFullscreen) document.exitFullscreen(); else if (document.webkitExitFullscreen) document.webkitExitFullscreen(); }
                             }
                             break;
-                        case 'MediaStop':
-                            videoPlayer.pause();
-                            videoPlayer.currentTime = 0;
-                            break;
-                        case 'Escape':
-                            if (document.fullscreenElement) { // Prioritize exiting fullscreen
-                                if (document.exitFullscreen) document.exitFullscreen();
-                                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-                                else if (document.msExitFullscreen) document.msExitFullscreen();
-                            } else if (errorOverlay?.style.display === 'flex') {
-                                hideError(); // Close error overlay if open and not fullscreen
-                            }
-                             else { preventDefault = false; } // Allow default behavior if not fullscreen/error
-                            break;
-                        default: preventDefault = false; break; // Allow other keys by default
-                    }
-                } else if (activeSectionElement.id === 'seriesSection') {
-                    // --- Series Keyboard Controls ---
-                    const detailContainer = document.getElementById('seriesDetailContainer');
-                    const seriesListContainer = document.getElementById('seriesListContainer');
-                    const backButton = document.getElementById('backButton');
-                    const episodeList = document.getElementById('episodeList');
-
-                    // Allow default navigation within lists or for buttons
-                    if ((seriesListContainer?.contains(activeElement) || episodeList?.contains(activeElement)) && ['ArrowUp', 'ArrowDown', 'Tab', 'Home', 'End', 'PageUp', 'PageDown'].includes(event.key)) preventDefault = false;
-                    if (activeElement?.tagName === 'BUTTON' && ['Enter', ' '].includes(event.key)) preventDefault = false; // Let buttons work
-                    if (activeElement?.classList.contains('series-list-item') && ['Enter', ' '].includes(event.key)) preventDefault = false; // Let series item handler work
-                    if (activeElement?.classList.contains('episode-list-item') && ['Enter', ' '].includes(event.key)) preventDefault = false; // Let episode item handler work
-
-
-                    switch (event.key) {
-                        case 'f': case 'F': // Fullscreen for the iframe container
-                            const driveContainer = detailContainer?.querySelector('.video-container');
-                            if (driveContainer && detailContainer?.style.display !== 'none') { // Only fullscreen if detail view is visible
-                                if (!document.fullscreenElement) {
-                                    if (driveContainer.requestFullscreen) driveContainer.requestFullscreen().catch(err => console.error("Fullscreen error:", err));
-                                    else if (driveContainer.webkitRequestFullscreen) driveContainer.webkitRequestFullscreen();
-                                    else if (driveContainer.msRequestFullscreen) driveContainer.msRequestFullscreen();
-                                } else {
-                                    if (document.exitFullscreen) document.exitFullscreen();
-                                    else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-                                    else if (document.msExitFullscreen) document.msExitFullscreen();
-                                }
-                            }
-                            break;
-                        case 'Escape':
-                            if (document.fullscreenElement) { // Prioritize exiting fullscreen
-                                if (document.exitFullscreen) document.exitFullscreen();
-                                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-                                else if (document.msExitFullscreen) document.msExitFullscreen();
-                            } else if (detailContainer?.style.display === 'block') {
-                                // If in detail view and not fullscreen, trigger back button action
-                                seriesLogic.showSeriesListView();
-                            } else {
-                                preventDefault = false; // Allow default behavior if in list view
-                            }
-                            break;
-                        // Add more controls if needed (e.g., play/pause iframe - tricky due to cross-origin)
+                        case 'MediaStop': videoPlayer.pause(); videoPlayer.currentTime = 0; break;
+                        case 'Escape': if (document.fullscreenElement) { if (document.exitFullscreen) document.exitFullscreen(); else if (document.webkitExitFullscreen) document.webkitExitFullscreen(); } else preventDefault = false; break;
                         default: preventDefault = false; break;
                     }
+                } else if (activeSection && activeSection.id === 'seriesSection') {
+                    // --- Series Keyboard Controls ---
+                    const detailViewVisible = document.getElementById('seriesDetailContainer').style.display === 'block';
+                    const listViewVisible = document.getElementById('seriesListContainer').style.display === 'block';
+                    const episodeArea = document.querySelector('.episode-area'); // Get episode area for focus check
+
+                    // Allow default navigation within series list or episode list
+                    if ((listViewVisible && listDiv?.contains(document.activeElement) && ['ArrowUp', 'ArrowDown', 'Tab', 'Home', 'End', 'PageUp', 'PageDown'].includes(event.key)) ||
+                        (detailViewVisible && episodeArea?.contains(document.activeElement) && ['ArrowUp', 'ArrowDown', 'Tab', 'Home', 'End', 'PageUp', 'PageDown'].includes(event.key))) {
+                        preventDefault = false;
+                    } else {
+                        switch (event.key) {
+                            case 'f': case 'F': // Fullscreen for the iframe container
+                                const driveContainer = document.querySelector('#seriesDetailContainer .video-container');
+                                if (driveContainer && detailViewVisible) { // Only fullscreen if detail view is visible
+                                    if (!document.fullscreenElement) { if (driveContainer.requestFullscreen) driveContainer.requestFullscreen().catch(err => console.error("FS error:", err)); else if (driveContainer.webkitRequestFullscreen) driveContainer.webkitRequestFullscreen(); }
+                                    else { if (document.exitFullscreen) document.exitFullscreen(); else if (document.webkitExitFullscreen) document.webkitExitFullscreen(); }
+                                } else { preventDefault = false; }
+                                break;
+                            case 'Escape':
+                                if (document.fullscreenElement) {
+                                    if (document.exitFullscreen) document.exitFullscreen(); else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+                                } else if (detailViewVisible) {
+                                    // If in detail view and not fullscreen, trigger back button
+                                    seriesLogic.showSeriesListView();
+                                } else {
+                                    preventDefault = false;
+                                }
+                                break;
+                            // Add more controls if needed, e.g., play/pause iframe (difficult due to cross-origin)
+                            default: preventDefault = false; break;
+                        }
+                    }
                 } else {
-                    preventDefault = false; // Unknown active section
+                     preventDefault = false; // No active section or unknown section
                 }
 
-                if (preventDefault) {
-                    event.preventDefault();
-                    // console.log(`Key handled: ${event.key}`); // Optional: log handled keys
-                }
+                if (preventDefault) { event.preventDefault(); }
             });
 
-
-            // --- Mouse Wheel Volume Control (Only for M3U8 player when TV section is active) ---
+            // --- Mouse Wheel Volume Control (Only for M3U8 player) ---
             const m3u8PlayerContainer = document.getElementById('player-container');
-            if(m3u8PlayerContainer) {
-                m3u8PlayerContainer.addEventListener('wheel', (event) => {
-                    // Check if the TV section is active before changing volume
-                    if (!tvSection.classList.contains('active')) return;
+            if(m3u8PlayerContainer) m3u8PlayerContainer.addEventListener('wheel', (event) => {
+                // Check if the TV section is active before changing volume
+                 if (!tvSection.classList.contains('active')) return;
 
-                    const videoPlayer = m3u8Logic.videoPlayer; // Get reference inside listener
-                    // Check if the event target is the video or within the player container
-                    if (videoPlayer && (event.target === videoPlayer || m3u8PlayerContainer.contains(event.target))) {
-                        event.preventDefault(); // Prevent page scrolling
-                        const volumeStep = 0.05;
-                        let newVolume = event.deltaY < 0
-                            ? Math.min(1, parseFloat((videoPlayer.volume + volumeStep).toFixed(2))) // Increase volume
-                            : Math.max(0, parseFloat((videoPlayer.volume - volumeStep).toFixed(2))); // Decrease volume
-                        videoPlayer.volume = newVolume;
-                        videoPlayer.muted = false; // Unmute when volume is adjusted
-                        // Optional: Show volume indicator feedback to user
-                    }
-                }, { passive: false }); // passive: false is needed to allow preventDefault()
-            }
+                 const videoPlayer = m3u8Logic.videoPlayer; // Get reference inside listener
+                 if (videoPlayer && (event.target === videoPlayer || m3u8PlayerContainer.contains(event.target))) {
+                     event.preventDefault();
+                     const volumeStep = 0.05;
+                     let newVolume = event.deltaY < 0 ? Math.min(1, parseFloat((videoPlayer.volume + volumeStep).toFixed(2))) : Math.max(0, parseFloat((videoPlayer.volume - volumeStep).toFixed(2)));
+                     videoPlayer.volume = newVolume;
+                     videoPlayer.muted = false;
+                 }
+            }, { passive: false });
 
 
             // --- Initial Application Setup ---
             showSection('tvSection'); // Show TV section by default
-            m3u8Logic.initializeApp(); // Initialize M3U8 player (will check Hls dependency)
+            m3u8Logic.initializeApp(); // Initialize M3U8 player
             // Series data fetch is triggered when switching to the Series tab if not already loaded
 
         }); // End DOMContentLoaded
