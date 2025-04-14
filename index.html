@@ -294,7 +294,7 @@
             transition: color 0.15s ease-in-out;
         }
         .channel-desc {
-            font-size: 0.8em; color: var(--text-secondary); margin: 2px 0 0 0; white-space: nowrap;
+            font-size:  0.8em; color: var(--text-secondary); margin: 2px 0 0 0; white-space: nowrap;
             overflow: hidden; text-overflow: ellipsis; transition: color 0.15s ease-in-out;
         }
         /* Estilo de foco para accesibilidad con teclado */
@@ -457,6 +457,11 @@
              #moviePlayerContainer { padding-left: var(--spacing-xs); padding-right: var(--spacing-xs); }
              .movie-player-layout { flex-direction: column; gap: var(--spacing-m); } /* Apilar en móvil */
              .movie-info-column { order: -1; } /* Info arriba en móvil */
+             /* NUEVO: Estilo específico para la columna de video en móvil */
+             .movie-video-column {
+                 width: 100%; /* Asegurar que ocupe todo el ancho */
+                 flex-basis: auto; /* Permitir que su altura se ajuste al contenido */
+             }
              #moviePlayerImage { max-width: 150px; }
              #moviePlayerContainer h3 { font-size: 1.3em; }
              #moviePlayerContainer .description { font-size: 0.9em; margin-bottom: var(--spacing-m); }
@@ -615,6 +620,7 @@
              console.log("DOM cargado. Iniciando script.");
 
              // --- Referencias a Elementos DOM ---
+             // ... (Obtener referencias a todos los elementos necesarios) ...
              const tvSection = document.getElementById('tvSection');
              const seriesSection = document.getElementById('seriesSection');
              const moviesSection = document.getElementById('moviesSection');
@@ -630,7 +636,7 @@
              const m3u8VideoPlayer = document.getElementById('my-video');
              const driveIframePlayerSeries = document.getElementById('drivePlayerSeries');
              const driveIframePlayerMovies = document.getElementById('drivePlayerMovies');
-             const moviePlayerImage = document.getElementById('moviePlayerImage');
+             const moviePlayerImage = document.getElementById('moviePlayerImage'); // Asegurarse que esta referencia está
 
              // Verificación inicial de elementos críticos
              console.log("Elementos de Navegación:", { tvButtons, seriesButtons, moviesButtons, tvSection, seriesSection, moviesSection });
@@ -666,7 +672,8 @@
 
 
              // --- Lógica del Reproductor M3U8 (TV) ---
-             const m3u8Logic = (() => { /* ... (código interno sin cambios) ... */
+             const m3u8Logic = (() => {
+                 // ... (código interno sin cambios) ...
                  console.log("Iniciando definición de m3u8Logic");
                  const m3uUrl = 'https://raw.githubusercontent.com/sejo48/chanejorgedez/refs/heads/main/listaoficial.m3u'; let channels = []; const STATUS_STORAGE_KEY = 'channelStatusesTvPlayer'; let channelStatuses = JSON.parse(localStorage.getItem(STATUS_STORAGE_KEY)) || {}; const videoPlayer = document.getElementById('my-video'); const playlist = document.getElementById('playlist'); const searchInput = document.getElementById('search'); const playerContainer = document.getElementById('player-container'); const playlistContainer = document.getElementById('playlist-container'); const tryAgainButton = document.getElementById('try-again-button'); const tryAnotherButton = document.getElementById('try-another-button'); const reloadListButton = document.getElementById('reload-list-button'); const currentChannelTitleElement = document.getElementById('current-channel-title'); const countContainer = document.getElementById('channel-count-container'); const countSpan = document.getElementById('channel-count-number'); const loadingIndicator = document.getElementById('loading-indicator'); let favorites = JSON.parse(localStorage.getItem('favoritesTvChannels')) || []; let lastAttemptedChannel = null; let hls = null; let currentChannelIndex = null; let videoPlayingListener = null;
                  function showLoading(message = "Cargando canales...") { if (loadingIndicator) { loadingIndicator.querySelector('span').textContent = message; loadingIndicator.classList.add('show'); } if(searchInput) searchInput.disabled = true; if(playlist) playlist.innerHTML = ''; if (countSpan) countSpan.textContent = '...'; }
@@ -687,16 +694,14 @@
                  function toggleFavorite(indexString) { const index = parseInt(indexString); if (isNaN(index)) return; const indexInFavorites = favorites.indexOf(indexString); if (indexInFavorites > -1) favorites.splice(indexInFavorites, 1); else favorites.push(indexString); localStorage.setItem('favoritesTvChannels', JSON.stringify(favorites)); }
                  if(searchInput) searchInput.addEventListener('input', () => { const searchTerm = searchInput.value.toLowerCase().trim(); renderPlaylist(filterChannels(searchTerm)); });
                  async function initializeApp() { console.log("Iniciando m3u8Logic.initializeApp"); try { channels = await fetchAndParseM3U(m3uUrl); renderPlaylist(); if (channels.length > 0) { const lastPlayedIndexStr = localStorage.getItem('lastPlayedTvChannel'); let initialChannelIndex = 0; if (lastPlayedIndexStr !== null) { const lastPlayedIndex = parseInt(lastPlayedIndexStr); if (!isNaN(lastPlayedIndex) && lastPlayedIndex >= 0 && lastPlayedIndex < channels.length) initialChannelIndex = lastPlayedIndex; else localStorage.removeItem('lastPlayedTvChannel'); } currentChannelIndex = initialChannelIndex; if (tvSection.classList.contains('active') && currentChannelTitleElement) { currentChannelTitleElement.textContent = channels[initialChannelIndex].title || 'Canal sin título'; currentChannelTitleElement.title = channels[initialChannelIndex].title || 'Canal sin título'; } setActiveChannelHighlight(initialChannelIndex); } else { if (tvSection.classList.contains('active') && currentChannelTitleElement) currentChannelTitleElement.textContent = 'Error al cargar lista'; } } catch (error) { console.error("Error en initializeApp de m3u8Logic:", error); showGlobalError("Error fatal al inicializar la sección de TV."); } console.log("Fin m3u8Logic.initializeApp"); }
-                 // --- FIN CÓDIGO m3u8Logic ---
-                 console.log("m3u8Logic IIFE: About to return object"); // Log de diagnóstico
+                 console.log("m3u8Logic IIFE: About to return object");
                  return { initializeApp, getCurrentChannelTitle: () => { if (currentChannelIndex !== null && currentChannelIndex >= 0 && currentChannelIndex < channels.length) return channels[currentChannelIndex].title || 'Canal sin título'; return document.getElementById('current-channel-title')?.textContent || 'Canales de TV'; }, pauseVideo: () => { if (videoPlayer && !videoPlayer.paused) videoPlayer.pause(); }, videoPlayer, playlistContainer, searchInput, playerContainer };
-             })(); // Fin IIFE m3u8Logic
-             console.log("m3u8Logic defined:", typeof m3u8Logic, m3u8Logic); // Log de diagnóstico
+             })();
+             console.log("m3u8Logic defined:", typeof m3u8Logic, m3u8Logic);
 
 
              // --- Lógica del Reproductor de Series ---
              const seriesLogic = (() => {
-                // --- INICIO CÓDIGO seriesLogic ---
                  console.log("Iniciando definición de seriesLogic"); const listContainer = document.getElementById('seriesListContainer'); const seasonSelectionContainer = document.getElementById('seasonSelectionContainer'); const detailContainer = document.getElementById('seriesDetailContainer'); const listDiv = document.getElementById('seriesList'); const seasonSelectionImage = document.getElementById('seasonSelectionImage'); const seasonSelectionTitle = document.getElementById('seasonSelectionTitle'); const seasonSelectionDescription = document.getElementById('seasonSelectionDescription'); const seasonListDiv = document.getElementById('seasonList'); const detailTitle = document.getElementById('seriesDetailTitle'); const episodeListTitle = document.getElementById('episodeListTitle'); const episodeListContainer = document.getElementById('episodeListContainer'); const iframePlayer = document.getElementById('drivePlayerSeries'); const playerMessage = document.getElementById('drivePlayerSeriesMessage'); const backButtonSeriesList = document.getElementById('backButtonSeasonSelection'); const backButtonSeriesDetail = document.getElementById('backButtonSeriesDetail'); console.log("Elementos de Series:", { listContainer, seasonSelectionContainer, detailContainer, listDiv, seasonListDiv, backButtonSeriesList, backButtonSeriesDetail }); let allSeriesData = []; let currentSeriesIndex = -1; let currentPlayingEpisodeElement = null; const placeholderImage = "https://placehold.co/180x270/1e1e1e/A0A0A0?text=Serie";
                  if (backButtonSeriesList) backButtonSeriesList.addEventListener('click', () => showSeriesListView(true)); else console.warn("Botón 'Volver a Series' (backButtonSeasonSelection) no encontrado."); if (backButtonSeriesDetail) backButtonSeriesDetail.addEventListener('click', () => { if (currentSeriesIndex !== -1) { showSeasonSelection(currentSeriesIndex); } else { showSeriesListView(true); } }); else console.warn("Botón 'Volver a Temporadas' (backButtonSeriesDetail) no encontrado.");
                  function showSeriesListView(force = false) { console.log("Llamando a showSeriesListView"); if (!seriesSection.classList.contains('active') && !force) return; if (listContainer) listContainer.style.display = 'block'; if (seasonSelectionContainer) seasonSelectionContainer.style.display = 'none'; if (detailContainer) detailContainer.style.display = 'none'; if (iframePlayer) iframePlayer.src = 'about:blank'; if (seriesSection.classList.contains('active') && headerTitle) { headerTitle.textContent = 'Series'; headerTitle.title = 'Series'; } currentSeriesIndex = -1; }
@@ -708,28 +713,26 @@
                  function showMessageInPlayer(text, targetMessageElement, targetIframe) { if(targetMessageElement) { targetMessageElement.textContent = text; targetMessageElement.style.display = 'block'; } if(targetIframe) targetIframe.style.display = 'none'; }
                  function hideMessageInPlayer(targetMessageElement, targetIframe) { if(targetMessageElement) targetMessageElement.style.display = 'none'; if(targetIframe) targetIframe.style.display = 'block'; }
                  function updatePlayingEpisodeUI(playingElement) { if (currentPlayingEpisodeElement && currentPlayingEpisodeElement !== playingElement) { currentPlayingEpisodeElement.classList.remove('playing'); } if (playingElement) { playingElement.classList.add('playing'); currentPlayingEpisodeElement = playingElement; } else { currentPlayingEpisodeElement = null; } }
-                // --- FIN CÓDIGO seriesLogic ---
-                console.log("seriesLogic IIFE: About to return object"); // Log de diagnóstico
-                return { fetchSeriesData, showSeriesListView, updatePlayingEpisodeUI, allSeriesData, loadVideo, showMessageInPlayer, hideMessageInPlayer, showSeasonSelection, get currentSeriesIndex() { return currentSeriesIndex; } };
-             })(); // Fin IIFE seriesLogic
-             console.log("seriesLogic defined:", typeof seriesLogic, seriesLogic); // Log de diagnóstico
+                 console.log("seriesLogic IIFE: About to return object");
+                 return { fetchSeriesData, showSeriesListView, updatePlayingEpisodeUI, allSeriesData, loadVideo, showMessageInPlayer, hideMessageInPlayer, showSeasonSelection, get currentSeriesIndex() { return currentSeriesIndex; } };
+             })();
+             console.log("seriesLogic defined:", typeof seriesLogic, seriesLogic);
 
 
              // --- Lógica del Reproductor de Películas ---
              const moviesLogic = (() => {
-                // --- INICIO CÓDIGO moviesLogic ---
-                 console.log("Iniciando definición de moviesLogic"); const listContainer = document.getElementById('movieListContainer'); const playerContainer = document.getElementById('moviePlayerContainer'); const listDiv = document.getElementById('movieList'); const iframePlayer = document.getElementById('drivePlayerMovies'); const playerMessage = document.getElementById('drivePlayerMoviesMessage'); const backBtn = document.getElementById('backButtonMovies'); const playerTitle = document.getElementById('moviePlayerTitle'); const playerDescription = document.getElementById('moviePlayerDescription'); const playerImage = document.getElementById('moviePlayerImage'); console.log("Elementos de Películas:", { listContainer, playerContainer, listDiv, iframePlayer, backBtn, playerImage }); let allMoviesData = []; const placeholderImage = "https://placehold.co/250x375/1e1e1e/A0A0A0?text=PELI"; const moviesJsonUrl = "https://raw.githubusercontent.com/sejo48/editorpeli/refs/heads/main/peliculas.json";
+                 console.log("Iniciando definición de moviesLogic"); const listContainer = document.getElementById('movieListContainer'); const playerContainer = document.getElementById('moviePlayerContainer'); const listDiv = document.getElementById('movieList'); const iframePlayer = document.getElementById('drivePlayerMovies'); const playerMessage = document.getElementById('drivePlayerMoviesMessage'); const backBtn = document.getElementById('backButtonMovies'); const playerTitle = document.getElementById('moviePlayerTitle'); const playerDescription = document.getElementById('moviePlayerDescription'); const playerImage = document.getElementById('moviePlayerImage'); console.log("Elementos de Películas:", { listContainer, playerContainer, listDiv, iframePlayer, backBtn, playerImage }); let allMoviesData = []; const placeholderImage = "https://placehold.co/250x375/1e1e1e/A0A0A0?text=PELI";
+                 const moviesJsonUrl = "https://raw.githubusercontent.com/sejo48/peliculas/refs/heads/main/peliculas.json"; // URL ACTUALIZADA
                  if(backBtn) backBtn.addEventListener('click', showMovieListView); else console.warn("Botón 'Volver a Películas' (backButtonMovies) no encontrado.");
                  function showMovieListView() { console.log("Llamando a showMovieListView"); if(listContainer) listContainer.style.display = 'block'; if(playerContainer) playerContainer.style.display = 'none'; if(iframePlayer) iframePlayer.src = 'about:blank'; if (moviesSection.classList.contains('active') && headerTitle) { headerTitle.textContent = 'Películas'; headerTitle.title = 'Películas'; } }
                  function showMoviePlayerView() { console.log("Llamando a showMoviePlayerView"); if(listContainer) listContainer.style.display = 'none'; if(playerContainer) playerContainer.style.display = 'block'; playerContainer?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }
                  async function fetchMoviesData() { console.log("Iniciando fetchMoviesData"); if (!listDiv) { console.error("Elemento movieList (listDiv) no encontrado."); return; } if (allMoviesData.length === 0 || listDiv.textContent.includes('Cargando') || listDiv.textContent.includes('No hay películas')) { listDiv.innerHTML = `<p class="text-center" style="color: var(--text-secondary);">Cargando películas...</p>`; } if (!moviesJsonUrl) { console.warn("URL del JSON de películas vacía."); listDiv.innerHTML = `<p class="text-center" style="color: var(--text-secondary);">Fuente de datos de películas no configurada.</p>`; allMoviesData = []; return; } try { const response = await fetch(moviesJsonUrl, { cache: "no-store", headers: { 'Accept': 'application/json' } }); if (!response.ok) { if (response.status === 404) { throw new Error(`Error HTTP 404: Archivo no encontrado en ${moviesJsonUrl}`); } else { throw new Error(`Error HTTP ${response.status} al cargar ${moviesJsonUrl}`); } } const data = await response.json(); console.log("Datos JSON de películas recibidos:", data); if (!Array.isArray(data)) throw new Error("El JSON de películas no es un array."); if (data.length > 0 && (typeof data[0].titulo !== 'string' || typeof data[0].urlDrive !== 'string' || typeof data[0].imagen !== 'string')) { console.warn("Estructura del primer item de película podría ser incorrecta.", data[0]); } allMoviesData = data; displayMovieList(allMoviesData); console.log("Fin fetchMoviesData (Éxito)"); } catch (error) { console.error("Error fetching/processing Movies JSON:", error); listDiv.innerHTML = `<p class="text-center" style="color: var(--error-color);">Error al cargar películas:<br>${error.message}</p>`; allMoviesData = []; console.log("Fin fetchMoviesData (Error)"); } }
                  function displayMovieList(moviesArray) { console.log("Iniciando displayMovieList"); if (!listDiv) return; listDiv.innerHTML = ''; if (!moviesArray || moviesArray.length === 0) { listDiv.innerHTML = `<p class="text-center" style="color: var(--text-secondary);">No hay películas disponibles.</p>`; return; } const fragment = document.createDocumentFragment(); moviesArray.forEach((movie, index) => { if (!movie || typeof movie.titulo !== 'string' || typeof movie.urlDrive !== 'string' || !movie.urlDrive.trim()) { console.warn(`Saltando item de película inválido ${index}:`, movie); return; } const item = document.createElement('div'); item.className = 'item-card'; item.setAttribute('role', 'button'); item.tabIndex = 0; item.setAttribute('aria-label', `Reproducir película ${movie.titulo}`); item.addEventListener('click', () => displayMoviePlayer(index)); item.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); displayMoviePlayer(index); } }); const img = document.createElement('img'); const placeholderText = encodeURIComponent((movie.titulo || '?').charAt(0)); img.src = movie.imagen || placeholderImage; img.alt = `Portada de ${movie.titulo}`; img.onerror = () => { img.src = placeholderImage; img.alt = `Portada de ${movie.titulo} (placeholder)`; }; img.loading = 'lazy'; const textDiv = document.createElement('div'); textDiv.className = 'text-content'; const title = document.createElement('h3'); title.textContent = movie.titulo; const desc = document.createElement('p'); const shortDesc = movie.descripcion ? (movie.descripcion.length > 100 ? movie.descripcion.substring(0, 97) + '...' : movie.descripcion) : 'Sin descripción.'; desc.textContent = shortDesc; textDiv.appendChild(title); textDiv.appendChild(desc); item.appendChild(img); item.appendChild(textDiv); fragment.appendChild(item); }); listDiv.appendChild(fragment); console.log("Fin displayMovieList"); }
                  function displayMoviePlayer(movieIndex) { console.log(`Iniciando displayMoviePlayer para índice: ${movieIndex}`); if (movieIndex < 0 || movieIndex >= allMoviesData.length || !playerTitle || !playerDescription || !iframePlayer || !playerMessage || !playerImage) { console.error("Error en displayMoviePlayer: Índice inválido o elementos DOM no encontrados."); showGlobalError("Error al mostrar el reproductor de película."); return; } const movie = allMoviesData[movieIndex]; let cleanUrl = movie.urlDrive || ''; if (cleanUrl.includes('/preview')) { cleanUrl = cleanUrl.substring(0, cleanUrl.indexOf('/preview') + '/preview'.length); } if (!movie || !movie.titulo || !cleanUrl.trim()) { console.error("Datos de la película inválidos:", movie); showGlobalError("Los datos de esta película son inválidos."); showMovieListView(); return; } playerTitle.textContent = movie.titulo; playerDescription.textContent = movie.descripcion || ''; if (movie.imagen && playerImage) { playerImage.src = movie.imagen; playerImage.alt = `Portada de ${movie.titulo}`; playerImage.classList.remove('hidden'); playerImage.onerror = () => { playerImage.src = placeholderImage; playerImage.alt = `Portada de ${movie.titulo} (placeholder)`; playerImage.classList.remove('hidden'); }; } else if (playerImage) { playerImage.src = placeholderImage; playerImage.alt = `Portada de ${movie.titulo} (placeholder)`; playerImage.classList.remove('hidden'); } if (moviesSection.classList.contains('active') && headerTitle) { headerTitle.textContent = movie.titulo; headerTitle.title = movie.titulo; } seriesLogic.loadVideo(cleanUrl, iframePlayer, playerMessage); showMoviePlayerView(); console.log("Fin displayMoviePlayer"); }
-                // --- FIN CÓDIGO moviesLogic ---
-                console.log("moviesLogic IIFE: About to return object"); // Log de diagnóstico
-                return { fetchMoviesData, showMovieListView, allMoviesData };
-             })(); // Fin IIFE moviesLogic
-             console.log("moviesLogic defined:", typeof moviesLogic, moviesLogic); // Log de diagnóstico
+                 console.log("moviesLogic IIFE: About to return object");
+                 return { fetchMoviesData, showMovieListView, allMoviesData };
+             })();
+             console.log("moviesLogic defined:", typeof moviesLogic, moviesLogic);
 
 
              // --- Controles Globales de Teclado ---
